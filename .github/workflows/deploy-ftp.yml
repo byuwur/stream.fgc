@@ -1,0 +1,16 @@
+name: Deploy FTP
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    ftp-deploy:
+        name: Deploy to FTP
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+              #with:
+              #submodules: recursive
