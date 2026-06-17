@@ -3,7 +3,7 @@
 .env/
 .env.*
 # === UPLOADS ===
-assets/
+#assets/
 uploads/
 # === DEPENDENCIES ===
 *.lock
