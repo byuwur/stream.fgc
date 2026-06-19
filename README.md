@@ -2,7 +2,7 @@
 
 **Set up your tourney quickly!**
 
-~ For the FGC made easy, with love, for the FGC. ~
+~ For the FGC made easy, with love, for the FGC, with Go. ~
 
 ## Overview
 

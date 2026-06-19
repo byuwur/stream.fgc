@@ -20,7 +20,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "Stream.FGC",
 		Width:  1280,
-		Height: 820,
+		Height: 960,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
