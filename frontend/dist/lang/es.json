@@ -1,0 +1,6 @@
+{
+	"_home": "inicio",
+	"load": "<strong>Cargando...</strong><br><br>¿Aún cargando? <a href='javascript:location.reload();'>Intente recargar.</a>",
+	"home": "Inicio",
+	"description": "Hello, world."
+}
