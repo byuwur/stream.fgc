@@ -1,3 +1,7 @@
+# === WAILS ===
+frontend/wailsjs/
+build/bin/
+
 # === ENVIRONMENT ===
 *.env*
 .env/
@@ -15,8 +19,8 @@ module/
 plugin/
 plugins/
 # === BUILD ===
-dist/
-build/
+#dist/
+#build/
 bin/
 .cache/
 cache/

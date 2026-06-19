@@ -1,0 +1,12 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "stream.fgc",
+  "outputfilename": "stream.fgc",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "author": {
+    "name": "Andres Trujillo [Mateus] byUwUr",
+    "email": "atrujillomateus@gmail.com"
+  }
+}

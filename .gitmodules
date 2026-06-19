@@ -1,0 +1,3 @@
+[submodule "frontend/dist/spa.php"]
+	path = frontend/dist/spa.php
+	url = https://github.com/byuwur/spa.php.git
