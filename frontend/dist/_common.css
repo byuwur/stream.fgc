@@ -1,0 +1,8 @@
+@font-face {
+	font-family: "Michroma";
+	src: url("./assets/michroma.ttf") format("truetype");
+}
+
+.fgc-title {
+	font-family: "Michroma";
+}
