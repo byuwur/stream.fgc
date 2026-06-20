@@ -4,6 +4,9 @@
 *.jpeg
 *.tiff
 *.webp
+*.af
+*.ai
+*.psd
 # Multimedia
 *.mp4
 *.mkv

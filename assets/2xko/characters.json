@@ -1,17 +1,17 @@
 {
 	"ahri": "Ahri",
-	"akali": "Akali",
 	"blitzcrank": "Blitzcrank",
 	"braum": "Braum",
-	"caitlyn": "Caitlyn",
 	"darius": "Darius",
 	"ekko": "Ekko",
 	"illaoi": "Illaoi",
 	"jinx": "Jinx",
-	"senna": "Senna",
 	"teemo": "Teemo",
-	"thresh": "Thresh",
 	"vi": "Vi",
 	"warwick": "Warwick",
-	"yasuo": "Yasuo"
+	"yasuo": "Yasuo",
+	"caitlyn": "Caitlyn",
+	"akali": "Akali",
+	"senna": "Senna",
+	"thresh": "Thresh"
 }
