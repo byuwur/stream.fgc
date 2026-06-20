@@ -1,7 +1,62 @@
-<div class="video-foreground app-container">
-	<div class="container vh-100 d-flex flex-column align-items-center justify-content-center">
-		<div class="text-white text-dark-shadow">
-			<p data-i18n="description">Hello, world.</p>
-		</div>
+<div class="app-container fgc-page">
+	<div class="container-fluid px-3 px-lg-4 py-4 py-lg-5">
+		<header class="fgc-page-header row g-3 align-items-end mb-3">
+			<div class="col-12 col-md">
+				<p class="fgc-kicker" data-i18n="event_kicker">Tournament Control</p>
+				<h1 class="fgc-heading" data-i18n="event_title">Event</h1>
+			</div>
+			<div class="col-12 col-md-auto d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center justify-content-md-end">
+				<label class="fgc-toggle">
+					<input type="checkbox" data-autosave-toggle checked />
+					<span data-i18n="autosave_toggle">Autosave</span>
+				</label>
+				<div class="fgc-status" data-event-status data-tone="neutral" data-i18n="event_status_loading">Loading event...</div>
+			</div>
+		</header>
+
+		<form class="fgc-panel fgc-event-form" data-event-form>
+			<div class="row g-3">
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_name">Name</span>
+					<input class="form-control" type="text" name="name" autocomplete="off" />
+				</label>
+
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_phase">Phase</span>
+					<input class="form-control" type="text" name="phase" autocomplete="off" />
+				</label>
+
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_rule">Rule</span>
+					<select class="form-select" name="rule" data-enhance="select2"></select>
+				</label>
+
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_game">Game</span>
+					<select class="form-select" name="game" data-enhance="select2" data-select-template="game"></select>
+				</label>
+
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_format">Format</span>
+					<select class="form-select" name="format" data-enhance="select2"></select>
+				</label>
+
+				<label class="fgc-field col-12 col-md-6 pt-3">
+					<span data-i18n="event_size">Size</span>
+					<input class="form-control" type="number" name="size" min="2" step="1" />
+				</label>
+			</div>
+
+			<div class="d-flex flex-wrap gap-2 justify-content-end mt-3 pt-3">
+				<button class="btn btn-danger" type="submit" data-manual-save>
+					<i class="fas fa-save" aria-hidden="true"></i>
+					<span data-i18n="event_save">Save now</span>
+				</button>
+				<button class="btn btn-outline-light" type="button" data-event-reload>
+					<i class="fas fa-rotate-right" aria-hidden="true"></i>
+					<span data-i18n="event_reload">Reload</span>
+				</button>
+			</div>
+		</form>
 	</div>
 </div>
