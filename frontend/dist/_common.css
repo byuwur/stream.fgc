@@ -2,18 +2,74 @@
 	font-family: "Michroma";
 	src: url("./assets/michroma.ttf") format("truetype");
 }
+:root {
+	/* Stream.FGC override, derived from SPA.js red palette for dark labels */
+	--fgc-brand-soft: #ff6666;
+	/* Stream.FGC override: brighter than SPA.js red for compact dark controls */
+	--fgc-control-active: #669966;
+	/* Stream.FGC override: rgb pair for translucent active states */
+	--fgc-control-active-rgb: 240, 88, 88;
+	/* Bootstrap */
+	--fgc-light: var(--bs-white);
+	/* Bootstrap */
+	--fgc-light-rgb: var(--bs-white-rgb);
+	/* Bootstrap */
+	--fgc-dark-rgb: var(--bs-black-rgb);
+	/* SPA.js _common.css */
+	--fgc-text: var(--light-color);
+	/* Stream.FGC override: warm muted copy over game art */
+	--fgc-text-muted: #c9c2be;
+	/* Stream.FGC override: slightly brighter muted text for controls */
+	--fgc-text-soft: #d9d2cc;
+	/* Bootstrap */
+	--fgc-border: rgba(var(--fgc-light-rgb), 0.16);
+	/* Bootstrap */
+	--fgc-border-soft: rgba(var(--fgc-light-rgb), 0.12);
+	/* Bootstrap */
+	--fgc-border-strong: rgba(var(--fgc-light-rgb), 0.24);
+	/* Bootstrap */
+	--fgc-surface: rgba(var(--fgc-dark-rgb), 0.32);
+	/* Bootstrap */
+	--fgc-surface-strong: rgba(var(--fgc-dark-rgb), 0.42);
+	/* Bootstrap */
+	--fgc-surface-soft: rgba(var(--fgc-light-rgb), 0.09);
+	/* Bootstrap */
+	--fgc-surface-faint: rgba(var(--fgc-light-rgb), 0.055);
+	/* Bootstrap */
+	--fgc-shadow: rgba(var(--fgc-dark-rgb), 0.28);
+	/* Bootstrap */
+	--fgc-radius: var(--bs-border-radius-lg);
+	/* Bootstrap */
+	--fgc-radius-pill: var(--bs-border-radius-pill);
+	/* Bootstrap */
+	--fgc-status-success-border: rgba(var(--bs-success-rgb), 0.75);
+	/* Stream.FGC override: readable success text on dark translucent surfaces */
+	--fgc-status-success-text: #99ffbb;
+	/* Bootstrap */
+	--fgc-status-error-border: rgba(var(--bs-danger-rgb), 0.75);
+	/* Stream.FGC override: readable error text on dark translucent surfaces */
+	--fgc-status-error-text: #ff9999;
+	/* Bootstrap */
+	--fgc-status-warning-border: rgba(var(--bs-warning-rgb), 0.75);
+	/* Stream.FGC override: readable warning text on dark translucent surfaces */
+	--fgc-status-warning-text: #ffdd66;
+	/* Stream.FGC override: blue wash mixed over dynamic game backgrounds */
+	--fgc-page-blue-rgb: 0, 0, 51;
+	/* Stream.FGC override: blue-black wash over dynamic game backgrounds */
+	--fgc-page-bg: linear-gradient(135deg, rgba(var(--fgc-dark-rgb), 0.6), rgba(var(--fgc-page-blue-rgb), 0.6)), rgba(var(--fgc-dark-rgb), 0.6);
+}
 /* === SELECTION === */
 ::selection {
-	background-color: #fff;
-	color: #012;
+	background-color: var(--fgc-light);
+	color: var(--secondary-color);
 }
 ::-webkit-selection {
-	background-color: #fff;
-	color: #012;
+	background-color: var(--fgc-light);
+	color: var(--secondary-color);
 }
 ::-moz-selection {
-	background-color: #fff;
-	color: #012;
+	background-color: var(--fgc-light);
+	color: var(--secondary-color);
 }
 #bywr-accessibility {
 	top: 2.5% !important;
@@ -24,17 +80,19 @@
 }
 .fgc-page {
 	min-height: 100vh;
-	background: linear-gradient(135deg, #00000099, #00003399), #00000099;
-	color: #fefefe;
+	background: var(--fgc-page-bg);
+	color: var(--fgc-light);
 }
 .fgc-page-header {
 	position: sticky;
+	top: 0;
+	z-index: 1030;
 	padding: 0.75rem;
 	backdrop-filter: blur(1rem);
 }
 .fgc-kicker {
 	margin: 0 0 0.25rem;
-	color: #ff6666;
+	color: var(--fgc-brand-soft);
 	font-size: 0.78rem;
 	font-weight: 700;
 	letter-spacing: 0;
@@ -54,10 +112,10 @@
 	min-width: 10rem;
 	max-width: 24rem;
 	padding: 0.6rem 0.75rem;
-	border: 1px solid rgba(255, 255, 255, 0.16);
-	border-radius: 8px;
-	background: rgba(0, 0, 0, 0.32);
-	color: #ddd;
+	border: 1px solid var(--fgc-border);
+	border-radius: var(--fgc-radius);
+	background: var(--fgc-surface);
+	color: var(--fgc-text);
 	font-size: 0.88rem;
 	text-align: right;
 }
@@ -69,46 +127,107 @@
 	min-width: 0;
 }
 .fgc-toggle {
+	position: relative;
 	display: inline-flex;
-	gap: 0.45rem;
 	align-items: center;
+	min-height: 2.6rem;
 	margin: 0;
-	padding: 0.55rem 0.7rem;
-	border: 1px solid rgba(255, 255, 255, 0.16);
-	border-radius: 8px;
-	background: rgba(0, 0, 0, 0.32);
-	color: #f8f3ef;
+	padding: 0.55rem 0.95rem 0.55rem 4.3rem;
+	border: 1px solid var(--fgc-border);
+	border-radius: var(--fgc-radius);
+	background: var(--fgc-surface);
+	color: var(--fgc-light);
 	font-size: 0.88rem;
 	font-weight: 700;
 	white-space: nowrap;
 }
-.fgc-toggle input {
-	width: 1rem;
-	height: 1rem;
-	accent-color: #f05858;
+.fgc-toggle.custom-toggle.custom-toggle-sm {
+	padding-left: 4.3rem;
+}
+.fgc-toggle .custom-control-input {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+	pointer-events: none;
+}
+.fgc-toggle.custom-toggle-sm .custom-control-label {
+	position: static;
+	min-height: 1.25rem;
+	margin: 0;
+	line-height: 1.25rem;
+}
+.fgc-toggle.custom-toggle-sm .custom-control-label::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 0.95rem;
+	display: block;
+	width: 2.7rem;
+	height: 1.35rem;
+	transform: translateY(-50%);
+	border: 1px solid var(--fgc-border-strong);
+	border-radius: var(--fgc-radius-pill);
+	background: var(--fgc-border);
+	box-shadow: inset 0 0 0 1px rgba(var(--fgc-dark-rgb), 0.24);
+}
+.fgc-toggle.custom-toggle-sm .custom-control-label::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 1.18rem;
+	display: block;
+	width: 0.9rem;
+	height: 0.9rem;
+	transform: translateY(-50%);
+	border-radius: var(--fgc-radius-pill);
+	background: var(--bs-gray-300);
+	box-shadow: 0 0.12rem 0.28rem rgba(var(--fgc-dark-rgb), 0.35);
+	transition: 180ms ease;
+}
+.fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::before {
+	border-color: var(--fgc-control-active);
+	background: var(--fgc-control-active);
+	box-shadow: 0 0 0 0.12rem rgba(var(--fgc-control-active-rgb), 0.18);
+}
+.fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::after {
+	left: 2.48rem;
+	background: var(--fgc-light);
+	transform: translateY(-50%);
+}
+.fgc-toggle .custom-control-label {
+	color: inherit;
+	font-weight: inherit;
+}
+.fgc-toggle .custom-control-label:hover {
+	color: var(--fgc-light);
+}
+.fgc-toggle .custom-control-input:focus ~ .custom-control-label::before {
+	box-shadow:
+		0 0 0 0.12rem rgba(var(--fgc-control-active-rgb), 0.18),
+		inset 0 0 0 1px rgba(var(--fgc-dark-rgb), 0.24);
 }
 .fgc-page[data-autosave="on"] [data-manual-save] {
 	display: none !important;
 }
 /* === Status === */
 .fgc-status[data-tone="success"] {
-	border-color: rgba(77, 214, 141, 0.75);
-	color: #99ffbb;
+	border-color: var(--fgc-status-success-border);
+	color: var(--fgc-status-success-text);
 }
 .fgc-status[data-tone="error"] {
-	border-color: rgba(255, 87, 87, 0.75);
-	color: #ff9999;
+	border-color: var(--fgc-status-error-border);
+	color: var(--fgc-status-error-text);
 }
 .fgc-status[data-tone="warning"] {
-	border-color: rgba(255, 193, 7, 0.75);
-	color: #ffdd66;
+	border-color: var(--fgc-status-warning-border);
+	color: var(--fgc-status-warning-text);
 }
 .fgc-panel {
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 8px;
-	background: rgba(0, 0, 0, 0.42);
+	border: 1px solid var(--fgc-border-soft);
+	border-radius: var(--fgc-radius);
+	background: var(--fgc-surface-strong);
 	padding: 1rem;
-	box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+	box-shadow: 0 18px 45px var(--fgc-shadow);
 }
 /* === FORMS === */
 .fgc-field {
@@ -117,33 +236,33 @@
 .fgc-field > span {
 	display: block;
 	margin-bottom: 0.35rem;
-	color: #c9c2be;
+	color: var(--fgc-text-muted);
 	font-weight: 700;
 }
 .fgc-event-form .form-control,
 .fgc-event-form .form-select,
 .fgc-player-card .form-control,
 .fgc-player-card .form-select {
-	border-color: rgba(255, 255, 255, 0.16);
-	background-color: rgba(255, 255, 255, 0.09);
-	color: #fff;
+	border-color: var(--fgc-border);
+	background-color: var(--fgc-surface-soft);
+	color: var(--fgc-light);
 }
 .fgc-event-form .form-control:focus,
 .fgc-event-form .form-select:focus,
 .fgc-player-card .form-control:focus,
 .fgc-player-card .form-select:focus {
-	border-color: #f05858;
-	box-shadow: 0 0 0 0.18rem rgba(240, 88, 88, 0.25);
+	border-color: var(--fgc-control-active);
+	box-shadow: 0 0 0 0.18rem rgba(var(--fgc-control-active-rgb), 0.25);
 }
 .fgc-muted {
 	margin: 0;
-	color: #c9c2be;
+	color: var(--fgc-text-muted);
 	font-size: 0.9rem;
 }
 .fgc-player-card {
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.045);
+	border: 1px solid var(--fgc-border-soft);
+	border-radius: var(--fgc-radius);
+	background: rgba(var(--fgc-light-rgb), 0.045);
 	padding: 1rem;
 }
 .fgc-player-card strong {
@@ -165,7 +284,7 @@
 	line-height: 1;
 }
 .fgc-field-label {
-	color: #c9c2be;
+	color: var(--fgc-text-muted);
 	font-weight: 700;
 }
 .fgc-player-portrait-frame {
@@ -174,9 +293,9 @@
 	max-width: 14rem;
 	align-self: stretch;
 	aspect-ratio: 1;
-	border: 1px solid rgba(255, 255, 255, 0.14);
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(var(--fgc-light-rgb), 0.14);
+	border-radius: var(--fgc-radius);
+	background: rgba(var(--fgc-light-rgb), 0.08);
 }
 .fgc-player-portrait-frame img {
 	display: block;
@@ -189,10 +308,10 @@
 	align-items: center;
 	min-height: 2.45rem;
 	padding: 0.45rem 0.7rem;
-	border: 1px dashed rgba(255, 255, 255, 0.24);
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.055);
-	color: #eee;
+	border: 1px dashed var(--fgc-border-strong);
+	border-radius: var(--fgc-radius);
+	background: var(--fgc-surface-faint);
+	color: var(--fgc-text);
 	transition:
 		border-color 0.18s ease,
 		background 0.18s ease;
@@ -203,8 +322,8 @@
 	cursor: pointer;
 }
 .fgc-player-dropzone.dz-drag-hover {
-	border-color: #f05858;
-	background: rgba(240, 88, 88, 0.16);
+	border-color: var(--fgc-control-active);
+	background: rgba(var(--fgc-control-active-rgb), 0.16);
 }
 .fgc-player-dropzone .dz-message {
 	display: inline-flex;
@@ -212,7 +331,7 @@
 	align-items: center;
 	justify-content: center;
 	margin: 0;
-	color: #d9d2cc;
+	color: var(--fgc-text-soft);
 	font-size: 0.78rem;
 	font-weight: 700;
 	line-height: 1.2;
@@ -220,7 +339,7 @@
 	white-space: nowrap;
 }
 .fgc-player-dropzone .dz-message i {
-	color: #ff6666;
+	color: var(--fgc-brand-soft);
 	font-size: 0.95rem;
 }
 .fgc-player-dropzone-disabled {
@@ -258,21 +377,21 @@
 }
 .fgc-empty {
 	padding: 1rem;
-	border: 1px dashed rgba(255, 255, 255, 0.2);
-	border-radius: 8px;
-	color: #ccccbb;
+	border: 1px dashed rgba(var(--fgc-light-rgb), 0.2);
+	border-radius: var(--fgc-radius);
+	color: var(--fgc-text-muted);
 	text-align: center;
 }
 /* === SELECT2 === */
 .fgc-event-form .select2-container--default .select2-selection--single,
 .fgc-player-card .select2-container--default .select2-selection--single {
 	height: 38px;
-	border-color: rgba(255, 255, 255, 0.16);
-	background-color: rgba(255, 255, 255, 0.09);
+	border-color: var(--fgc-border);
+	background-color: var(--fgc-surface-soft);
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__rendered,
 .fgc-player-card .select2-container--default .select2-selection--single .select2-selection__rendered {
-	color: #fff;
+	color: var(--fgc-light);
 	line-height: 36px;
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__arrow,
@@ -290,7 +409,7 @@
 	width: 1.35rem;
 	height: 0.95rem;
 	border-radius: 2px;
-	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+	box-shadow: 0 0 0 1px rgba(var(--fgc-light-rgb), 0.2);
 	object-fit: cover;
 }
 .fgc-country-label {
@@ -314,8 +433,8 @@
 	height: 1.75rem;
 	flex: 0 0 auto;
 	border-radius: 4px;
-	background: rgba(255, 255, 255, 0.1);
-	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+	background: rgba(var(--fgc-light-rgb), 0.1);
+	box-shadow: 0 0 0 1px var(--fgc-border);
 	object-fit: contain;
 }
 .fgc-media-image-portrait {

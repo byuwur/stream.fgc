@@ -6,11 +6,13 @@
 				<h1 class="fgc-heading" data-i18n="event_title">Event</h1>
 			</div>
 			<div class="col-12 col-md-auto d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center justify-content-md-end">
-				<label class="fgc-toggle">
-					<input type="checkbox" data-autosave-toggle checked />
-					<span data-i18n="autosave_toggle">Autosave</span>
-				</label>
 				<div class="fgc-status" data-event-status data-tone="neutral" data-i18n="event_status_loading">Loading event...</div>
+				<div class="custom-control custom-toggle custom-toggle-sm fgc-toggle">
+					<input id="event-autosave-toggle" class="custom-control-input" type="checkbox" data-autosave-toggle checked />
+					<label class="custom-control-label" for="event-autosave-toggle">
+						<span data-i18n="autosave_toggle">Autosave</span>
+					</label>
+				</div>
 			</div>
 		</header>
 
