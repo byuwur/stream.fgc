@@ -11,6 +11,7 @@
 	const AUTOSAVE_DELAY = 700;
 	const AUTOSAVE_STORAGE_KEY = "streamFgc.autosave";
 	const FALLBACK_ASSET = "./assets/nopic.png";
+	const SPA_BACKGROUND_FALLBACK = "./assets/nobg.jpg";
 	const PLAYER_PORTRAIT_MAX_MB = 10;
 	const DEFAULT_RULES = [
 		{ key: "ft1", name: "FT1" },
@@ -30,6 +31,7 @@
 	let characters = [];
 	let countryCodes = [];
 	let countryNames = {};
+	let backgroundSyncing = false;
 	const countryNameCache = {};
 	const autosaveForms = new WeakMap();
 	const autosaveFormSet = new Set();
@@ -167,6 +169,7 @@
 				global.jQuery?.(control)?.trigger("change.select2");
 			}
 		});
+		applyGameBackground(form);
 	}
 
 	/** Reads the event editor into the backend EventInfo shape. */
@@ -376,6 +379,7 @@
 	function normalizeAssetRows(rows) {
 		return (rows || []).map(function (row) {
 			return {
+				background: String(row?.background || ""),
 				key: String(row?.key || ""),
 				logo: String(row?.logo || ""),
 				name: String(row?.name || ""),
@@ -481,6 +485,60 @@
 		);
 	}
 
+	/** Writes the selected game's background image into the SPA shell. */
+	function setSpaBackground(url) {
+		const background = document.getElementById("spa-bg");
+		if (!(background instanceof HTMLElement)) return;
+		const imageURL = String(url || SPA_BACKGROUND_FALLBACK);
+		background.style.backgroundImage = `url("${imageURL.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
+	}
+
+	/** Reads the selected game option background and applies it to #spa-bg. */
+	function applyGameBackground(form) {
+		const select = formControl(form, "game");
+		if (!(select instanceof HTMLSelectElement)) return;
+		const option = select.selectedOptions[0];
+		setSpaBackground(option?.dataset?.background || "");
+	}
+
+	/** Ensures the games catalog is loaded before background-only routes need it. */
+	async function ensureGameCatalog(app) {
+		if (games.length) return games;
+		games = normalizeAssetRows(await optionalBackendList(app, "ListGames", []));
+		return games;
+	}
+
+	/** Finds a game catalog row by stored key or legacy display name. */
+	function gameCatalogEntry(game) {
+		return games.find(function (entry) {
+			return catalogEntryMatches(entry, game);
+		});
+	}
+
+	/** Applies the saved event game's background without requiring the event page. */
+	function applyGameBackgroundFromState(state) {
+		const game = state?.event?.game || "";
+		const entry = gameCatalogEntry(game);
+		setSpaBackground(entry?.background || "");
+	}
+
+	/** Keeps #spa-bg aligned with tournament.json on any SPA route. */
+	async function syncSpaBackground() {
+		if (backgroundSyncing) return;
+		backgroundSyncing = true;
+		try {
+			const app = await waitForBackend();
+			if (!app) return;
+			const state = currentState || (typeof app.LoadTournament === "function" ? await app.LoadTournament() : null);
+			await ensureGameCatalog(app);
+			applyGameBackgroundFromState(state);
+		} catch (error) {
+			console.warn("Could not sync SPA background", error);
+		} finally {
+			backgroundSyncing = false;
+		}
+	}
+
 	/** Builds game select options with logo metadata for Select2. */
 	function gameOptions(selectedGame) {
 		const selected = String(selectedGame || "");
@@ -488,11 +546,11 @@
 		const options = games.map(function (game) {
 			const isSelected = catalogEntryMatches(game, selected);
 			matched = matched || isSelected;
-			return `<option value="${escapeHtml(game.key)}" data-key="${escapeHtml(game.key)}" data-logo="${escapeHtml(game.logo || FALLBACK_ASSET)}"${isSelected ? " selected" : ""}>${escapeHtml(game.name)}</option>`;
+			return `<option value="${escapeHtml(game.key)}" data-key="${escapeHtml(game.key)}" data-logo="${escapeHtml(game.logo || FALLBACK_ASSET)}" data-background="${escapeHtml(game.background || "")}"${isSelected ? " selected" : ""}>${escapeHtml(game.name)}</option>`;
 		});
 
 		if (selected && !matched) {
-			options.unshift(`<option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" selected>${escapeHtml(selected)}</option>`);
+			options.unshift(`<option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected>${escapeHtml(selected)}</option>`);
 		}
 
 		return ['<option value=""></option>'].concat(options).join("");
@@ -727,6 +785,13 @@
 				return formSignature(readEventForm, form);
 			},
 		});
+
+		const gameSelect = formControl(form, "game");
+		if (gameSelect instanceof HTMLSelectElement) {
+			gameSelect.addEventListener("change", function () {
+				applyGameBackground(form);
+			});
+		}
 
 		const reload = pageRoot(form).querySelector("[data-event-reload]");
 		if (reload) {
@@ -1021,6 +1086,8 @@
 		try {
 			const [state, codes, names] = await Promise.all([app.LoadTournament(), app.ListCountryCodes(), loadCountryNames()]);
 			currentState = state;
+			await ensureGameCatalog(app);
+			applyGameBackgroundFromState(currentState);
 			characters = normalizeAssetRows(await app.ListCharacters(currentState.event?.game || ""));
 			countryNames = names || {};
 			countryCodes = Array.from(
@@ -1222,6 +1289,7 @@
 		bindAutosaveToggles(root);
 		applyAutosavePreference();
 		refreshStatusIcons(root);
+		void syncSpaBackground();
 		root.querySelectorAll(EVENT_FORM).forEach(function (form) {
 			if (form instanceof HTMLFormElement) bindEventForm(form);
 		});

@@ -2,31 +2,36 @@
 	font-family: "Michroma";
 	src: url("./assets/michroma.ttf") format("truetype");
 }
-
-/* --- SPA Shell --- */
-
-#bywr-accessibility {
-	top: 0 !important;
+/* === SELECTION === */
+::selection {
+	background-color: #fff;
+	color: #012;
 }
-
+::-webkit-selection {
+	background-color: #fff;
+	color: #012;
+}
+::-moz-selection {
+	background-color: #fff;
+	color: #012;
+}
+#bywr-accessibility {
+	top: 2.5% !important;
+}
+/* === SPA Shell === */
 .fgc-title {
 	font-family: "Michroma";
 }
-
 .fgc-page {
 	min-height: 100vh;
-	background: linear-gradient(135deg, #111111, #000011), #110000;
+	background: linear-gradient(135deg, #00000099, #00003399), #00000099;
 	color: #fefefe;
 }
-
 .fgc-page-header {
 	position: sticky;
-	top: 0;
-	z-index: 20;
-	padding: 0.85rem 0;
-	backdrop-filter: blur(14px);
+	padding: 0.75rem;
+	backdrop-filter: blur(1rem);
 }
-
 .fgc-kicker {
 	margin: 0 0 0.25rem;
 	color: #ff6666;
@@ -35,14 +40,12 @@
 	letter-spacing: 0;
 	text-transform: uppercase;
 }
-
 .fgc-heading {
 	margin: 0;
 	font-family: "Michroma";
 	font-size: 2rem;
 	line-height: 1.1;
 }
-
 .fgc-status {
 	display: inline-flex;
 	gap: 0.5rem;
@@ -58,16 +61,13 @@
 	font-size: 0.88rem;
 	text-align: right;
 }
-
 .fgc-status i {
 	flex: 0 0 auto;
 	font-size: 0.95rem;
 }
-
 .fgc-status-text {
 	min-width: 0;
 }
-
 .fgc-toggle {
 	display: inline-flex;
 	gap: 0.45rem;
@@ -82,34 +82,27 @@
 	font-weight: 700;
 	white-space: nowrap;
 }
-
 .fgc-toggle input {
 	width: 1rem;
 	height: 1rem;
 	accent-color: #f05858;
 }
-
 .fgc-page[data-autosave="on"] [data-manual-save] {
 	display: none !important;
 }
-
-/* --- Status Feedback --- */
-
+/* === Status === */
 .fgc-status[data-tone="success"] {
-	border-color: rgba(77, 214, 141, 0.7);
-	color: #92f0bd;
+	border-color: rgba(77, 214, 141, 0.75);
+	color: #99ffbb;
 }
-
 .fgc-status[data-tone="error"] {
 	border-color: rgba(255, 87, 87, 0.75);
-	color: #ff9a9a;
+	color: #ff9999;
 }
-
 .fgc-status[data-tone="warning"] {
 	border-color: rgba(255, 193, 7, 0.75);
-	color: #ffd977;
+	color: #ffdd66;
 }
-
 .fgc-panel {
 	border: 1px solid rgba(255, 255, 255, 0.12);
 	border-radius: 8px;
@@ -117,20 +110,16 @@
 	padding: 1rem;
 	box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }
-
-/* --- Forms and Player Cards --- */
-
+/* === FORMS === */
 .fgc-field {
 	margin: 0;
 }
-
 .fgc-field > span {
 	display: block;
 	margin-bottom: 0.35rem;
 	color: #c9c2be;
 	font-weight: 700;
 }
-
 .fgc-event-form .form-control,
 .fgc-event-form .form-select,
 .fgc-player-card .form-control,
@@ -139,7 +128,6 @@
 	background-color: rgba(255, 255, 255, 0.09);
 	color: #fff;
 }
-
 .fgc-event-form .form-control:focus,
 .fgc-event-form .form-select:focus,
 .fgc-player-card .form-control:focus,
@@ -147,46 +135,39 @@
 	border-color: #f05858;
 	box-shadow: 0 0 0 0.18rem rgba(240, 88, 88, 0.25);
 }
-
 .fgc-muted {
 	margin: 0;
 	color: #c9c2be;
 	font-size: 0.9rem;
 }
-
 .fgc-player-card {
 	border: 1px solid rgba(255, 255, 255, 0.12);
 	border-radius: 8px;
 	background: rgba(255, 255, 255, 0.045);
 	padding: 1rem;
 }
-
 .fgc-player-card strong {
 	display: inline-block;
 	font-family: "Michroma";
 	font-size: 1.4rem;
 	line-height: 1;
 }
-
 .fgc-player-id {
 	display: inline-flex;
 	gap: 0.6rem;
 	align-items: baseline;
 	white-space: nowrap;
 }
-
 .fgc-player-id .fgc-kicker {
 	margin: 0;
 	font-family: "Michroma";
 	font-size: 0.95rem;
 	line-height: 1;
 }
-
 .fgc-field-label {
 	color: #c9c2be;
 	font-weight: 700;
 }
-
 .fgc-player-portrait-frame {
 	overflow: hidden;
 	width: 100%;
@@ -197,14 +178,12 @@
 	border-radius: 8px;
 	background: rgba(255, 255, 255, 0.08);
 }
-
 .fgc-player-portrait-frame img {
 	display: block;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
-
 .fgc-player-dropzone {
 	display: inline-grid;
 	align-items: center;
@@ -218,18 +197,15 @@
 		border-color 0.18s ease,
 		background 0.18s ease;
 }
-
 .fgc-player-dropzone.dz-clickable,
 .fgc-player-dropzone.dz-clickable .dz-message,
 .fgc-player-dropzone.dz-clickable .dz-message * {
 	cursor: pointer;
 }
-
 .fgc-player-dropzone.dz-drag-hover {
 	border-color: #f05858;
 	background: rgba(240, 88, 88, 0.16);
 }
-
 .fgc-player-dropzone .dz-message {
 	display: inline-flex;
 	gap: 0.45rem;
@@ -243,25 +219,20 @@
 	text-align: center;
 	white-space: nowrap;
 }
-
 .fgc-player-dropzone .dz-message i {
 	color: #ff6666;
 	font-size: 0.95rem;
 }
-
 .fgc-player-dropzone-disabled {
 	opacity: 0.55;
 	pointer-events: none;
 }
-
 .fgc-player-actions {
 	width: 100%;
 }
-
 .fgc-player-actions .fgc-player-dropzone {
 	min-width: 10.5rem;
 }
-
 .fgc-player-remove-button {
 	display: inline-flex;
 	gap: 0.45rem;
@@ -271,7 +242,6 @@
 	font-size: 0.78rem;
 	font-weight: 700;
 }
-
 .fgc-player-save-button {
 	display: inline-flex;
 	gap: 0.45rem;
@@ -281,41 +251,34 @@
 	font-size: 0.78rem;
 	font-weight: 700;
 }
-
 @media (min-width: 576px) {
 	.fgc-player-actions {
 		width: auto;
 	}
 }
-
 .fgc-empty {
 	padding: 1rem;
 	border: 1px dashed rgba(255, 255, 255, 0.2);
 	border-radius: 8px;
-	color: #c9c2be;
+	color: #ccccbb;
 	text-align: center;
 }
-
-/* --- Select2 Media Options --- */
-
+/* === SELECT2 === */
 .fgc-event-form .select2-container--default .select2-selection--single,
 .fgc-player-card .select2-container--default .select2-selection--single {
 	height: 38px;
 	border-color: rgba(255, 255, 255, 0.16);
 	background-color: rgba(255, 255, 255, 0.09);
 }
-
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__rendered,
 .fgc-player-card .select2-container--default .select2-selection--single .select2-selection__rendered {
 	color: #fff;
 	line-height: 36px;
 }
-
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__arrow,
 .fgc-player-card .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 36px;
 }
-
 .fgc-country-option {
 	display: inline-flex;
 	gap: 0.5rem;
@@ -323,7 +286,6 @@
 	max-width: 100%;
 	min-height: 1.35rem;
 }
-
 .fgc-country-flag {
 	width: 1.35rem;
 	height: 0.95rem;
@@ -331,30 +293,22 @@
 	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 	object-fit: cover;
 }
-
-.select2-container--default .select2-results__option .fgc-country-flag {
-	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
-}
-
 .fgc-country-label {
 	overflow: hidden;
 	min-width: 0;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-
 .select2-container--default .select2-results__option .fgc-country-label {
 	overflow: visible;
 	white-space: normal;
 }
-
 .fgc-media-option {
 	display: inline-flex;
 	gap: 0.55rem;
 	align-items: center;
 	min-height: 1.75rem;
 }
-
 .fgc-media-image {
 	width: 1.75rem;
 	height: 1.75rem;
@@ -364,21 +318,20 @@
 	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
 	object-fit: contain;
 }
-
 .fgc-media-image-portrait {
 	object-fit: cover;
 }
-
 .select2-container--default .select2-results__option .fgc-media-image {
 	width: 2.25rem;
 	height: 2.25rem;
 }
-
+.select2-results__options {
+	max-height: 280px !important;
+}
 .select2-container--default .select2-selection--single .fgc-media-image {
 	width: 1.45rem;
 	height: 1.45rem;
 }
-
 @media (max-width: 768px) {
 	.fgc-status {
 		justify-content: flex-start;

@@ -17,9 +17,10 @@ const (
 
 // GameAsset describes one game option shown in the event editor.
 type GameAsset struct {
-	Key  string `json:"key"`
-	Name string `json:"name"`
-	Logo string `json:"logo"`
+	Key        string `json:"key"`
+	Name       string `json:"name"`
+	Logo       string `json:"logo"`
+	Background string `json:"background"`
 }
 
 // CharacterAsset describes one character option shown in player cards.
@@ -58,7 +59,7 @@ func (a *App) ListFormats() ([]CatalogOption, error) {
 	return options, nil
 }
 
-// ListGames returns all configured games with a display logo URL.
+// ListGames returns all configured games with display logo and background URLs.
 func (a *App) ListGames() ([]GameAsset, error) {
 	entries, err := a.readAssetMap("games.json")
 	if err != nil {
@@ -67,15 +68,23 @@ func (a *App) ListGames() ([]GameAsset, error) {
 
 	games := make([]GameAsset, 0, len(entries))
 	for _, entry := range entries {
-		logo := path.Join(entry.Key, "logo.png")
+		logo := path.Join(entry.Key, "_logo.png")
 		if !a.assetFileExists(logo) {
 			logo = assetFallbackImage
 		}
 
+		background := path.Join(entry.Key, "_bg.jpg")
+		if !a.assetFileExists(background) {
+			background = ""
+		} else {
+			background = assetURL(background)
+		}
+
 		games = append(games, GameAsset{
-			Key:  entry.Key,
-			Name: entry.Value,
-			Logo: assetURL(logo),
+			Key:        entry.Key,
+			Name:       entry.Value,
+			Logo:       assetURL(logo),
+			Background: background,
 		})
 	}
 
