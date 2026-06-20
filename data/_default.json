@@ -1,67 +1,67 @@
 {
-  "version": 1,
-  "event": {
-    "name": "Chimbacanería",
-    "phase": "2026:25",
-    "rule": "FT3",
-    "game": "SF6",
-    "format": "double_elimination",
-    "size": 8
-  },
-  "current": "A",
-  "players": {
-    "1": {
-      "name": "BONYUR",
-      "team": "@byUwUr",
-      "country": "CO",
-      "character": "Chun-Li"
-    },
-    "2": {
-      "name": "MenaRD",
-      "team": "WBG - Bandits",
-      "country": "DO",
-      "character": "Blanka"
-    },
-    "3": {
-      "name": "Punk",
-      "team": "FlyQuest",
-      "country": "US",
-      "character": "Ingrid"
-    },
-    "4": {
-      "name": "RobTV",
-      "team": "",
-      "country": "US",
-      "character": "Cammy"
-    },
-    "5": {
-      "name": "Luiman",
-      "team": "Bandits",
-      "country": "DO",
-      "character": "Dhalsim"
-    },
-    "6": {
-      "name": "Psycho",
-      "team": "",
-      "country": "US",
-      "character": "Kimberly"
-    },
-    "7": {
-      "name": "Pezziman",
-      "team": "",
-      "country": "VE",
-      "character": "Rashid"
-    },
-    "8": {
-      "name": "JimmyDR",
-      "team": "",
-      "country": "DO",
-      "character": "Marisa"
-    }
-  },
-  "bracket": {
-    "matches": {},
-    "placements": {},
-    "grand_final_reset": true
-  }
+	"version": 1,
+	"event": {
+		"name": "Chimbacanería",
+		"phase": "2026:25",
+		"rule": "ft3",
+		"game": "sf6",
+		"format": "double_elimination",
+		"size": 8
+	},
+	"current": "A",
+	"players": {
+		"1": {
+			"name": "BONYUR",
+			"team": "@byUwUr",
+			"country": "CO",
+			"character": "chunli"
+		},
+		"2": {
+			"name": "MenaRD",
+			"team": "WBG - Bandits",
+			"country": "DO",
+			"character": "blanka"
+		},
+		"3": {
+			"name": "Punk",
+			"team": "FlyQuest",
+			"country": "US",
+			"character": "ingrid"
+		},
+		"4": {
+			"name": "RobTV",
+			"team": "",
+			"country": "US",
+			"character": "cammy"
+		},
+		"5": {
+			"name": "Luiman",
+			"team": "Bandits",
+			"country": "DO",
+			"character": "dhalsim"
+		},
+		"6": {
+			"name": "Psycho",
+			"team": "",
+			"country": "US",
+			"character": "kimberly"
+		},
+		"7": {
+			"name": "Pezziman",
+			"team": "",
+			"country": "VE",
+			"character": "rashid"
+		},
+		"8": {
+			"name": "JimmyDR",
+			"team": "",
+			"country": "DO",
+			"character": "marisa"
+		}
+	},
+	"bracket": {
+		"matches": {},
+		"placements": {},
+		"grand_final_reset": true
+	}
 }

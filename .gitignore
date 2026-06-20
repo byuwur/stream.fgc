@@ -8,6 +8,7 @@ build/bin/
 .env.*
 # === UPLOADS ===
 #assets/
+#players/
 uploads/
 # === DEPENDENCIES ===
 *.lock
