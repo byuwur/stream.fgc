@@ -15,6 +15,8 @@
 
 	const ROUTE_HOME_ES = "inicio";
 	const ROUTE_HOME_EN = "home";
+	const ROUTE_PLAYERS_ES = "jugadores";
+	const ROUTE_PLAYERS_EN = "players";
 
 	const ROUTE_ES = "es";
 	const ROUTE_EN = "en";
@@ -32,6 +34,8 @@
 		[`/${ROUTE_EN}`]: { URI: ``, GET: { lang: "en" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_HOME_ES}`]: { URI: `/main.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_HOME_EN}`]: { URI: `/main.html`, GET: { lang: "en" }, ...ROOT_COMPONENTS },
+		[`/${ROUTE_PLAYERS_ES}`]: { URI: `/players.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },
+		[`/${ROUTE_PLAYERS_EN}`]: { URI: `/players.html`, GET: { lang: "en" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_TEST}`]: { URI: `/test.html`, ...ROOT_COMPONENTS },
 	};
 
