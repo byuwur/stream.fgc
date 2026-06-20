@@ -1,0 +1,105 @@
+{
+	"type": "double_elimination",
+	"size": 8,
+	"matches": {
+		"A": {
+			"name": "Winners Round 1 - A",
+			"p1": { "type": "seed", "seed": 1 },
+			"p2": { "type": "seed", "seed": 2 },
+			"winner_to": "E",
+			"loser_to": "H"
+		},
+		"B": {
+			"name": "Winners Round 1 - B",
+			"p1": { "type": "seed", "seed": 3 },
+			"p2": { "type": "seed", "seed": 4 },
+			"winner_to": "E",
+			"loser_to": "H"
+		},
+		"C": {
+			"name": "Winners Round 1 - C",
+			"p1": { "type": "seed", "seed": 5 },
+			"p2": { "type": "seed", "seed": 6 },
+			"winner_to": "F",
+			"loser_to": "I"
+		},
+		"D": {
+			"name": "Winners Round 1 - D",
+			"p1": { "type": "seed", "seed": 7 },
+			"p2": { "type": "seed", "seed": 8 },
+			"winner_to": "F",
+			"loser_to": "I"
+		},
+		"E": {
+			"name": "Winners Semifinal - A",
+			"p1": { "type": "winner", "match": "A" },
+			"p2": { "type": "winner", "match": "B" },
+			"winner_to": "G",
+			"loser_to": "K"
+		},
+		"F": {
+			"name": "Winners Semifinal - B",
+			"p1": { "type": "winner", "match": "C" },
+			"p2": { "type": "winner", "match": "D" },
+			"winner_to": "G",
+			"loser_to": "K"
+		},
+		"G": {
+			"name": "Winners Final",
+			"p1": { "type": "winner", "match": "E" },
+			"p2": { "type": "winner", "match": "F" },
+			"winner_to": "N",
+			"loser_to": "M"
+		},
+		"H": {
+			"name": "Losers Round 1 - A",
+			"p1": { "type": "loser", "match": "A" },
+			"p2": { "type": "loser", "match": "B" },
+			"winner_to": "J"
+		},
+		"I": {
+			"name": "Losers Round 1 - B",
+			"p1": { "type": "loser", "match": "C" },
+			"p2": { "type": "loser", "match": "D" },
+			"winner_to": "J"
+		},
+		"J": {
+			"name": "Losers Quarterfinal",
+			"p1": { "type": "winner", "match": "H" },
+			"p2": { "type": "winner", "match": "I" },
+			"winner_to": "L"
+		},
+		"K": {
+			"name": "Losers Semifinal",
+			"p1": { "type": "loser", "match": "E" },
+			"p2": { "type": "loser", "match": "F" },
+			"winner_to": "L"
+		},
+		"L": {
+			"name": "Losers Final Qualifier",
+			"p1": { "type": "winner", "match": "J" },
+			"p2": { "type": "winner", "match": "K" },
+			"winner_to": "M"
+		},
+		"M": {
+			"name": "Losers Final",
+			"p1": { "type": "loser", "match": "G" },
+			"p2": { "type": "winner", "match": "L" },
+			"winner_to": "N"
+		},
+		"N": {
+			"name": "Grand Final",
+			"p1": { "type": "winner", "match": "G" },
+			"p2": { "type": "winner", "match": "M" },
+			"winner_to": "O",
+			"reset": true
+		},
+		"O": {
+			"name": "Grand Final Reset",
+			"p1": { "type": "winner", "match": "N" },
+			"p2": { "type": "loser", "match": "N" },
+			"optional": true
+		}
+	},
+	"placements": {}
+}

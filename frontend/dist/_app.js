@@ -7,10 +7,12 @@
  */
 (function (global) {
 	const EVENT_FORM = "[data-event-form]";
+	const CURRENT_MATCH = "[data-current-match]";
 	const PLAYER_PAGE = "[data-player-page]";
 	const AUTOSAVE_DELAY = 700;
 	const AUTOSAVE_STORAGE_KEY = "streamFgc.autosave";
 	const FALLBACK_ASSET = "./assets/nopic.png";
+	const EMPTY_STATE_CLASS = "fgc-empty border rounded p-3 text-center";
 	const SPA_BACKGROUND_FALLBACK = "./assets/nobg.jpg";
 	const PLAYER_PORTRAIT_MAX_MB = 10;
 	const DEFAULT_RULES = [
@@ -29,6 +31,7 @@
 	let formats = [];
 	let games = [];
 	let characters = [];
+	let charactersGame = null;
 	let countryCodes = [];
 	let countryNames = {};
 	let backgroundSyncing = false;
@@ -88,7 +91,7 @@
 		status.replaceChildren();
 
 		const icon = document.createElement("i");
-		icon.className = statusIconClass(key, tone);
+		icon.className = `${statusIconClass(key, tone)} flex-shrink-0`;
 		icon.setAttribute("aria-hidden", "true");
 
 		const text = document.createElement("span");
@@ -522,6 +525,22 @@
 		setSpaBackground(entry?.background || "");
 	}
 
+	/** Ensures the character catalog matches the active event game. */
+	async function ensureCharacterCatalog(app, game) {
+		const gameKey = String(game || "");
+		if (charactersGame === gameKey) return characters;
+		characters = typeof app?.ListCharacters === "function" ? normalizeAssetRows(await app.ListCharacters(gameKey)) : [];
+		charactersGame = gameKey;
+		return characters;
+	}
+
+	/** Finds a character catalog row by stored key or legacy display name. */
+	function characterCatalogEntry(character) {
+		return characters.find(function (entry) {
+			return catalogEntryMatches(entry, character);
+		});
+	}
+
 	/** Keeps #spa-bg aligned with tournament.json on any SPA route. */
 	async function syncSpaBackground() {
 		if (backgroundSyncing) return;
@@ -691,15 +710,18 @@
 		setFormEnabled(form, false);
 		try {
 			const state = await app.LoadTournament();
-			const [ruleRows, formatRows, gameRows] = await Promise.all([
+			const [ruleRows, formatRows, gameRows, names] = await Promise.all([
 				optionalBackendList(app, "ListRules", DEFAULT_RULES),
 				optionalBackendList(app, "ListFormats", DEFAULT_FORMATS),
 				optionalBackendList(app, "ListGames", []),
+				loadCountryNames(),
 			]);
 			currentState = state;
 			rules = normalizeAssetRows(ruleRows);
 			formats = normalizeAssetRows(formatRows);
 			games = normalizeAssetRows(gameRows);
+			countryNames = names || {};
+			await ensureCharacterCatalog(app, currentState.event?.game || "");
 			renderCatalogSelect(form, "rule", rules, currentState.event?.rule, "key");
 			renderCatalogSelect(form, "format", formats, currentState.event?.format, "key");
 			renderGameSelect(form, currentState.event?.game);
@@ -714,6 +736,8 @@
 			} else {
 				setEventReadyStatus(form);
 			}
+			const matchPanel = currentMatchPanel(form);
+			if (matchPanel) void loadCurrentMatch(matchPanel);
 		} catch (error) {
 			console.error("LoadTournament failed", error);
 			setStatus(form, "event_status_load_failed", "Event load failed", "error");
@@ -736,9 +760,12 @@
 		setStatus(form, autosave ? "event_status_saving" : "event_status_saving_manual", autosave ? "Autosaving event..." : "Saving event...", "neutral");
 		try {
 			currentState = await app.UpdateEvent(eventPayload);
+			await ensureCharacterCatalog(app, currentState.event?.game || "");
 			if (formSignature(readEventForm, form) === submittedSignature) {
 				fillEventForm(form, currentState.event || {});
 			}
+			const matchPanel = currentMatchPanel(form);
+			if (matchPanel) void loadCurrentMatch(matchPanel);
 			setStatus(form, autosave ? "event_status_saved" : "event_status_saved_manual", autosave ? "Event autosaved" : "Event saved", "success");
 			return submittedSignature;
 		} catch (error) {
@@ -801,6 +828,251 @@
 		}
 
 		void loadEvent(form);
+	}
+
+	// --- Current match panel ---
+
+	/** Returns the current-match panel that belongs to an event form. */
+	function currentMatchPanel(form) {
+		const panel = pageRoot(form).querySelector(CURRENT_MATCH);
+		return panel instanceof HTMLElement ? panel : null;
+	}
+
+	/** Reads one numeric score from the current-match panel. */
+	function readMatchScore(panel, playerNumber) {
+		const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
+		if (!(input instanceof HTMLInputElement)) return 0;
+		return Math.max(0, Math.floor(Number(input.value || 0)));
+	}
+
+	/** Locks score controls while a score write is in flight. */
+	function setMatchControlsEnabled(panel, enabled) {
+		panel.querySelectorAll("[data-score-action], [data-score-input], [data-current-match-reload]").forEach(function (control) {
+			control.disabled = !enabled;
+		});
+	}
+
+	/** Returns a participant display name, falling back to the bracket source. */
+	function participantName(participant) {
+		if (participant?.resolved) return participant.player?.name || t("match_tbd", "TBD");
+		return participant?.pending_label || t("match_tbd", "TBD");
+	}
+
+	/** Returns the optional team/country line for a resolved participant. */
+	function participantMeta(participant) {
+		if (!participant?.resolved) return participant?.pending_label || "";
+		return participant.player?.team || t("match_no_team", "No team");
+	}
+
+	/** Builds the country flag and localized label for a match participant. */
+	function participantCountryHTML(participant) {
+		const country = String(participant?.player?.country || "").toUpperCase();
+		if (!participant?.resolved || !country) return "";
+		const image = isISO2Code(country)
+			? `<img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.35rem; height: 0.95rem; object-fit: cover; box-shadow: 0 0 0 1px var(--fgc-border);" />`
+			: "";
+		return `<span class="d-inline-flex gap-2 align-items-center mw-100 mt-2 fw-bold" style="color: var(--fgc-text-soft);">${image}<span class="text-truncate">${escapeHtml(countryLabel(country))}</span></span>`;
+	}
+
+	/** Returns display metadata for a player's selected character. */
+	function participantCharacter(participant) {
+		const key = String(participant?.player?.character || "");
+		const entry = characterCatalogEntry(key);
+		if (!participant?.resolved || !key) {
+			return {
+				name: t("match_no_character", "No character"),
+				portrait: FALLBACK_ASSET,
+			};
+		}
+		return {
+			name: entry?.name || key,
+			portrait: entry?.portrait || FALLBACK_ASSET,
+		};
+	}
+
+	/** Creates the player and character image cluster for one match side. */
+	function matchMediaHTML(participant, side) {
+		const character = participantCharacter(participant);
+		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
+		return [
+			`<div class="d-flex gap-2 col-12 col-sm-6">`,
+			`<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>`,
+			...(side === 1
+				? [
+						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+						`<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`,
+					]
+				: [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`]),
+			`</div>`,
+			`<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>`,
+			...(side === 1
+				? [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`]
+				: [
+						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+						`<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`,
+					]),
+			`</div>`,
+			`</div>`,
+		].join("");
+	}
+
+	/** Creates one side of the current-match scoreboard. */
+	function matchPlayerCard(match, side) {
+		const participant = side === 1 ? match?.player1 : match?.player2;
+		const scoreKey = side === 1 ? "player1_score" : "player2_score";
+		const score = Math.max(0, Number(match?.state?.[scoreKey] || 0));
+		const name = participantName(participant);
+		const meta = participantMeta(participant);
+		const country = participantCountryHTML(participant);
+		const playerID = participant?.player_id ? `${participant.player_id}` : "";
+		const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
+
+		return [
+			`<article class="col-12 col-lg-5">`,
+			`<div class="h-100 border rounded p-3"${opacity} data-match-card>`,
+			`<div class="row g-3 align-items-stretch">`,
+			`<div class="col-12 d-flex flex-wrap gap-2 align-items-baseline justify-content-between">`,
+			side === 1
+				? `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`
+				: `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`,
+			side === 1
+				? `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
+				: `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`,
+			`</div>`,
+			side === 1 ? matchMediaHTML(participant, side) : "",
+			`<div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}">`,
+			`<h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>`,
+			`<p class="m-0 mt-2 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
+			country,
+			`<div class="input-group mt-3" data-score-group="${side}" style="max-width: 10rem;">`,
+			`<button class="btn btn-outline-light" type="button" data-score-action="dec" data-score-player="${side}" aria-label="${escapeHtml(t("match_score_down", "Decrease score"))}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
+			`<input class="form-control text-center" style="max-width: 4.5rem;" type="number" min="0" step="1" value="${score}" data-score-input="${side}" aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
+			`<button class="btn btn-outline-light" type="button" data-score-action="inc" data-score-player="${side}" aria-label="${escapeHtml(t("match_score_up", "Increase score"))}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
+			`</div>`,
+			`</div>`,
+			side === 1 ? "" : matchMediaHTML(participant, side),
+			`</div>`,
+			`</div>`,
+			`</article>`,
+		].join("");
+	}
+
+	/** Draws a resolved current match into the event page. */
+	function renderCurrentMatch(panel, match) {
+		const title = panel.querySelector("[data-current-match-title]");
+		const body = panel.querySelector("[data-current-match-body]");
+		if (!body) return;
+
+		const matchID = match?.id || currentState?.current || "";
+		const matchName = match?.name || t("match_title", "Current match");
+		panel.dataset.matchId = matchID;
+		if (title) {
+			title.removeAttribute("data-i18n");
+			title.textContent = matchID ? `${matchName} (${matchID})` : matchName;
+		}
+
+		const player1Score = Math.max(0, Number(match?.state?.player1_score || 0));
+		const player2Score = Math.max(0, Number(match?.state?.player2_score || 0));
+		body.innerHTML = [
+			matchPlayerCard(match, 1),
+			`<div class="col-12 col-lg-2 d-flex align-items-stretch">`,
+			`<div class="w-100 border rounded d-flex gap-2 align-items-center justify-content-center text-center" data-match-card>`,
+			`<strong class="fgc-title fs-1 lh-1">${player1Score}</strong>`,
+			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match_vs", "VS"))}</span>`,
+			`<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
+			`</div>`,
+			`</div>`,
+			matchPlayerCard(match, 2),
+		].join("");
+
+		body.querySelectorAll("[data-fallback-image]").forEach(function (image) {
+			setImageFallback(image);
+		});
+		body.querySelectorAll("[data-flag-image]").forEach(function (image) {
+			if (!(image instanceof HTMLImageElement)) return;
+			image.addEventListener("error", function () {
+				image.remove();
+			});
+		});
+	}
+
+	/** Loads the current match through the backend resolver. */
+	async function loadCurrentMatch(panel) {
+		const app = await waitForBackend();
+		const body = panel.querySelector("[data-current-match-body]");
+		if (!app) {
+			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("event_status_backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
+			return;
+		}
+
+		if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match_loading", "Loading current match..."))}</div></div>`;
+		try {
+			if (!currentState) currentState = await app.LoadTournament();
+			await ensureCharacterCatalog(app, currentState?.event?.game || "");
+			if (!Object.keys(countryNames).length) countryNames = (await loadCountryNames()) || {};
+			const match = await app.ResolveMatch(currentState?.current || "");
+			renderCurrentMatch(panel, match);
+		} catch (error) {
+			console.error("ResolveMatch failed", error);
+			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match_load_failed", "Current match load failed"))}</div></div>`;
+			setStatus(panel, "match_status_load_failed", "Current match load failed", "error");
+		}
+	}
+
+	/** Persists current-match score controls into tournament.json. */
+	async function saveCurrentMatchScore(panel) {
+		const app = await waitForBackend();
+		if (!app) {
+			setStatus(panel, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		const matchID = panel.dataset.matchId || currentState?.current || "";
+		const player1Score = readMatchScore(panel, 1);
+		const player2Score = readMatchScore(panel, 2);
+		setStatus(panel, "match_status_saving", "Saving match score...", "neutral");
+		setMatchControlsEnabled(panel, false);
+		try {
+			currentState = await app.UpdateMatchScore(matchID, player1Score, player2Score);
+			const match = await app.ResolveMatch(matchID);
+			renderCurrentMatch(panel, match);
+			setStatus(panel, "match_status_saved", "Match score saved", "success");
+		} catch (error) {
+			console.error("UpdateMatchScore failed", error);
+			setStatus(panel, "match_status_failed", "Match score save failed", "error");
+		} finally {
+			setMatchControlsEnabled(panel, true);
+		}
+	}
+
+	/** Binds delegated score and reload controls for the current-match panel. */
+	function bindCurrentMatch(panel) {
+		if (panel.dataset.bound === "true") return;
+		panel.dataset.bound = "true";
+
+		panel.addEventListener("click", function (event) {
+			const target = event.target instanceof Element ? event.target : null;
+			const reload = target?.closest("[data-current-match-reload]");
+			if (reload) {
+				void loadCurrentMatch(panel);
+				return;
+			}
+
+			const button = target?.closest("[data-score-action]");
+			if (!(button instanceof HTMLButtonElement)) return;
+			const playerNumber = button.getAttribute("data-score-player") || "";
+			const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
+			if (!(input instanceof HTMLInputElement)) return;
+			const delta = button.getAttribute("data-score-action") === "dec" ? -1 : 1;
+			input.value = String(Math.max(0, readMatchScore(panel, playerNumber) + delta));
+			void saveCurrentMatchScore(panel);
+		});
+
+		panel.addEventListener("change", function (event) {
+			if (!(event.target instanceof HTMLInputElement) || !event.target.matches("[data-score-input]")) return;
+			event.target.value = String(Math.max(0, Math.floor(Number(event.target.value || 0))));
+			void saveCurrentMatchScore(panel);
+		});
 	}
 
 	// --- Players page ---
@@ -892,10 +1164,10 @@
 		if (!jquery) return data.text || "";
 
 		const code = String(data.id || data.text || "").toUpperCase();
-		if (!code) return jquery("<span>").addClass("fgc-country-option");
+		if (!code) return jquery("<span>").addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
 
 		const name = data.element?.dataset?.countryName || countryName(code);
-		const option = jquery("<span>").addClass("fgc-country-option");
+		const option = jquery("<span>").addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
 		if (isISO2Code(code)) {
 			jquery("<img>", {
 				alt: "",
@@ -917,11 +1189,11 @@
 		if (!jquery) return data.text || "";
 
 		const text = String(data.text || "");
-		if (!text) return jquery("<span>").addClass("fgc-media-option");
+		if (!text) return jquery("<span>").addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
 
 		const element = data.element;
 		const imagePath = element?.dataset?.[imageAttribute] || FALLBACK_ASSET;
-		const option = jquery("<span>").addClass("fgc-media-option");
+		const option = jquery("<span>").addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
 		jquery("<img>", {
 			alt: "",
 			class: `fgc-media-image ${imageClass}`,
@@ -951,24 +1223,24 @@
 	/** Builds the complete Bootstrap player card markup for one player slot. */
 	function playerCard(playerID, player) {
 		return [
-			`<div class="col-12 col-lg-6">`,
-			`<form class="fgc-player-card h-100" data-player-form="${escapeHtml(playerID)}">`,
+			`<div class="col-12 col-md-6">`,
+			`<form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}">`,
 			`<div class="row g-3 align-items-stretch">`,
 			`<section class="col-12 col-md-4 d-flex">`,
-			`<div class="fgc-player-portrait-frame mx-auto mx-md-0"><img data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="" loading="lazy" /></div>`,
+			`<div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame><img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="" loading="lazy" /></div>`,
 			`</section>`,
 			`<section class="col-12 col-md-8 d-flex flex-column">`,
-			`<div class="fgc-player-id mb-3 pb-3"><span class="fgc-kicker" data-i18n="players_player">Player</span><strong>${escapeHtml(playerID)}</strong></div>`,
+			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3 pb-3"><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players_player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
 			`<div class="row g-3">`,
-			`<label class="fgc-field col-12 col-xl-6"><span data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" /></label>`,
-			`<label class="fgc-field col-12 col-xl-6"><span data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" /></label>`,
-			`<label class="fgc-field col-12 col-xl-6"><span data-i18n="player_country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country">${countryOptions(player?.country)}</select></label>`,
-			`<label class="fgc-field col-12 col-xl-6"><span data-i18n="player_character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character">${characterOptions(player?.character)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country">${countryOptions(player?.country)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character">${characterOptions(player?.character)}</select></label>`,
 			`</div>`,
-			`<div class="fgc-player-actions d-flex flex-row flex-wrap gap-2 align-items-stretch mt-auto pt-3">`,
-			`<div class="dropzone fgc-player-dropzone" data-player-dropzone><div class="dz-message"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player_portrait_drop">Drop or click image</span></div></div>`,
-			`<button class="btn btn-outline-danger fgc-player-remove-button" type="button" data-player-portrait-remove><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player_portrait_remove">Remove picture</span></button>`,
-			`<button class="btn btn-danger btn-sm fgc-player-save-button" type="submit" data-manual-save><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players_save">Save now</span></button>`,
+			`<div class="row g-2 align-items-stretch mt-auto pt-3">`,
+			`<div class="col-12 col-sm-auto"><div class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2" data-player-dropzone><div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player_portrait_drop">Drop or click image</span></div></div></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="button" data-player-portrait-remove><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player_portrait_remove">Remove picture</span></button></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="submit" data-manual-save><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players_save">Save now</span></button></div>`,
 			`</div>`,
 			`</section>`,
 			`</div>`,
@@ -1055,7 +1327,7 @@
 		const rows = playerEntriesForEvent(currentState).map(function ([playerID, player]) {
 			return playerCard(playerID, player);
 		});
-		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="fgc-empty" data-i18n="players_empty">No players found.</div></div>`;
+		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players_empty">No players found.</div></div>`;
 		list.querySelectorAll("[data-player-form]").forEach(function (form) {
 			if (!(form instanceof HTMLFormElement)) return;
 			bindPlayerForm(form, page);
@@ -1088,7 +1360,7 @@
 			currentState = state;
 			await ensureGameCatalog(app);
 			applyGameBackgroundFromState(currentState);
-			characters = normalizeAssetRows(await app.ListCharacters(currentState.event?.game || ""));
+			await ensureCharacterCatalog(app, currentState.event?.game || "");
 			countryNames = names || {};
 			countryCodes = Array.from(
 				new Set(
@@ -1192,7 +1464,7 @@
 		setImageFallback(image);
 
 		if (typeof global.Dropzone === "undefined") {
-			dropzoneElement.classList.add("fgc-player-dropzone-disabled");
+			dropzoneElement.dataset.disabled = "true";
 			return;
 		}
 
@@ -1293,6 +1565,9 @@
 		root.querySelectorAll(EVENT_FORM).forEach(function (form) {
 			if (form instanceof HTMLFormElement) bindEventForm(form);
 		});
+		root.querySelectorAll(CURRENT_MATCH).forEach(function (panel) {
+			if (panel instanceof HTMLElement) bindCurrentMatch(panel);
+		});
 		root.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
 			if (page instanceof HTMLElement) bindPlayerPage(page);
 		});
@@ -1313,7 +1588,12 @@
 		if (form instanceof HTMLFormElement && currentState?.event) {
 			fillEventForm(form, currentState.event);
 		}
-		void refreshCountrySelects(document);
-		refreshStatusIcons(document);
+		void (async function () {
+			countryNames = (await loadCountryNames()) || {};
+			const matchPanel = document.querySelector(CURRENT_MATCH);
+			if (matchPanel instanceof HTMLElement && currentState) await loadCurrentMatch(matchPanel);
+			await refreshCountrySelects(document);
+			refreshStatusIcons(document);
+		})();
 	});
 })(typeof window !== "undefined" ? window : this);

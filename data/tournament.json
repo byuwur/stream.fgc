@@ -50,14 +50,19 @@
       "name": "Pezziman",
       "team": "",
       "country": "VE",
-      "character": "rashid"
+      "character": ""
     },
     "8": {
       "name": "Jimmy_DR",
       "team": "",
       "country": "DO",
-      "character": "marisa"
+      "character": ""
     }
   },
-  "matches": {}
+  "matches": {
+    "A": {
+      "player1_score": 1,
+      "player2_score": 2
+    }
+  }
 }

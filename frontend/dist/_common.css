@@ -5,10 +5,10 @@
 :root {
 	/* Stream.FGC override, derived from SPA.js red palette for dark labels */
 	--fgc-brand-soft: #ff6666;
-	/* Stream.FGC override: brighter than SPA.js red for compact dark controls */
+	/* Stream.FGC override: active state for compact dark controls */
 	--fgc-control-active: #669966;
 	/* Stream.FGC override: rgb pair for translucent active states */
-	--fgc-control-active-rgb: 240, 88, 88;
+	--fgc-control-active-rgb: 102, 153, 102;
 	/* Bootstrap */
 	--fgc-light: var(--bs-white);
 	/* Bootstrap */
@@ -76,7 +76,10 @@
 }
 /* === SPA Shell === */
 .fgc-title {
+	margin: 0;
 	font-family: "Michroma";
+	font-size: 2rem;
+	line-height: 1.1;
 }
 .fgc-page {
 	min-height: 100vh;
@@ -84,10 +87,6 @@
 	color: var(--fgc-light);
 }
 .fgc-page-header {
-	position: sticky;
-	top: 0;
-	z-index: 1030;
-	padding: 0.75rem;
 	backdrop-filter: blur(1rem);
 }
 .fgc-kicker {
@@ -98,29 +97,13 @@
 	letter-spacing: 0;
 	text-transform: uppercase;
 }
-.fgc-heading {
-	margin: 0;
-	font-family: "Michroma";
-	font-size: 2rem;
-	line-height: 1.1;
-}
 .fgc-status {
-	display: inline-flex;
-	gap: 0.5rem;
-	align-items: center;
-	justify-content: flex-end;
-	min-width: 10rem;
-	max-width: 24rem;
-	padding: 0.6rem 0.75rem;
-	border: 1px solid var(--fgc-border);
-	border-radius: var(--fgc-radius);
+	border-color: var(--fgc-border);
 	background: var(--fgc-surface);
 	color: var(--fgc-text);
-	font-size: 0.88rem;
-	text-align: right;
+	white-space: nowrap;
 }
 .fgc-status i {
-	flex: 0 0 auto;
 	font-size: 0.95rem;
 }
 .fgc-status-text {
@@ -130,19 +113,19 @@
 	position: relative;
 	display: inline-flex;
 	align-items: center;
-	min-height: 2.6rem;
+	min-height: 2.75rem;
+	min-width: 2.75rem;
 	margin: 0;
 	padding: 0.55rem 0.95rem 0.55rem 4.3rem;
 	border: 1px solid var(--fgc-border);
 	border-radius: var(--fgc-radius);
 	background: var(--fgc-surface);
 	color: var(--fgc-light);
-	font-size: 0.88rem;
 	font-weight: 700;
 	white-space: nowrap;
 }
-.fgc-toggle.custom-toggle.custom-toggle-sm {
-	padding-left: 4.3rem;
+.fgc-toggle.custom-control.custom-toggle.custom-toggle-sm {
+	padding-left: 4.4rem;
 }
 .fgc-toggle .custom-control-input {
 	position: absolute;
@@ -160,9 +143,9 @@
 	content: "";
 	position: absolute;
 	top: 50%;
-	left: 0.95rem;
+	left: 0.9rem;
 	display: block;
-	width: 2.7rem;
+	width: 2.75rem;
 	height: 1.35rem;
 	transform: translateY(-50%);
 	border: 1px solid var(--fgc-border-strong);
@@ -174,7 +157,7 @@
 	content: "";
 	position: absolute;
 	top: 50%;
-	left: 1.18rem;
+	left: 1.1rem;
 	display: block;
 	width: 0.9rem;
 	height: 0.9rem;
@@ -223,185 +206,112 @@
 	color: var(--fgc-status-warning-text);
 }
 .fgc-panel {
-	border: 1px solid var(--fgc-border-soft);
-	border-radius: var(--fgc-radius);
+	border-color: var(--fgc-border-soft) !important;
 	background: var(--fgc-surface-strong);
-	padding: 1rem;
 	box-shadow: 0 18px 45px var(--fgc-shadow);
 }
-/* === FORMS === */
-.fgc-field {
-	margin: 0;
+[data-current-match] [data-match-card] {
+	border-color: var(--fgc-border-soft) !important;
+	background: rgba(var(--fgc-light-rgb), 0.045);
 }
-.fgc-field > span {
-	display: block;
-	margin-bottom: 0.35rem;
+[data-current-match] [data-match-image-frame] {
+	width: 5.5rem;
+	border-color: var(--fgc-border) !important;
+	background: rgba(var(--fgc-light-rgb), 0.08);
+}
+[data-current-match] [data-match-character-label] {
+	color: var(--fgc-text);
+}
+/* === FORMS === */
+[data-field-label] {
 	color: var(--fgc-text-muted);
-	font-weight: 700;
 }
 .fgc-event-form .form-control,
 .fgc-event-form .form-select,
-.fgc-player-card .form-control,
-.fgc-player-card .form-select {
+[data-current-match] .form-control,
+[data-player-card] .form-control,
+[data-player-card] .form-select {
 	border-color: var(--fgc-border);
 	background-color: var(--fgc-surface-soft);
 	color: var(--fgc-light);
 }
 .fgc-event-form .form-control:focus,
 .fgc-event-form .form-select:focus,
-.fgc-player-card .form-control:focus,
-.fgc-player-card .form-select:focus {
+[data-current-match] .form-control:focus,
+[data-player-card] .form-control:focus,
+[data-player-card] .form-select:focus {
 	border-color: var(--fgc-control-active);
 	box-shadow: 0 0 0 0.18rem rgba(var(--fgc-control-active-rgb), 0.25);
 }
-.fgc-muted {
-	margin: 0;
+[data-muted-text] {
 	color: var(--fgc-text-muted);
-	font-size: 0.9rem;
 }
-.fgc-player-card {
-	border: 1px solid var(--fgc-border-soft);
-	border-radius: var(--fgc-radius);
+[data-player-card] {
+	border-color: var(--fgc-border-soft) !important;
 	background: rgba(var(--fgc-light-rgb), 0.045);
-	padding: 1rem;
 }
-.fgc-player-card strong {
-	display: inline-block;
-	font-family: "Michroma";
-	font-size: 1.4rem;
-	line-height: 1;
-}
-.fgc-player-id {
-	display: inline-flex;
-	gap: 0.6rem;
-	align-items: baseline;
-	white-space: nowrap;
-}
-.fgc-player-id .fgc-kicker {
-	margin: 0;
-	font-family: "Michroma";
-	font-size: 0.95rem;
-	line-height: 1;
-}
-.fgc-field-label {
-	color: var(--fgc-text-muted);
-	font-weight: 700;
-}
-.fgc-player-portrait-frame {
-	overflow: hidden;
-	width: 100%;
+[data-player-portrait-frame] {
 	max-width: 14rem;
-	align-self: stretch;
-	aspect-ratio: 1;
-	border: 1px solid rgba(var(--fgc-light-rgb), 0.14);
-	border-radius: var(--fgc-radius);
+	border-color: rgba(var(--fgc-light-rgb), 0.14) !important;
 	background: rgba(var(--fgc-light-rgb), 0.08);
 }
-.fgc-player-portrait-frame img {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-.fgc-player-dropzone {
-	display: inline-grid;
-	align-items: center;
+[data-player-dropzone] {
 	min-height: 2.45rem;
-	padding: 0.45rem 0.7rem;
+	min-width: 10.5rem;
 	border: 1px dashed var(--fgc-border-strong);
-	border-radius: var(--fgc-radius);
 	background: var(--fgc-surface-faint);
 	color: var(--fgc-text);
 	transition:
 		border-color 0.18s ease,
 		background 0.18s ease;
 }
-.fgc-player-dropzone.dz-clickable,
-.fgc-player-dropzone.dz-clickable .dz-message,
-.fgc-player-dropzone.dz-clickable .dz-message * {
+[data-player-dropzone].dz-clickable,
+[data-player-dropzone].dz-clickable .dz-message,
+[data-player-dropzone].dz-clickable .dz-message * {
 	cursor: pointer;
 }
-.fgc-player-dropzone.dz-drag-hover {
+[data-player-dropzone].dz-drag-hover {
 	border-color: var(--fgc-control-active);
 	background: rgba(var(--fgc-control-active-rgb), 0.16);
 }
-.fgc-player-dropzone .dz-message {
-	display: inline-flex;
-	gap: 0.45rem;
-	align-items: center;
-	justify-content: center;
-	margin: 0;
+[data-player-dropzone] .dz-message {
 	color: var(--fgc-text-soft);
 	font-size: 0.78rem;
-	font-weight: 700;
-	line-height: 1.2;
-	text-align: center;
-	white-space: nowrap;
 }
-.fgc-player-dropzone .dz-message i {
+[data-player-dropzone] .dz-message i {
 	color: var(--fgc-brand-soft);
 	font-size: 0.95rem;
 }
-.fgc-player-dropzone-disabled {
+[data-player-dropzone][data-disabled="true"] {
 	opacity: 0.55;
 	pointer-events: none;
 }
-.fgc-player-actions {
-	width: 100%;
-}
-.fgc-player-actions .fgc-player-dropzone {
-	min-width: 10.5rem;
-}
-.fgc-player-remove-button {
-	display: inline-flex;
-	gap: 0.45rem;
-	align-items: center;
-	justify-content: center;
+[data-player-portrait-remove],
+[data-player-form] [data-manual-save] {
 	min-height: 2.45rem;
 	font-size: 0.78rem;
-	font-weight: 700;
-}
-.fgc-player-save-button {
-	display: inline-flex;
-	gap: 0.45rem;
-	align-items: center;
-	justify-content: center;
-	min-height: 2.45rem;
-	font-size: 0.78rem;
-	font-weight: 700;
-}
-@media (min-width: 576px) {
-	.fgc-player-actions {
-		width: auto;
-	}
 }
 .fgc-empty {
-	padding: 1rem;
-	border: 1px dashed rgba(var(--fgc-light-rgb), 0.2);
-	border-radius: var(--fgc-radius);
+	border-color: rgba(var(--fgc-light-rgb), 0.2) !important;
 	color: var(--fgc-text-muted);
-	text-align: center;
 }
 /* === SELECT2 === */
 .fgc-event-form .select2-container--default .select2-selection--single,
-.fgc-player-card .select2-container--default .select2-selection--single {
+[data-player-card] .select2-container--default .select2-selection--single {
 	height: 38px;
 	border-color: var(--fgc-border);
 	background-color: var(--fgc-surface-soft);
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__rendered,
-.fgc-player-card .select2-container--default .select2-selection--single .select2-selection__rendered {
+[data-player-card] .select2-container--default .select2-selection--single .select2-selection__rendered {
 	color: var(--fgc-light);
 	line-height: 36px;
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__arrow,
-.fgc-player-card .select2-container--default .select2-selection--single .select2-selection__arrow {
+[data-player-card] .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 36px;
 }
 .fgc-country-option {
-	display: inline-flex;
-	gap: 0.5rem;
-	align-items: center;
 	max-width: 100%;
 	min-height: 1.35rem;
 }
@@ -423,9 +333,6 @@
 	white-space: normal;
 }
 .fgc-media-option {
-	display: inline-flex;
-	gap: 0.55rem;
-	align-items: center;
 	min-height: 1.75rem;
 }
 .fgc-media-image {
@@ -453,8 +360,6 @@
 }
 @media (max-width: 768px) {
 	.fgc-status {
-		justify-content: flex-start;
 		max-width: none;
-		text-align: left;
 	}
 }

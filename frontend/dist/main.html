@@ -1,12 +1,12 @@
 <div class="app-container fgc-page">
 	<div class="container-fluid px-3 px-lg-4 py-4 py-lg-5">
-		<header class="fgc-page-header row g-3 align-items-end mb-3">
+		<header class="fgc-page-header sticky-top row g-3 align-items-end mb-3 p-3">
 			<div class="col-12 col-md">
 				<p class="fgc-kicker" data-i18n="event_kicker">Tournament Control</p>
-				<h1 class="fgc-heading" data-i18n="event_title">Event</h1>
+				<h1 class="fgc-title" data-i18n="event_title">Event</h1>
 			</div>
 			<div class="col-12 col-md-auto d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center justify-content-md-end">
-				<div class="fgc-status" data-event-status data-tone="neutral" data-i18n="event_status_loading">Loading event...</div>
+				<div class="fgc-status d-inline-flex gap-2 align-items-center justify-content-start flex-shrink-0 border rounded px-3 py-2 text-start" data-event-status data-tone="neutral" data-i18n="event_status_loading">Loading event...</div>
 				<div class="custom-control custom-toggle custom-toggle-sm fgc-toggle">
 					<input id="event-autosave-toggle" class="custom-control-input" type="checkbox" data-autosave-toggle checked />
 					<label class="custom-control-label" for="event-autosave-toggle">
@@ -16,35 +16,35 @@
 			</div>
 		</header>
 
-		<form class="fgc-panel fgc-event-form" data-event-form>
+		<form class="fgc-panel fgc-event-form border rounded p-3" data-event-form>
 			<div class="row g-3">
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_name">Name</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_name">Name</span>
 					<input class="form-control" type="text" name="name" autocomplete="off" />
 				</label>
 
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_phase">Phase</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_phase">Phase</span>
 					<input class="form-control" type="text" name="phase" autocomplete="off" />
 				</label>
 
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_rule">Rule</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_rule">Rule</span>
 					<select class="form-select" name="rule" data-enhance="select2"></select>
 				</label>
 
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_game">Game</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_game">Game</span>
 					<select class="form-select" name="game" data-enhance="select2" data-select-template="game"></select>
 				</label>
 
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_format">Format</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_format">Format</span>
 					<select class="form-select" name="format" data-enhance="select2"></select>
 				</label>
 
-				<label class="fgc-field col-12 col-md-6 pt-3">
-					<span data-i18n="event_size">Size</span>
+				<label class="col-12 col-md-6 pt-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_size">Size</span>
 					<input class="form-control" type="number" name="size" min="2" step="1" />
 				</label>
 			</div>
@@ -60,5 +60,25 @@
 				</button>
 			</div>
 		</form>
+
+		<section class="fgc-panel border rounded p-3 mt-3" data-current-match>
+			<div class="row g-3 align-items-center mb-3">
+				<div class="col-12 col-md">
+					<p class="fgc-kicker" data-i18n="match_kicker">Playing now</p>
+					<h2 class="fgc-title fs-4 lh-sm m-0" data-current-match-title data-i18n="match_title">Current match</h2>
+				</div>
+				<div class="col-12 col-sm-auto ms-md-auto">
+					<button class="btn btn-outline-light w-100" type="button" data-current-match-reload>
+						<i class="fas fa-rotate-right" aria-hidden="true"></i>
+						<span data-i18n="match_reload">Reload match</span>
+					</button>
+				</div>
+			</div>
+			<div class="row g-3" data-current-match-body>
+				<div class="col-12">
+					<div class="fgc-empty border rounded p-3 text-center" data-i18n="match_loading">Loading current match...</div>
+				</div>
+			</div>
+		</section>
 	</div>
 </div>
