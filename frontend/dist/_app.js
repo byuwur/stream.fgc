@@ -26,9 +26,17 @@
 		{ key: "single_elimination", name: "Single Elimination" },
 		{ key: "double_elimination", name: "Double Elimination" },
 	];
+	const DEFAULT_SIZES = [
+		{ key: "2", name: "2" },
+		{ key: "4", name: "4" },
+		{ key: "8", name: "8" },
+		{ key: "16", name: "16" },
+		{ key: "32", name: "32" },
+	];
 	let currentState = null;
 	let rules = [];
 	let formats = [];
+	let sizes = [];
 	let games = [];
 	let characters = [];
 	let charactersGame = null;
@@ -710,20 +718,23 @@
 		setFormEnabled(form, false);
 		try {
 			const state = await app.LoadTournament();
-			const [ruleRows, formatRows, gameRows, names] = await Promise.all([
+			const [ruleRows, formatRows, sizeRows, gameRows, names] = await Promise.all([
 				optionalBackendList(app, "ListRules", DEFAULT_RULES),
 				optionalBackendList(app, "ListFormats", DEFAULT_FORMATS),
+				optionalBackendList(app, "ListSizes", DEFAULT_SIZES),
 				optionalBackendList(app, "ListGames", []),
 				loadCountryNames(),
 			]);
 			currentState = state;
 			rules = normalizeAssetRows(ruleRows);
 			formats = normalizeAssetRows(formatRows);
+			sizes = normalizeAssetRows(sizeRows);
 			games = normalizeAssetRows(gameRows);
 			countryNames = names || {};
 			await ensureCharacterCatalog(app, currentState.event?.game || "");
 			renderCatalogSelect(form, "rule", rules, currentState.event?.rule, "key");
 			renderCatalogSelect(form, "format", formats, currentState.event?.format, "key");
+			renderCatalogSelect(form, "size", sizes, currentState.event?.size, "key");
 			renderGameSelect(form, currentState.event?.game);
 			fillEventForm(form, currentState.event || {});
 			setFormEnabled(form, true);

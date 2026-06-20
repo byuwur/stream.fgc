@@ -100,6 +100,11 @@ func (a *App) ListFormats() ([]backend.CatalogOption, error) {
 	return a.backend.ListFormats()
 }
 
+// ListSizes exposes assets/sizes.json to the event editor.
+func (a *App) ListSizes() ([]backend.CatalogOption, error) {
+	return a.backend.ListSizes()
+}
+
 // ListGames exposes game catalog data and logos to the event editor.
 func (a *App) ListGames() ([]backend.GameAsset, error) {
 	return a.backend.ListGames()

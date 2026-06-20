@@ -59,6 +59,15 @@ func (a *App) ListFormats() ([]CatalogOption, error) {
 	return options, nil
 }
 
+// ListSizes returns allowed tournament sizes from assets/sizes.json.
+func (a *App) ListSizes() ([]CatalogOption, error) {
+	options, err := a.readCatalogOptions("sizes.json")
+	if err != nil {
+		return []CatalogOption{}, nil
+	}
+	return options, nil
+}
+
 // ListGames returns all configured games with display logo and background URLs.
 func (a *App) ListGames() ([]GameAsset, error) {
 	entries, err := a.readAssetMap("games.json")

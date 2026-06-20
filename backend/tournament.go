@@ -15,6 +15,7 @@ const (
 	templatesDirPath          = "templates"
 	tournamentJSONFile        = "tournament.json"
 	defaultTournamentJSONFile = "_default.json"
+	defaultTournamentSize     = 8
 )
 
 // TournamentState is the JSON document used by the app and future OBS overlays.
@@ -325,9 +326,7 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	if state.Event.Format == "" {
 		state.Event.Format = "double_elimination"
 	}
-	if state.Event.Size == 0 {
-		state.Event.Size = 8
-	}
+	state.Event.Size = normalizeTournamentSize(state.Event.Size)
 	if state.Current == "" {
 		state.Current = "A"
 	}
@@ -404,12 +403,66 @@ func defaultTournamentState() TournamentState {
 			Rule:   "FT3",
 			Game:   "SF6",
 			Format: "double_elimination",
-			Size:   8,
+			Size:   defaultTournamentSize,
 		},
 		Current: "A",
 		Players: players,
 		Matches: map[string]MatchState{},
 	}
+}
+
+// normalizeTournamentSize constrains event size to the configured catalog.
+func normalizeTournamentSize(size int) int {
+	allowed := configuredTournamentSizes()
+	for _, allowedSize := range allowed {
+		if size == allowedSize {
+			return size
+		}
+	}
+	return fallbackTournamentSize(allowed)
+}
+
+// fallbackTournamentSize prefers 8, then the first configured size.
+func fallbackTournamentSize(allowed []int) int {
+	for _, size := range allowed {
+		if size == defaultTournamentSize {
+			return defaultTournamentSize
+		}
+	}
+	if len(allowed) > 0 {
+		return allowed[0]
+	}
+	return defaultTournamentSize
+}
+
+// configuredTournamentSizes reads assets/sizes.json and falls back to MVP sizes.
+func configuredTournamentSizes() []int {
+	for _, diskPath := range assetDiskPaths("sizes.json") {
+		data, err := os.ReadFile(diskPath)
+		if err != nil {
+			continue
+		}
+
+		entries, err := decodeOrderedStringMap(data)
+		if err != nil {
+			continue
+		}
+
+		sizes := make([]int, 0, len(entries))
+		seen := map[int]bool{}
+		for _, entry := range entries {
+			size, err := strconv.Atoi(entry.Key)
+			if err != nil || size <= 0 || seen[size] {
+				continue
+			}
+			seen[size] = true
+			sizes = append(sizes, size)
+		}
+		if len(sizes) > 0 {
+			return sizes
+		}
+	}
+	return []int{2, 4, defaultTournamentSize, 16, 32}
 }
 
 // loadBracketTemplate reads templates/{format}{size}.json and normalizes it.
