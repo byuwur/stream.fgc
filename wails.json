@@ -1,12 +1,47 @@
 {
-  "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "stream.fgc",
-  "outputfilename": "stream.fgc",
-  "frontend:install": "",
-  "frontend:build": "",
-  "frontend:dev:watcher": "",
-  "author": {
-    "name": "Andres Trujillo [Mateus] byUwUr",
-    "email": "atrujillomateus@gmail.com"
-  }
+	"name": "stream.fgc",
+	"frontend:build": "",
+	"frontend:install": "",
+	"frontend:dev": "",
+	"frontend:dev:build": "",
+	"frontend:dev:install": "",
+	"frontend:dev:watcher": "",
+	"frontend:dev:serverUrl": "",
+	"wailsjsdir": "./frontend",
+	"version": "1",
+	"build:dir": "build",
+	"build:tags": "",
+	"outputfilename": "stream.fgc",
+	"Platform": "",
+	"runNonNativeBuildHooks": false,
+	"postBuildHooks": null,
+	"preBuildHooks": null,
+	"Author": {
+		"name": "Andres Trujillo [Mateus] byUwUr",
+		"email": "atrujillomateus@gmail.com"
+	},
+	"Info": {
+		"companyName": "stream.fgc",
+		"productName": "stream.fgc",
+		"productVersion": "1.0.0",
+		"copyright": "Copyright 2026 [Mateus] byUwUr",
+		"comments": "https://byuwur.co",
+		"fileAssociations": null,
+		"protocols": null
+	},
+	"debounceMS": 100,
+	"devServer": "localhost:22902",
+	"appargs": "",
+	"nsisType": "multiple",
+	"obfuscated": true,
+	"garbleargs": "",
+	"frontend:dir": "frontend",
+	"viteServerTimeout": 10,
+	"bindings": {
+		"ts_generation": {
+			"prefix": "",
+			"suffix": "",
+			"outputType": ""
+		}
+	}
 }
