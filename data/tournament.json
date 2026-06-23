@@ -1,68 +1,81 @@
 {
-  "version": 1,
-  "event": {
-    "name": "Chimbacanería",
-    "phase": "2026:25",
-    "rule": "ft3",
-    "game": "sf6",
-    "format": "double_elimination",
-    "size": 8
-  },
-  "current": "A",
-  "players": {
-    "1": {
-      "name": "BONYUR",
-      "team": "@byUwUr",
-      "country": "CO",
-      "character": "chunli"
-    },
-    "2": {
-      "name": "MenaRD",
-      "team": "WBG - Bandits",
-      "country": "DO",
-      "character": "blanka"
-    },
-    "3": {
-      "name": "Punk",
-      "team": "FlyQuest",
-      "country": "US",
-      "character": "ingrid"
-    },
-    "4": {
-      "name": "RobTV",
-      "team": "",
-      "country": "US",
-      "character": "cammy"
-    },
-    "5": {
-      "name": "Luiman",
-      "team": "Bandits",
-      "country": "DO",
-      "character": "dhalsim"
-    },
-    "6": {
-      "name": "Psycho",
-      "team": "",
-      "country": "US",
-      "character": "kimberly"
-    },
-    "7": {
-      "name": "Pezziman",
-      "team": "",
-      "country": "VE",
-      "character": ""
-    },
-    "8": {
-      "name": "Jimmy_DR",
-      "team": "",
-      "country": "DO",
-      "character": ""
-    }
-  },
-  "matches": {
-    "A": {
-      "player1_score": 1,
-      "player2_score": 2
-    }
-  }
+	"version": 1,
+	"event": {
+		"name": "Chimbacanería",
+		"phase": "2026:25",
+		"rule": "ft3",
+		"game": "sf6",
+		"format": "double_elimination",
+		"size": 8
+	},
+	"current": "A",
+	"players": {
+		"1": {
+			"name": "BONYUR",
+			"team": "@byUwUr",
+			"country": "CO",
+			"character": "chunli"
+		},
+		"2": {
+			"name": "MenaRD",
+			"team": "WBG - Bandits",
+			"country": "DO",
+			"character": "blanka"
+		},
+		"3": {
+			"name": "Punk",
+			"team": "FlyQuest",
+			"country": "US",
+			"character": "ingrid"
+		},
+		"4": {
+			"name": "RobTV",
+			"team": "",
+			"country": "US",
+			"character": "cammy"
+		},
+		"5": {
+			"name": "Luiman",
+			"team": "Bandits",
+			"country": "DO",
+			"character": "dhalsim"
+		},
+		"6": {
+			"name": "Psycho",
+			"team": "",
+			"country": "US",
+			"character": "kimberly"
+		},
+		"7": {
+			"name": "Pezziman",
+			"team": "",
+			"country": "VE",
+			"character": "rashid"
+		},
+		"8": {
+			"name": "JimmyDR",
+			"team": "",
+			"country": "DO",
+			"character": "marisa"
+		}
+	},
+	"matches": {
+		"A": {
+			"player1_score": 1,
+			"player2_score": 0
+		}
+	},
+	"bracket": {
+		"overlay_view": "finals",
+		"seeds": {
+			"1": "1",
+			"2": "4",
+			"3": "5",
+			"4": "2",
+			"5": "3",
+			"6": "7",
+			"7": "6",
+			"8": "8"
+		}
+	}
 }

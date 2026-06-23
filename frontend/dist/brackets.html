@@ -1,0 +1,48 @@
+<div class="app-container fgc-page" data-bracket-page>
+	<div class="container-fluid px-3 px-lg-4 py-4 py-lg-5">
+		<header class="fgc-page-header sticky-top row g-3 align-items-end mb-3 p-3">
+			<div class="col-12 col-md">
+				<p class="fgc-kicker" data-i18n="bracket_kicker">Tournament Control</p>
+				<h1 class="fgc-title" data-i18n="bracket_title">Bracket</h1>
+			</div>
+			<div class="col-12 col-md-auto d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center justify-content-md-end">
+				<div class="fgc-status d-inline-flex gap-2 align-items-center justify-content-start flex-shrink-0 border rounded px-3 py-2 text-start" data-bracket-status data-tone="neutral" data-i18n="bracket_status_loading">Loading bracket...</div>
+			</div>
+		</header>
+
+		<section class="fgc-panel border rounded p-3">
+			<div class="row g-3 align-items-end mb-3">
+				<label class="col-12 col-md-4 col-xl-3 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="bracket_overlay_view">Overlay view</span>
+					<select class="form-select" data-bracket-view-select></select>
+				</label>
+				<div class="col-12 col-md">
+					<p class="m-0 small" data-muted-text data-bracket-summary data-i18n="bracket_loading">Loading bracket...</p>
+				</div>
+				<div class="col-12 col-md-auto d-flex flex-column flex-sm-row gap-2">
+					<a class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" href="./bracket.html" target="_blank" rel="noopener">
+						<i class="fas fa-display" aria-hidden="true"></i>
+						<span data-i18n="bracket_open_overlay">Open overlay</span>
+					</a>
+					<button class="btn btn-outline-warning d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-bracket-action data-bracket-randomize>
+						<i class="fas fa-shuffle" aria-hidden="true"></i>
+						<span data-i18n="bracket_randomize">Randomize</span>
+					</button>
+					<button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-bracket-action data-bracket-reset>
+						<i class="fas fa-rotate-left" aria-hidden="true"></i>
+						<span data-i18n="bracket_reset">Reset</span>
+					</button>
+					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-bracket-reload>
+						<i class="fas fa-rotate-right" aria-hidden="true"></i>
+						<span data-i18n="bracket_reload">Reload</span>
+					</button>
+				</div>
+			</div>
+			<div class="row g-3" data-bracket-board>
+				<div class="col-12">
+					<div class="fgc-empty border rounded p-3 text-center" data-i18n="bracket_loading">Loading bracket...</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>

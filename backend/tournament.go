@@ -3,11 +3,13 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -25,6 +27,7 @@ type TournamentState struct {
 	Current string                `json:"current"`
 	Players map[string]Player     `json:"players"`
 	Matches map[string]MatchState `json:"matches"`
+	Bracket BracketSettings       `json:"bracket,omitempty"`
 }
 
 // EventInfo stores the tournament-level fields edited on the event page.
@@ -43,6 +46,7 @@ type Player struct {
 	Team      string `json:"team"`
 	Country   string `json:"country"`
 	Character string `json:"character"`
+	Bye       bool   `json:"bye,omitempty"`
 	Portrait  string `json:"-"` // Derived from game/character assets; never persisted.
 }
 
@@ -52,6 +56,7 @@ type MatchState struct {
 	Player2Score int    `json:"player2_score"`
 	Winner       string `json:"winner,omitempty"`
 	Loser        string `json:"loser,omitempty"`
+	Reason       string `json:"reason,omitempty"`
 }
 
 // BracketTemplate describes the static bracket graph loaded from templates.
@@ -62,6 +67,16 @@ type BracketTemplate struct {
 	Placements map[string]interface{}   `json:"placements,omitempty"`
 }
 
+// BracketSettings stores admin choices that affect bracket overlays.
+type BracketSettings struct {
+	OverlayView     string                 `json:"overlay_view,omitempty"`
+	Seeds           map[string]string      `json:"seeds,omitempty"`
+	Byes            map[string]bool        `json:"byes,omitempty"`
+	Matches         map[string]MatchState  `json:"matches,omitempty"` // Legacy location; migrated to TournamentState.Matches.
+	Placements      map[string]interface{} `json:"placements,omitempty"`
+	GrandFinalReset bool                   `json:"grand_final_reset,omitempty"`
+}
+
 // TemplateMatch defines one template match and where its results advance.
 type TemplateMatch struct {
 	Name     string              `json:"name"`
@@ -69,6 +84,9 @@ type TemplateMatch struct {
 	Player2  TemplateParticipant `json:"p2"`
 	WinnerTo string              `json:"winner_to,omitempty"`
 	LoserTo  string              `json:"loser_to,omitempty"`
+	Group    string              `json:"group,omitempty"`
+	Round    string              `json:"round,omitempty"`
+	Order    int                 `json:"order,omitempty"`
 	Reset    bool                `json:"reset,omitempty"`
 	Optional bool                `json:"optional,omitempty"`
 }
@@ -95,8 +113,10 @@ type ResolvedParticipant struct {
 	PlayerID     string              `json:"player_id"`
 	Player       Player              `json:"player"`
 	Source       TemplateParticipant `json:"source"`
+	BracketSeed  int                 `json:"bracket_seed,omitempty"`
 	Resolved     bool                `json:"resolved"`
 	PendingLabel string              `json:"pending_label"`
+	Status       string              `json:"status"`
 }
 
 // LoadTournament reloads tournament.json and returns a safe copy.
@@ -172,6 +192,280 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	matchState.Player1Score = max(0, player1Score)
 	matchState.Player2Score = max(0, player2Score)
 	state.Matches[matchID] = matchState
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SetCurrentMatch selects the match controlled by the current-match panel.
+func (a *App) SetCurrentMatch(matchID string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	if _, ok := template.Matches[matchID]; !ok {
+		return cloneTournamentState(a.state), fmt.Errorf("unknown match: %s", matchID)
+	}
+
+	state.Current = matchID
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SetMatchWinner stores the winner/loser selected by the bracket admin page.
+func (a *App) SetMatchWinner(matchID string, winnerPlayerID string) (TournamentState, error) {
+	return a.setMatchWinner(matchID, winnerPlayerID, "")
+}
+
+// SetMatchResult stores a winner/loser with a result reason such as DQ.
+func (a *App) SetMatchResult(matchID string, winnerPlayerID string, reason string) (TournamentState, error) {
+	return a.setMatchWinner(matchID, winnerPlayerID, reason)
+}
+
+func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	if matchID == "" {
+		matchID = state.Current
+	}
+
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	templateMatch, ok := template.Matches[matchID]
+	if !ok {
+		return cloneTournamentState(a.state), fmt.Errorf("unknown match: %s", matchID)
+	}
+
+	matchState := state.Matches[matchID]
+	winnerPlayerID = strings.TrimSpace(winnerPlayerID)
+	if winnerPlayerID == "" {
+		matchState.Winner = ""
+		matchState.Loser = ""
+		matchState.Reason = ""
+		state.Matches[matchID] = matchState
+	} else {
+		player1 := resolveParticipant(templateMatch.Player1, state)
+		player2 := resolveParticipant(templateMatch.Player2, state)
+		winnerID, loserID, err := winnerLoserIDs(winnerPlayerID, player1, player2)
+		if err != nil {
+			return cloneTournamentState(a.state), err
+		}
+		matchState.Winner = winnerID
+		matchState.Loser = loserID
+		matchState.Reason = normalizeMatchReason(reason)
+		state.Matches[matchID] = matchState
+	}
+	applyByeAdvancement(&state, template)
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SetMatchParticipantBye marks a seed participant as a BYE and advances the opponent when possible.
+func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	if matchID == "" {
+		matchID = state.Current
+	}
+
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	templateMatch, ok := template.Matches[matchID]
+	if !ok {
+		return cloneTournamentState(a.state), fmt.Errorf("unknown match: %s", matchID)
+	}
+
+	participant, err := templateParticipantSide(templateMatch, side)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	if participant.Type != "seed" || participant.Seed <= 0 {
+		return cloneTournamentState(a.state), fmt.Errorf("only seeded participants can be marked as BYE")
+	}
+
+	ensureBracketSeedAssignments(&state)
+	setBracketSeedBye(&state, participant.Seed, bye)
+
+	matchState := state.Matches[matchID]
+	matchState.Winner = ""
+	matchState.Loser = ""
+	matchState.Reason = ""
+	state.Matches[matchID] = matchState
+	applyByeAdvancement(&state, template)
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SetBracketOverlayView persists which bracket slice the overlay renders.
+func (a *App) SetBracketOverlayView(view string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	state.Bracket.OverlayView = normalizeBracketViewKey(view)
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// ResetBracket clears live match state and BYE flags while preserving players and overlay settings.
+func (a *App) ResetBracket() (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	state.Matches = map[string]MatchState{}
+	state.Current = firstTemplateMatchID(template)
+	if state.Current == "" {
+		state.Current = "A"
+	}
+	clearPlayerByes(state.Players, state.Event.Size)
+	clearBracketSeeds(&state)
+	clearBracketByes(&state)
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// RandomizeBracketSeeds shuffles bracket seed assignments before bracket play starts.
+func (a *App) RandomizeBracketSeeds() (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	if hasBracketStarted(state, template) {
+		return cloneTournamentState(a.state), fmt.Errorf("bracket has already started")
+	}
+
+	playerIDs := make([]string, 0, state.Event.Size)
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		playerID := strconv.Itoa(seed)
+		player := state.Players[playerID]
+		if strings.TrimSpace(player.Name) == "" {
+			continue
+		}
+		playerIDs = append(playerIDs, playerID)
+	}
+
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rng.Shuffle(len(playerIDs), func(i int, j int) {
+		playerIDs[i], playerIDs[j] = playerIDs[j], playerIDs[i]
+	})
+
+	slots := make([]string, 0, state.Event.Size)
+	slots = append(slots, playerIDs...)
+	for len(slots) < state.Event.Size {
+		slots = append(slots, "")
+	}
+	rng.Shuffle(len(slots), func(i int, j int) {
+		slots[i], slots[j] = slots[j], slots[i]
+	})
+
+	state.Bracket.Seeds = map[string]string{}
+	state.Bracket.Byes = map[string]bool{}
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		key := strconv.Itoa(seed)
+		state.Bracket.Seeds[key] = slots[seed-1]
+		if slots[seed-1] == "" {
+			state.Bracket.Byes[key] = true
+		}
+	}
+	clearPlayerByes(state.Players, state.Event.Size)
+	state.Matches = map[string]MatchState{}
+	state.Current = firstTemplateMatchID(template)
+	if state.Current == "" {
+		state.Current = "A"
+	}
+	applyByeAdvancement(&state, template)
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SwapBracketSeeds swaps two bracket seed assignments as a manual correction.
+func (a *App) SwapBracketSeeds(seed int, targetSeed int) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	if seed < 1 || seed > state.Event.Size || targetSeed < 1 || targetSeed > state.Event.Size {
+		return cloneTournamentState(a.state), fmt.Errorf("seed is outside bracket size")
+	}
+	if seed == targetSeed {
+		return cloneTournamentState(a.state), nil
+	}
+
+	ensureBracketSeedAssignments(&state)
+	leftID := strconv.Itoa(seed)
+	rightID := strconv.Itoa(targetSeed)
+	state.Bracket.Seeds[leftID], state.Bracket.Seeds[rightID] = state.Bracket.Seeds[rightID], state.Bracket.Seeds[leftID]
+	leftBye := state.Bracket.Byes[leftID]
+	rightBye := state.Bracket.Byes[rightID]
+	setBracketSeedBye(&state, seed, rightBye)
+	setBracketSeedBye(&state, targetSeed, leftBye)
+	clearSetupMatchResults(&state)
+	applyByeAdvancement(&state, template)
 
 	normalized := normalizeTournamentState(state)
 	if err := writeTournamentState(normalized); err != nil {
@@ -333,10 +627,21 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	if state.Players == nil {
 		state.Players = map[string]Player{}
 	}
+	ensurePlayerSlots(state.Players, state.Event.Size)
 	stripPlayerPortraits(state.Players)
+	normalizeBracketSeedAssignments(&state)
 	if state.Matches == nil {
 		state.Matches = map[string]MatchState{}
 	}
+	if state.Bracket.Matches != nil {
+		for id, match := range state.Bracket.Matches {
+			if _, ok := state.Matches[id]; !ok {
+				state.Matches[id] = match
+			}
+		}
+		state.Bracket.Matches = nil
+	}
+	state.Bracket.OverlayView = normalizeBracketViewKey(state.Bracket.OverlayView)
 	return state
 }
 
@@ -366,6 +671,179 @@ func stripPlayerPortraits(players map[string]Player) {
 	}
 }
 
+// clearPlayerByes removes setup-only BYE markers from visible seed slots.
+func clearPlayerByes(players map[string]Player, size int) {
+	for seed := 1; seed <= size; seed++ {
+		id := strconv.Itoa(seed)
+		player := players[id]
+		player.Bye = false
+		players[id] = player
+	}
+}
+
+// ensureBracketSeedAssignments materializes the bracket seed map before setup edits.
+func ensureBracketSeedAssignments(state *TournamentState) {
+	if state.Bracket.Seeds == nil {
+		state.Bracket.Seeds = map[string]string{}
+	}
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		key := strconv.Itoa(seed)
+		if _, ok := state.Bracket.Seeds[key]; !ok {
+			state.Bracket.Seeds[key] = key
+		}
+	}
+	normalizeBracketSeedAssignments(state)
+	if state.Bracket.Seeds == nil {
+		state.Bracket.Seeds = map[string]string{}
+		for seed := 1; seed <= state.Event.Size; seed++ {
+			key := strconv.Itoa(seed)
+			state.Bracket.Seeds[key] = key
+		}
+	}
+}
+
+// normalizeBracketSeedAssignments keeps bracket-only seeding inside event size.
+func normalizeBracketSeedAssignments(state *TournamentState) {
+	if state.Bracket.Byes != nil {
+		for key, bye := range state.Bracket.Byes {
+			seed, err := strconv.Atoi(key)
+			if err != nil || seed < 1 || seed > state.Event.Size || !bye {
+				delete(state.Bracket.Byes, key)
+			}
+		}
+		if len(state.Bracket.Byes) == 0 {
+			state.Bracket.Byes = nil
+		}
+	}
+	if state.Bracket.Seeds == nil {
+		return
+	}
+
+	for key := range state.Bracket.Seeds {
+		seed, err := strconv.Atoi(key)
+		if err != nil || seed < 1 || seed > state.Event.Size {
+			delete(state.Bracket.Seeds, key)
+		}
+	}
+
+	used := map[string]bool{}
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		key := strconv.Itoa(seed)
+		playerID, ok := state.Bracket.Seeds[key]
+		if !ok {
+			playerID = key
+		}
+		playerID = strings.TrimSpace(playerID)
+		if playerID == "" {
+			state.Bracket.Seeds[key] = ""
+			continue
+		}
+		if _, ok := state.Players[playerID]; !ok || used[playerID] {
+			state.Bracket.Seeds[key] = ""
+			continue
+		}
+		used[playerID] = true
+		state.Bracket.Seeds[key] = playerID
+	}
+
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		key := strconv.Itoa(seed)
+		if state.Bracket.Seeds[key] != "" || state.Bracket.Byes[key] {
+			continue
+		}
+		for candidate := 1; candidate <= state.Event.Size; candidate++ {
+			playerID := strconv.Itoa(candidate)
+			if used[playerID] {
+				continue
+			}
+			state.Bracket.Seeds[key] = playerID
+			used[playerID] = true
+			break
+		}
+	}
+
+	identity := true
+	for seed := 1; seed <= state.Event.Size; seed++ {
+		key := strconv.Itoa(seed)
+		if state.Bracket.Seeds[key] != key {
+			identity = false
+			break
+		}
+	}
+	if identity && len(state.Bracket.Byes) == 0 {
+		state.Bracket.Seeds = nil
+	}
+}
+
+// bracketSeedPlayerID returns the player currently assigned to one bracket seed slot.
+func bracketSeedPlayerID(state TournamentState, seed int) string {
+	if seed <= 0 {
+		return ""
+	}
+	key := strconv.Itoa(seed)
+	if state.Bracket.Seeds != nil {
+		if playerID, ok := state.Bracket.Seeds[key]; ok {
+			return strings.TrimSpace(playerID)
+		}
+	}
+	return key
+}
+
+// bracketSeedBye reports whether a bracket seed slot is intentionally a BYE.
+func bracketSeedBye(state TournamentState, seed int) bool {
+	if seed <= 0 {
+		return false
+	}
+	key := strconv.Itoa(seed)
+	if state.Bracket.Byes != nil && state.Bracket.Byes[key] {
+		return true
+	}
+	playerID := bracketSeedPlayerID(state, seed)
+	if playerID == "" {
+		return false
+	}
+	return state.Players[playerID].Bye
+}
+
+// setBracketSeedBye toggles setup-only BYE state on a bracket seed slot.
+func setBracketSeedBye(state *TournamentState, seed int, bye bool) {
+	if seed <= 0 {
+		return
+	}
+	if state.Bracket.Byes == nil {
+		state.Bracket.Byes = map[string]bool{}
+	}
+	key := strconv.Itoa(seed)
+	if bye {
+		state.Bracket.Byes[key] = true
+		return
+	}
+	delete(state.Bracket.Byes, key)
+	if len(state.Bracket.Byes) == 0 {
+		state.Bracket.Byes = nil
+	}
+}
+
+// clearBracketByes removes setup BYEs without touching player records.
+func clearBracketByes(state *TournamentState) {
+	state.Bracket.Byes = nil
+}
+
+// clearBracketSeeds returns the bracket to natural seed order without moving players.
+func clearBracketSeeds(state *TournamentState) {
+	state.Bracket.Seeds = nil
+}
+
+// ensurePlayerSlots keeps seed slots 1..size present without deleting hidden extras.
+func ensurePlayerSlots(players map[string]Player, size int) {
+	for seed := 1; seed <= size; seed++ {
+		id := strconv.Itoa(seed)
+		if _, ok := players[id]; !ok {
+			players[id] = Player{}
+		}
+	}
+}
+
 // cloneTournamentState protects backend state from frontend-side mutation.
 func cloneTournamentState(state TournamentState) TournamentState {
 	cloned := state
@@ -376,6 +854,30 @@ func cloneTournamentState(state TournamentState) TournamentState {
 	cloned.Matches = make(map[string]MatchState, len(state.Matches))
 	for id, match := range state.Matches {
 		cloned.Matches[id] = match
+	}
+	if state.Bracket.Matches != nil {
+		cloned.Bracket.Matches = make(map[string]MatchState, len(state.Bracket.Matches))
+		for id, match := range state.Bracket.Matches {
+			cloned.Bracket.Matches[id] = match
+		}
+	}
+	if state.Bracket.Seeds != nil {
+		cloned.Bracket.Seeds = make(map[string]string, len(state.Bracket.Seeds))
+		for seed, playerID := range state.Bracket.Seeds {
+			cloned.Bracket.Seeds[seed] = playerID
+		}
+	}
+	if state.Bracket.Byes != nil {
+		cloned.Bracket.Byes = make(map[string]bool, len(state.Bracket.Byes))
+		for seed, bye := range state.Bracket.Byes {
+			cloned.Bracket.Byes[seed] = bye
+		}
+	}
+	if state.Bracket.Placements != nil {
+		cloned.Bracket.Placements = make(map[string]interface{}, len(state.Bracket.Placements))
+		for id, placement := range state.Bracket.Placements {
+			cloned.Bracket.Placements[id] = placement
+		}
 	}
 	return cloned
 }
@@ -469,7 +971,7 @@ func configuredTournamentSizes() []int {
 func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 	data, err := os.ReadFile(filepath.Join(templatesDirPath, templateFileName(format, size)))
 	if err != nil {
-		return BracketTemplate{}, err
+		return generateBracketTemplate(format, size), nil
 	}
 
 	var template BracketTemplate
@@ -484,16 +986,42 @@ func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 func resolveParticipant(participant TemplateParticipant, state TournamentState) ResolvedParticipant {
 	switch participant.Type {
 	case "seed":
-		playerID := strconv.Itoa(participant.Seed)
+		playerID := bracketSeedPlayerID(state, participant.Seed)
 		player, ok := state.Players[playerID]
+		if bracketSeedBye(state, participant.Seed) {
+			return ResolvedParticipant{
+				PlayerID:     playerID,
+				Player:       player,
+				Source:       participant,
+				BracketSeed:  participant.Seed,
+				Resolved:     true,
+				PendingLabel: "BYE",
+				Status:       participantStatusBye,
+			}
+		}
+		if playerID == "" {
+			return unresolvedParticipant(participant, "", fmt.Sprintf("Seed %d", participant.Seed))
+		}
 		if !ok {
-			return unresolvedParticipant(participant, fmt.Sprintf("Seed %d", participant.Seed))
+			return unresolvedParticipant(participant, playerID, fmt.Sprintf("Seed %d", participant.Seed))
+		}
+		if strings.TrimSpace(player.Name) == "" {
+			return ResolvedParticipant{
+				PlayerID:     playerID,
+				Player:       player,
+				Source:       participant,
+				BracketSeed:  participant.Seed,
+				PendingLabel: "TBD",
+				Status:       participantStatusTBD,
+			}
 		}
 		return ResolvedParticipant{
-			PlayerID: playerID,
-			Player:   player,
-			Source:   participant,
-			Resolved: true,
+			PlayerID:    playerID,
+			Player:      player,
+			Source:      participant,
+			BracketSeed: participant.Seed,
+			Resolved:    true,
+			Status:      participantStatusPlayer,
 		}
 	case "winner", "loser":
 		matchState := state.Matches[participant.Match]
@@ -504,30 +1032,47 @@ func resolveParticipant(participant TemplateParticipant, state TournamentState) 
 			labelPrefix = "Loser"
 		}
 		if playerID == "" {
-			return unresolvedParticipant(participant, fmt.Sprintf("%s of %s", labelPrefix, participant.Match))
+			return unresolvedParticipant(participant, "", fmt.Sprintf("%s of %s", labelPrefix, participant.Match))
 		}
 		player, ok := state.Players[playerID]
 		if !ok {
-			return unresolvedParticipant(participant, fmt.Sprintf("%s of %s", labelPrefix, participant.Match))
+			return unresolvedParticipant(participant, playerID, fmt.Sprintf("%s of %s", labelPrefix, participant.Match))
+		}
+		if player.Bye {
+			return ResolvedParticipant{
+				PlayerID:     playerID,
+				Player:       player,
+				Source:       participant,
+				Resolved:     true,
+				PendingLabel: "BYE",
+				Status:       participantStatusBye,
+			}
 		}
 		return ResolvedParticipant{
 			PlayerID: playerID,
 			Player:   player,
 			Source:   participant,
 			Resolved: true,
+			Status:   participantStatusPlayer,
 		}
 	default:
-		return unresolvedParticipant(participant, "TBD")
+		return unresolvedParticipant(participant, "", "TBD")
 	}
 }
 
 // unresolvedParticipant keeps pending bracket sources visible in the UI.
-func unresolvedParticipant(participant TemplateParticipant, label string) ResolvedParticipant {
-	return ResolvedParticipant{
+func unresolvedParticipant(participant TemplateParticipant, playerID string, label string) ResolvedParticipant {
+	resolved := ResolvedParticipant{
+		PlayerID:     playerID,
 		Source:       participant,
 		PendingLabel: label,
 		Resolved:     false,
+		Status:       participantStatusPending,
 	}
+	if participant.Type == "seed" {
+		resolved.BracketSeed = participant.Seed
+	}
+	return resolved
 }
 
 // normalizeBracketTemplate fills template defaults without changing bracket logic.

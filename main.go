@@ -70,6 +70,51 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	return a.backend.UpdateMatchScore(matchID, player1Score, player2Score)
 }
 
+// SetCurrentMatch selects the match shown in the current-match controller.
+func (a *App) SetCurrentMatch(matchID string) (backend.TournamentState, error) {
+	return a.backend.SetCurrentMatch(matchID)
+}
+
+// SetMatchWinner persists the selected winner/loser for bracket advancement.
+func (a *App) SetMatchWinner(matchID string, winnerPlayerID string) (backend.TournamentState, error) {
+	return a.backend.SetMatchWinner(matchID, winnerPlayerID)
+}
+
+// SetMatchResult persists a winner/loser with a result reason.
+func (a *App) SetMatchResult(matchID string, winnerPlayerID string, reason string) (backend.TournamentState, error) {
+	return a.backend.SetMatchResult(matchID, winnerPlayerID, reason)
+}
+
+// SetMatchParticipantBye marks one seed participant as a BYE.
+func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (backend.TournamentState, error) {
+	return a.backend.SetMatchParticipantBye(matchID, side, bye)
+}
+
+// SetBracketOverlayView chooses which bracket slice OBS renders.
+func (a *App) SetBracketOverlayView(view string) (backend.TournamentState, error) {
+	return a.backend.SetBracketOverlayView(view)
+}
+
+// GetBracketView resolves the bracket for admin previews and OBS overlays.
+func (a *App) GetBracketView(view string) backend.BracketProjection {
+	return a.backend.GetBracketView(view)
+}
+
+// ResetBracket clears match state and seed BYEs.
+func (a *App) ResetBracket() (backend.TournamentState, error) {
+	return a.backend.ResetBracket()
+}
+
+// RandomizeBracketSeeds shuffles bracket assignments before play starts.
+func (a *App) RandomizeBracketSeeds() (backend.TournamentState, error) {
+	return a.backend.RandomizeBracketSeeds()
+}
+
+// SwapBracketSeeds swaps two bracket seed assignments without moving player records.
+func (a *App) SwapBracketSeeds(seed int, targetSeed int) (backend.TournamentState, error) {
+	return a.backend.SwapBracketSeeds(seed, targetSeed)
+}
+
 // AdvanceWinner is reserved for future bracket advancement.
 func (a *App) AdvanceWinner(matchID string) backend.TournamentState {
 	return a.backend.AdvanceWinner(matchID)

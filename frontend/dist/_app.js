@@ -9,7 +9,11 @@
 	const EVENT_FORM = "[data-event-form]";
 	const CURRENT_MATCH = "[data-current-match]";
 	const PLAYER_PAGE = "[data-player-page]";
+	const BRACKET_PAGE = "[data-bracket-page]";
+	const BRACKET_OVERLAY = "[data-bracket-overlay]";
+	const BRACKET_ADMIN_VIEW = "all";
 	const AUTOSAVE_DELAY = 700;
+	const BRACKET_OVERLAY_REFRESH_MS = 2000;
 	const AUTOSAVE_STORAGE_KEY = "streamFgc.autosave";
 	const FALLBACK_ASSET = "./assets/nopic.png";
 	const EMPTY_STATE_CLASS = "fgc-empty border rounded p-3 text-center";
@@ -46,6 +50,9 @@
 	const countryNameCache = {};
 	const autosaveForms = new WeakMap();
 	const autosaveFormSet = new Set();
+	const bracketLoadTickets = new WeakMap();
+	const bracketSeedSelections = new WeakMap();
+	const currentSeedSelections = new WeakMap();
 
 	// --- Backend and status helpers ---
 
@@ -58,6 +65,21 @@
 	function sleep(ms) {
 		return new Promise(function (resolve) {
 			global.setTimeout(resolve, ms);
+		});
+	}
+
+	/** Rejects slow backend calls so status badges cannot spin forever. */
+	function withTimeout(promise, timeout, label) {
+		let timer = 0;
+		return Promise.race([
+			promise,
+			new Promise(function (_resolve, reject) {
+				timer = global.setTimeout(function () {
+					reject(new Error(label));
+				}, timeout);
+			}),
+		]).finally(function () {
+			global.clearTimeout(timer);
 		});
 	}
 
@@ -84,7 +106,7 @@
 
 	/** Chooses the Font Awesome icon that matches a status key/tone. */
 	function statusIconClass(key, tone) {
-		if (String(key).includes("loading") || String(key).includes("saving") || String(key).includes("uploading") || String(key).includes("removing")) return "fas fa-spinner fa-spin";
+		if (String(key).includes("loading") || String(key).includes("saving") || String(key).includes("uploading") || String(key).includes("removing") || String(key).includes("swapping")) return "fas fa-spinner fa-spin";
 		if (String(key).includes("pending")) return "fas fa-clock";
 		if (String(key).includes("unsaved") || tone === "warning") return "fas fa-triangle-exclamation";
 		if (tone === "error" || String(key).includes("failed")) return "fas fa-circle-exclamation";
@@ -131,6 +153,25 @@
 		const status = page.querySelector("[data-player-status]");
 		if (!status) return;
 		setStatusElement(status, key, fallback, tone);
+	}
+
+	/** Sets the bracket page status badge. */
+	function setBracketStatus(page, key, fallback, tone = "neutral") {
+		const status = page.querySelector("[data-bracket-status]");
+		if (!status) return;
+		setStatusElement(status, key, fallback, tone);
+	}
+
+	/** Issues a render token so older bracket refreshes cannot overwrite newer ones. */
+	function nextBracketLoadTicket(root) {
+		const ticket = (bracketLoadTickets.get(root) || 0) + 1;
+		bracketLoadTickets.set(root, ticket);
+		return ticket;
+	}
+
+	/** Checks if a bracket refresh is still the newest load for its page. */
+	function isCurrentBracketLoad(root, ticket) {
+		return bracketLoadTickets.get(root) === ticket;
 	}
 
 	// --- DOM and form helpers ---
@@ -865,14 +906,16 @@
 
 	/** Returns a participant display name, falling back to the bracket source. */
 	function participantName(participant) {
+		if (participant?.status === "bye") return "BYE";
+		if (participant?.status === "tbd" || participant?.status === "pending") return participant?.pending_label || t("match_tbd", "TBD");
 		if (participant?.resolved) return participant.player?.name || t("match_tbd", "TBD");
 		return participant?.pending_label || t("match_tbd", "TBD");
 	}
 
 	/** Returns the optional team/country line for a resolved participant. */
 	function participantMeta(participant) {
-		if (!participant?.resolved) return participant?.pending_label || "";
-		return participant.player?.team || t("match_no_team", "No team");
+		if (!participant?.resolved || participant?.status === "bye") return participant?.pending_label || "";
+		return participant.player?.team || t("match_no_team", "");
 	}
 
 	/** Builds the country flag and localized label for a match participant. */
@@ -927,6 +970,36 @@
 		].join("");
 	}
 
+	/** Returns the seed/player slot that can be swapped in the bracket graph. */
+	function swappableParticipantSeed(participant) {
+		if (participant?.source?.type !== "seed") return 0;
+		const seed = Number(participant?.source?.seed || participant?.bracket_seed || 0);
+		return Number.isInteger(seed) && seed > 0 ? seed : 0;
+	}
+
+	/** Keeps seed-swap click targets visually synced with the pending selection. */
+	function setSeedSelection(root, selector, selectedSeed) {
+		root.querySelectorAll(selector).forEach(function (target) {
+			if (!(target instanceof HTMLElement)) return;
+			const seed = Number(target.dataset.seed || 0);
+			target.toggleAttribute("data-swap-selected", Boolean(selectedSeed && seed === selectedSeed));
+		});
+	}
+
+	/** Returns true when a click should keep controlling a nested form/button. */
+	function isInteractiveTarget(target) {
+		return Boolean(target?.closest("button, a, input, select, textarea, label"));
+	}
+
+	/** Reads a bracket seed slot from either a row click or its explicit swap handle. */
+	function bracketSwapSeedFromTarget(target) {
+		const explicitHandle = target?.closest("[data-bracket-seed-swap]");
+		if (explicitHandle instanceof HTMLElement) return Number(explicitHandle.dataset.bracketSeedSwap || 0);
+		const participant = target?.closest("[data-bracket-seed-player]");
+		if (!(participant instanceof HTMLElement) || isInteractiveTarget(target)) return 0;
+		return Number(participant.dataset.seed || 0);
+	}
+
 	/** Creates one side of the current-match scoreboard. */
 	function matchPlayerCard(match, side) {
 		const participant = side === 1 ? match?.player1 : match?.player2;
@@ -937,10 +1010,12 @@
 		const country = participantCountryHTML(participant);
 		const playerID = participant?.player_id ? `${participant.player_id}` : "";
 		const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
+		const seed = swappableParticipantSeed(participant);
+		const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}" role="button" tabindex="0" aria-label="${escapeHtml(t("match_swap_player", "Select player to swap"))}"` : "";
 
 		return [
 			`<article class="col-12 col-lg-5">`,
-			`<div class="h-100 border rounded p-3"${opacity} data-match-card>`,
+			`<div class="h-100 border rounded p-3"${opacity} data-match-card${swapAttrs}>`,
 			`<div class="row g-3 align-items-stretch">`,
 			`<div class="col-12 d-flex flex-wrap gap-2 align-items-baseline justify-content-between">`,
 			side === 1
@@ -1056,6 +1131,48 @@
 		}
 	}
 
+	/** Performs a seed swap from the event page current-match panel. */
+	async function swapCurrentMatchSeeds(panel, seed, targetSeed) {
+		const app = await waitForBackend();
+		if (!app || typeof app.SwapBracketSeeds !== "function") {
+			setStatus(panel, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		setStatus(panel, "match_status_swapping", "Swapping players...", "neutral");
+		setMatchControlsEnabled(panel, false);
+		try {
+			currentState = await withTimeout(app.SwapBracketSeeds(seed, targetSeed), 5000, "Current match swap timed out");
+			currentSeedSelections.delete(panel);
+			await loadCurrentMatch(panel);
+			setStatus(panel, "match_status_swapped", "Players swapped", "success");
+		} catch (error) {
+			console.error("SwapBracketSeeds failed", error);
+			setStatus(panel, "match_status_swap_failed", "Player swap failed", "error");
+		} finally {
+			setMatchControlsEnabled(panel, true);
+		}
+	}
+
+	/** Handles first/second click selection for current-match player swaps. */
+	function selectCurrentSeedForSwap(panel, seed) {
+		if (!seed) return;
+		const selectedSeed = currentSeedSelections.get(panel) || 0;
+		if (!selectedSeed) {
+			currentSeedSelections.set(panel, seed);
+			setSeedSelection(panel, "[data-current-seed-player]", seed);
+			setStatus(panel, "match_status_swap_select", "Select another player to swap", "neutral");
+			return;
+		}
+		currentSeedSelections.delete(panel);
+		setSeedSelection(panel, "[data-current-seed-player]", 0);
+		if (selectedSeed === seed) {
+			setStatus(panel, "match_status_swap_cleared", "Player swap cancelled", "neutral");
+			return;
+		}
+		void swapCurrentMatchSeeds(panel, selectedSeed, seed);
+	}
+
 	/** Binds delegated score and reload controls for the current-match panel. */
 	function bindCurrentMatch(panel) {
 		if (panel.dataset.bound === "true") return;
@@ -1070,13 +1187,29 @@
 			}
 
 			const button = target?.closest("[data-score-action]");
-			if (!(button instanceof HTMLButtonElement)) return;
-			const playerNumber = button.getAttribute("data-score-player") || "";
-			const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
-			if (!(input instanceof HTMLInputElement)) return;
-			const delta = button.getAttribute("data-score-action") === "dec" ? -1 : 1;
-			input.value = String(Math.max(0, readMatchScore(panel, playerNumber) + delta));
-			void saveCurrentMatchScore(panel);
+			if (button instanceof HTMLButtonElement) {
+				const playerNumber = button.getAttribute("data-score-player") || "";
+				const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
+				if (!(input instanceof HTMLInputElement)) return;
+				const delta = button.getAttribute("data-score-action") === "dec" ? -1 : 1;
+				input.value = String(Math.max(0, readMatchScore(panel, playerNumber) + delta));
+				void saveCurrentMatchScore(panel);
+				return;
+			}
+
+			const swapTarget = target?.closest("[data-current-seed-player]");
+			if (swapTarget instanceof HTMLElement && !isInteractiveTarget(target)) {
+				selectCurrentSeedForSwap(panel, Number(swapTarget.dataset.seed || 0));
+			}
+		});
+
+		panel.addEventListener("keydown", function (event) {
+			if (event.key !== "Enter" && event.key !== " ") return;
+			const target = event.target instanceof Element ? event.target : null;
+			const swapTarget = target?.closest("[data-current-seed-player]");
+			if (!(swapTarget instanceof HTMLElement)) return;
+			event.preventDefault();
+			selectCurrentSeedForSwap(panel, Number(swapTarget.dataset.seed || 0));
 		});
 
 		panel.addEventListener("change", function (event) {
@@ -1084,6 +1217,673 @@
 			event.target.value = String(Math.max(0, Math.floor(Number(event.target.value || 0))));
 			void saveCurrentMatchScore(panel);
 		});
+	}
+
+	// --- Bracket pages ---
+
+	/** Returns the localized label for a bracket match status. */
+	function bracketStatusLabel(status) {
+		const labels = {
+			bye: t("bracket_status_bye", "BYE"),
+			complete: t("bracket_status_complete", "Complete"),
+			pending: t("bracket_status_pending", "Pending"),
+			ready: t("bracket_status_ready_match", "Ready"),
+		};
+		return labels[status] || status || t("bracket_status_pending", "Pending");
+	}
+
+	/** Normalizes bracket view keys for backend and static overlay rendering. */
+	function normalizeBracketView(view) {
+		const key = String(view || "").toLowerCase().trim();
+		if (["winners", "winner", "upper"].includes(key)) return "winners";
+		if (["losers", "loser", "lower"].includes(key)) return "losers";
+		if (["finals", "final", "grand", "grand_finals"].includes(key)) return "finals";
+		return "all";
+	}
+
+	/** Finds a view option in a backend bracket projection. */
+	function bracketViewName(projection, viewKey = "") {
+		const key = viewKey || projection?.view || "";
+		const view = projection?.views?.find(function (option) {
+			return option.key === key;
+		});
+		return view?.name || key || "";
+	}
+
+	/** Tries local static paths used by Apache/OBS overlays. */
+	async function loadStaticJSON(candidates) {
+		for (const url of candidates) {
+			try {
+				const response = await fetch(url, { cache: "no-store" });
+				if (response.ok) return response.json();
+			} catch (_) {
+				// Try the next static path.
+			}
+		}
+		throw new Error(`Could not load ${candidates.join(", ")}`);
+	}
+
+	/** Mirrors the backend template filename mapping for read-only overlays. */
+	function staticTemplateFileName(format, size) {
+		const normalized = String(format || "double_elimination").toLowerCase().trim();
+		if (["double", "double_elimination"].includes(normalized)) return `double${size}.json`;
+		if (["single", "single_elimination"].includes(normalized)) return `single${size}.json`;
+		const name = normalized.replace("_elimination", "").replace(/_/g, "") || "double";
+		return `${name}${size}.json`;
+	}
+
+	/** Provides the same overlay view choices as the backend projection. */
+	function staticBracketViewOptions(format) {
+		const options = [{ key: "all", name: "Full bracket" }];
+		if (String(format || "").toLowerCase().includes("double")) {
+			options.push({ key: "winners", name: "Winners bracket" }, { key: "losers", name: "Losers bracket" });
+		}
+		options.push({ key: "finals", name: "Finals" });
+		return options;
+	}
+
+	/** Resolves one static bracket seed slot to the assigned player ID. */
+	function staticBracketSeedPlayerID(state, seed) {
+		const key = String(seed || "");
+		const seeds = state?.bracket?.seeds || {};
+		if (Object.prototype.hasOwnProperty.call(seeds, key)) return String(seeds[key] || "");
+		return key;
+	}
+
+	/** Reports static bracket-only BYE state for one seed slot. */
+	function staticBracketSeedBye(state, seed) {
+		const key = String(seed || "");
+		if (state?.bracket?.byes?.[key]) return true;
+		const playerID = staticBracketSeedPlayerID(state, seed);
+		return Boolean(playerID && state?.players?.[playerID]?.bye);
+	}
+
+	/** Resolves a participant source using static tournament/template JSON. */
+	function staticResolveParticipant(source, state) {
+		const type = String(source?.type || "");
+		const players = state?.players || {};
+		const matches = state?.matches || {};
+		if (type === "seed") {
+			const seed = Number(source?.seed || 0);
+			const playerID = staticBracketSeedPlayerID(state, seed);
+			const player = players[playerID] || {};
+			if (staticBracketSeedBye(state, seed)) return { player_id: playerID, player, source, bracket_seed: seed, resolved: true, pending_label: "BYE", status: "bye" };
+			if (!playerID) return { player_id: "", player, source, bracket_seed: seed, resolved: false, pending_label: `Seed ${seed}`, status: "pending" };
+			if (!String(player?.name || "").trim()) return { player_id: playerID, player, source, bracket_seed: seed, resolved: false, pending_label: "TBD", status: "tbd" };
+			return { player_id: playerID, player, source, bracket_seed: seed, resolved: true, pending_label: "", status: "player" };
+		}
+		if (type === "winner" || type === "loser") {
+			const sourceMatch = matches[String(source?.match || "")] || {};
+			const playerID = String(type === "winner" ? sourceMatch.winner || "" : sourceMatch.loser || "");
+			if (!playerID) {
+				const label = `${type === "winner" ? "Winner" : "Loser"} of ${source?.match || ""}`;
+				return { player_id: "", player: {}, source, resolved: false, pending_label: label, status: "pending" };
+			}
+			const player = players[playerID] || {};
+			if (player?.bye) return { player_id: playerID, player, source, resolved: true, pending_label: "BYE", status: "bye" };
+			return { player_id: playerID, player, source, resolved: true, pending_label: "", status: "player" };
+		}
+		return { player_id: "", player: {}, source, resolved: false, pending_label: "TBD", status: "pending" };
+	}
+
+	/** Infers the bracket section for static templates. */
+	function staticMatchGroup(match) {
+		if (match?.group) return normalizeBracketView(match.group);
+		const name = String(match?.name || "").toLowerCase();
+		if (name.includes("grand")) return "finals";
+		if (name.includes("loser")) return "losers";
+		if (name.includes("winner")) return "winners";
+		if (name.includes("final")) return "finals";
+		return "bracket";
+	}
+
+	/** Infers the visual round for static templates. */
+	function staticMatchRound(match, group) {
+		if (match?.round) return match.round;
+		const name = String(match?.name || "");
+		const index = name.indexOf(" - ");
+		if (index > 0) return name.slice(0, index).trim();
+		return name || group;
+	}
+
+	/** Gives stable visual ordering to static template IDs. */
+	function staticMatchOrder(id, match) {
+		if (Number(match?.order || 0) > 0) return Number(match.order);
+		const text = String(id || "").toUpperCase();
+		if (/^M\d+$/.test(text)) return Number(text.slice(1));
+		let order = 0;
+		for (const character of text) {
+			const code = character.charCodeAt(0);
+			if (code < 65 || code > 90) continue;
+			order = order * 26 + (code - 64);
+		}
+		return order || 9999;
+	}
+
+	/** Builds a read-only projection when Wails bindings are unavailable. */
+	async function loadStaticBracketProjection(requestedView = "") {
+		const state = await loadStaticJSON(["../../data/tournament.json", "./data/tournament.json", "/data/tournament.json"]);
+		const fileName = staticTemplateFileName(state?.event?.format, Number(state?.event?.size || 8));
+		const template = await loadStaticJSON([`../../templates/${fileName}`, `./templates/${fileName}`, `/templates/${fileName}`]);
+		const overlayView = normalizeBracketView(state?.bracket?.overlay_view || "all");
+		const view = normalizeBracketView(requestedView || overlayView);
+		const options = staticBracketViewOptions(template?.type || state?.event?.format);
+		const sections = [];
+		const sectionMap = new Map();
+		const started = Object.values(state?.matches || {}).some(function (match) {
+			return Boolean(((match?.winner || match?.loser) && match?.reason !== "bye") || Number(match?.player1_score || 0) || Number(match?.player2_score || 0));
+		});
+		const seedOptions = Array.from({ length: Number(state?.event?.size || 0) }, function (_value, index) {
+			const seed = index + 1;
+			const playerID = staticBracketSeedPlayerID(state, seed);
+			const player = state?.players?.[playerID] || {};
+			return { seed, player_id: playerID, name: player?.name || "", team: player?.team || "", bye: staticBracketSeedBye(state, seed) };
+		});
+		const playerCount = Object.keys(state?.players || {}).filter(function (id) {
+			const player = state.players[id];
+			return Number(id) <= Number(state?.event?.size || 0) && String(player?.name || "").trim() && !player?.bye;
+		}).length;
+
+		Object.entries(template?.matches || {})
+			.sort(function ([leftID, left], [rightID, right]) {
+				return staticMatchOrder(leftID, left) - staticMatchOrder(rightID, right);
+			})
+			.forEach(function ([matchID, match]) {
+				const group = staticMatchGroup(match);
+				if (view === "winners" && group !== "winners") return;
+				if (view === "losers" && group !== "losers") return;
+				if (view === "finals" && group !== "finals") return;
+				const roundName = staticMatchRound(match, group);
+				const order = staticMatchOrder(matchID, match);
+				const player1 = staticResolveParticipant(match?.p1, state);
+				const player2 = staticResolveParticipant(match?.p2, state);
+				const matchState = state?.matches?.[matchID] || {};
+				const status = matchState.winner ? "complete" : player1.status === "bye" || player2.status === "bye" ? "bye" : player1.resolved && player2.resolved ? "ready" : "pending";
+				if (!sectionMap.has(group)) {
+					const section = { key: group, name: group === "winners" ? "Winners" : group === "losers" ? "Losers" : group === "finals" ? "Finals" : "Bracket", rounds: [] };
+					sectionMap.set(group, section);
+					sections.push(section);
+				}
+				const section = sectionMap.get(group);
+				let round = section.rounds.find(function (candidate) {
+					return candidate.name === roundName;
+				});
+				if (!round) {
+					round = { key: normalizeCatalogText(roundName) || "round", name: roundName, matches: [] };
+					section.rounds.push(round);
+				}
+				round.matches.push({
+					id: matchID,
+					name: match?.name || `${t("bracket_match", "Match")} ${matchID}`,
+					group,
+					round: roundName,
+					order,
+					current: matchID === state?.current,
+					optional: Boolean(match?.optional),
+					reset: Boolean(match?.reset),
+					winner_to: match?.winner_to || "",
+					loser_to: match?.loser_to || "",
+					player1,
+					player2,
+					state: matchState,
+					status,
+					can_play: status === "ready",
+					can_decide: false,
+					winner_id: matchState.winner || "",
+					loser_id: matchState.loser || "",
+				});
+			});
+
+		return {
+			event: state?.event || {},
+			current: state?.current || "",
+			format: template?.type || state?.event?.format || "",
+			size: Number(template?.size || state?.event?.size || 0),
+			view,
+			overlay_view: overlayView,
+			started,
+			can_randomize: !started,
+			views: options,
+			seed_options: seedOptions,
+			sections,
+			match_count: sections.reduce(function (count, section) {
+				return count + section.rounds.reduce(function (roundCount, round) {
+					return roundCount + round.matches.length;
+				}, 0);
+			}, 0),
+			player_count: playerCount,
+		};
+	}
+
+	/** Builds the compact summary shown above admin and overlay brackets. */
+	function bracketSummary(projection, admin = false) {
+		const template = admin
+			? t("bracket_admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}")
+			: t("bracket_summary", "{players}/{size} players - {matches} matches - {view}");
+		return template
+			.replace("{players}", String(projection?.player_count ?? 0))
+			.replace("{size}", String(projection?.size ?? 0))
+			.replace("{matches}", String(projection?.match_count ?? 0))
+			.replace("{view}", bracketViewName(projection))
+			.replace("{overlay}", bracketViewName(projection, projection?.overlay_view));
+	}
+
+	/** Returns the compact label for an exceptional match result reason. */
+	function bracketResultReasonLabel(reason) {
+		switch (String(reason || "").toLowerCase()) {
+		case "bye":
+			return t("bracket_result_bye", "BYE");
+		case "dq":
+			return t("bracket_result_dq", "DQ");
+		default:
+			return "";
+		}
+	}
+
+	/** Writes projection metadata into the optional view selector and summary. */
+	function renderBracketHeader(root, projection) {
+		const admin = root.matches(BRACKET_PAGE);
+		const summary = root.querySelector("[data-bracket-summary]");
+		if (summary) summary.textContent = bracketSummary(projection, admin);
+
+		const eventLabel = root.querySelector("[data-bracket-overlay-event]");
+		if (eventLabel) eventLabel.textContent = [projection?.event?.name, projection?.event?.phase].filter(Boolean).join(" · ") || "Stream.FGC";
+
+		const title = root.querySelector("[data-bracket-overlay-title]");
+		if (title) title.textContent = bracketViewName(projection) || t("bracket_title", "Bracket");
+
+		const randomize = root.querySelector("[data-bracket-randomize]");
+		if (randomize instanceof HTMLButtonElement) {
+			randomize.disabled = !projection?.can_randomize;
+			randomize.dataset.started = projection?.started ? "true" : "false";
+		}
+
+		const select = root.querySelector("[data-bracket-view-select]");
+		if (!(select instanceof HTMLSelectElement)) return;
+		const selectedView = projection?.overlay_view || projection?.view || BRACKET_ADMIN_VIEW;
+		select.innerHTML = (projection?.views || [])
+			.map(function (option) {
+				const selected = option.key === selectedView ? " selected" : "";
+				return `<option value="${escapeHtml(option.key)}"${selected}>${escapeHtml(option.name)}</option>`;
+			})
+			.join("");
+	}
+
+	/** Returns one participant line for the bracket board. */
+	function bracketParticipantHTML(participant, score, match, side, admin, projection) {
+		const status = participant?.status || "pending";
+		const playerID = participant?.player_id || "";
+		const name = participantName(participant);
+		const team = participantMeta(participant);
+		const matchWinnerID = String(match?.winner_id || match?.winnerId || match?.state?.winner || "");
+		const matchLoserID = String(match?.loser_id || match?.loserId || match?.state?.loser || "");
+		const complete = match?.status === "complete" || Boolean(matchWinnerID);
+		const winner = Boolean(playerID && playerID === matchWinnerID);
+		const loser = Boolean(playerID && (playerID === matchLoserID || (!matchLoserID && complete && !winner && participant?.resolved)));
+		const inferredReason = !match?.state?.reason && complete && (match?.player1?.status === "bye" || match?.player2?.status === "bye") ? "bye" : "";
+		const reasonKey = match?.state?.reason || match?.reason || inferredReason;
+		const reason = bracketResultReasonLabel(reasonKey);
+		const country = String(participant?.player?.country || "").toUpperCase();
+		const seed = swappableParticipantSeed(participant);
+		const swapAttrs = admin && seed ? ` data-bracket-seed-player data-seed="${seed}" role="button" tabindex="0" aria-label="${escapeHtml(t("bracket_swap_player", "Select player to swap"))}"` : "";
+		const flag = participant?.resolved && isISO2Code(country) && status !== "bye"
+			? `<img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.1rem; height: 0.78rem; object-fit: cover; box-shadow: 0 0 0 1px var(--fgc-border);" />`
+			: "";
+		return [
+			`<div class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}" data-bracket-participant data-status="${escapeHtml(status)}" data-outcome="${winner ? "winner" : loser ? "loser" : ""}"${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>`,
+			`<div class="d-flex gap-2 align-items-center">`,
+			`<span class="small fw-bold" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>`,
+			flag,
+			`<span class="min-w-0 flex-grow-1">`,
+			`<span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>`,
+			team ? `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : "",
+			`</span>`,
+			reason && (winner || loser) ? `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : "",
+			`<span class="fgc-title fs-6">${Number(score || 0)}</span>`,
+			swapAttrs
+				? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bracket-seed-swap="${seed}" aria-label="${escapeHtml(t("bracket_swap_player", "Select player to swap"))}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
+				: "",
+			`</div>`,
+			`</div>`,
+		].join("");
+	}
+
+	/** Builds admin-only match actions. */
+	function bracketMatchActionsHTML(match, admin) {
+		if (!admin) return "";
+		const p1 = match?.player1?.player_id || "";
+		const p2 = match?.player2?.player_id || "";
+		const canDecide = Boolean(match?.can_decide);
+		const current = match?.current ? " disabled" : "";
+		const currentLabel = match?.current ? t("bracket_current", "Current") : t("bracket_set_current", "Current");
+		const p1Seed = match?.player1?.source?.type === "seed";
+		const p2Seed = match?.player2?.source?.type === "seed";
+		const p1Bye = match?.player1?.status === "bye";
+		const p2Bye = match?.player2?.status === "bye";
+		return [
+			`<div class="d-flex flex-wrap gap-2 mt-2">`,
+			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`,
+			canDecide
+				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p1)}">P1 ${escapeHtml(t("bracket_win", "Win"))}</button>`
+				: "",
+			canDecide
+				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p2)}">P2 ${escapeHtml(t("bracket_win", "Win"))}</button>`
+				: "",
+			canDecide
+				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p2)}" data-result-reason="dq">P1 ${escapeHtml(t("bracket_dq", "DQ"))}</button>`
+				: "",
+			canDecide
+				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p1)}" data-result-reason="dq">P2 ${escapeHtml(t("bracket_dq", "DQ"))}</button>`
+				: "",
+			p1Seed
+				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="1" data-bye="${p1Bye ? "false" : "true"}">P1 ${escapeHtml(p1Bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
+				: "",
+			p2Seed
+				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="2" data-bye="${p2Bye ? "false" : "true"}">P2 ${escapeHtml(p2Bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
+				: "",
+			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
+			`</div>`,
+		].join("");
+	}
+
+	/** Builds one bracket match card. */
+	function bracketMatchHTML(match, admin, projection) {
+		const score1 = Number(match?.state?.player1_score || 0);
+		const score2 = Number(match?.state?.player2_score || 0);
+		return [
+			`<article class="w-100" data-bracket-match-wrap>`,
+			`<div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}">`,
+			`<div class="d-flex gap-2 align-items-start justify-content-between mb-2">`,
+			`<div class="min-w-0">`,
+			`<p class="fgc-kicker m-0">${escapeHtml(match?.id || "")}</p>`,
+			`<h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket_match", "Match"))}</h4>`,
+			`</div>`,
+			`<span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>`,
+			`</div>`,
+			`<div class="d-flex flex-column gap-2">`,
+			bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection),
+			bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection),
+			`</div>`,
+			bracketMatchActionsHTML(match, admin),
+			`</div>`,
+			`</article>`,
+		].join("");
+	}
+
+	/** Builds one bracket section with Bootstrap columns for rounds. */
+	function bracketSectionHTML(section, admin, projection) {
+		const rounds = section?.rounds || [];
+		return [
+			`<section class="col-12" data-bracket-section="${escapeHtml(section?.key || "")}">`,
+			`<div class="d-flex flex-column gap-3">`,
+			`<div class="d-flex gap-2 align-items-baseline">`,
+			`<p class="fgc-kicker m-0">${escapeHtml(section?.name || "")}</p>`,
+			`<span class="small" style="color: var(--fgc-text-muted);">${rounds.length}</span>`,
+			`</div>`,
+			`<div class="d-flex flex-nowrap overflow-auto pb-2" data-bracket-lane>`,
+			rounds
+				.map(function (round) {
+					const matches = (round.matches || []).map(function (match) {
+						return bracketMatchHTML(match, admin, projection);
+					});
+					return [
+						`<div class="flex-shrink-0 pe-4" data-bracket-round>`,
+						`<div class="w-100 d-flex flex-column gap-2">`,
+						`<h3 class="fgc-title fs-6 lh-sm m-0">${escapeHtml(round.name || "")}</h3>`,
+						`<div class="d-flex flex-column gap-3" data-bracket-round-matches>`,
+						matches.join(""),
+						`</div>`,
+						`</div>`,
+						`</div>`,
+					].join("");
+				})
+				.join(""),
+			`</div>`,
+			`</div>`,
+			`</section>`,
+		].join("");
+	}
+
+	/** Draws a backend bracket projection into either admin or overlay root. */
+	function renderBracketProjection(root, projection, admin = false) {
+		renderBracketHeader(root, projection);
+		const board = root.querySelector("[data-bracket-board]");
+		if (!board) return;
+		const sections = projection?.sections || [];
+		board.innerHTML = sections.length
+			? sections
+					.map(function (section) {
+						return bracketSectionHTML(section, admin, projection);
+					})
+					.join("")
+			: `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket_empty", "No bracket matches found."))}</div></div>`;
+		board.querySelectorAll("[data-flag-image]").forEach(function (image) {
+			if (!(image instanceof HTMLImageElement)) return;
+			image.addEventListener("error", function () {
+				image.remove();
+			});
+		});
+		applyLanguage(board);
+	}
+
+	/** Loads the bracket projection through Wails. */
+	async function loadBracket(root, requestedView = "") {
+		const ticket = nextBracketLoadTicket(root);
+		const app = await waitForBackend();
+		if (!app || typeof app.GetBracketView !== "function") {
+			try {
+				const projection = await withTimeout(loadStaticBracketProjection(requestedView), 5000, "Static bracket load timed out");
+				if (!isCurrentBracketLoad(root, ticket)) return projection;
+				renderBracketProjection(root, projection, false);
+				setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+				return projection;
+			} catch (error) {
+				if (!isCurrentBracketLoad(root, ticket)) return null;
+				console.error("Static bracket load failed", error);
+				const board = root.querySelector("[data-bracket-board]");
+				if (board) board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket_status_backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
+				setBracketStatus(root, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+				return null;
+			}
+		}
+
+		setBracketStatus(root, "bracket_status_loading", "Loading bracket...", "neutral");
+		try {
+			const projection = await withTimeout(app.GetBracketView(requestedView), 5000, "Bracket load timed out");
+			if (!isCurrentBracketLoad(root, ticket)) return projection;
+			renderBracketProjection(root, projection, root.matches(BRACKET_PAGE));
+			setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+			return projection;
+		} catch (error) {
+			if (!isCurrentBracketLoad(root, ticket)) return null;
+			console.error("GetBracketView failed", error);
+			setBracketStatus(root, "bracket_status_load_failed", "Bracket load failed", "error");
+			return null;
+		}
+	}
+
+	/** Saves the selected overlay view and refreshes the admin preview. */
+	async function saveBracketOverlayView(page, view) {
+		const app = await waitForBackend();
+		if (!app || typeof app.SetBracketOverlayView !== "function") {
+			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		try {
+			currentState = await withTimeout(app.SetBracketOverlayView(view), 5000, "Bracket overlay save timed out");
+			await loadBracket(page, BRACKET_ADMIN_VIEW);
+			setBracketStatus(page, "bracket_status_overlay_saved", "Overlay view saved", "success");
+		} catch (error) {
+			console.error("SetBracketOverlayView failed", error);
+			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+		}
+	}
+
+	/** Performs one admin bracket action and reloads the projection. */
+	async function runBracketAction(page, action) {
+		const app = await waitForBackend();
+		if (!app) {
+			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		try {
+			currentState = await withTimeout(action(app), 5000, "Bracket action timed out");
+			await loadBracket(page, BRACKET_ADMIN_VIEW);
+			setBracketStatus(page, "bracket_status_saved", "Bracket saved", "success");
+		} catch (error) {
+			console.error("Bracket action failed", error);
+			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+		}
+	}
+
+	/** Handles first/second click selection for bracket seed swaps. */
+	function selectBracketSeedForSwap(page, seed) {
+		if (!seed) return;
+		const selectedSeed = bracketSeedSelections.get(page) || 0;
+		if (!selectedSeed) {
+			bracketSeedSelections.set(page, seed);
+			setSeedSelection(page, "[data-bracket-seed-player]", seed);
+			setBracketStatus(page, "bracket_status_swap_select", "Select another player to swap", "neutral");
+			return;
+		}
+		bracketSeedSelections.delete(page);
+		setSeedSelection(page, "[data-bracket-seed-player]", 0);
+		if (selectedSeed === seed) {
+			setBracketStatus(page, "bracket_status_swap_cleared", "Player swap cancelled", "neutral");
+			return;
+		}
+		void runBracketAction(page, function (app) {
+			if (typeof app.SwapBracketSeeds !== "function") return Promise.reject(new Error("SwapBracketSeeds is unavailable"));
+			return app.SwapBracketSeeds(selectedSeed, seed);
+		});
+	}
+
+	/** Binds admin bracket controls. */
+	function bindBracketPage(page) {
+		const bindingVersion = "seed-swap-v2";
+		if (page.dataset.bound === bindingVersion) return;
+		page.dataset.bound = bindingVersion;
+
+		page.addEventListener(
+			"click",
+			function (event) {
+				const target = event.target instanceof Element ? event.target : null;
+				const seed = bracketSwapSeedFromTarget(target);
+				if (!seed) return;
+				event.preventDefault();
+				event.stopPropagation();
+				selectBracketSeedForSwap(page, seed);
+			},
+			true,
+		);
+
+		const select = page.querySelector("[data-bracket-view-select]");
+		if (select instanceof HTMLSelectElement) {
+			select.addEventListener("change", function () {
+				void saveBracketOverlayView(page, select.value);
+			});
+		}
+		const reload = page.querySelector("[data-bracket-reload]");
+		if (reload) {
+			reload.addEventListener("click", function () {
+				void loadBracket(page, BRACKET_ADMIN_VIEW);
+			});
+		}
+		const reset = page.querySelector("[data-bracket-reset]");
+		if (reset) {
+			reset.addEventListener("click", function () {
+				void runBracketAction(page, function (app) {
+					if (typeof app.ResetBracket !== "function") return Promise.reject(new Error("ResetBracket is unavailable"));
+					return app.ResetBracket();
+				});
+			});
+		}
+		const randomize = page.querySelector("[data-bracket-randomize]");
+		if (randomize) {
+			randomize.addEventListener("click", function () {
+				void runBracketAction(page, function (app) {
+					if (typeof app.RandomizeBracketSeeds !== "function") return Promise.reject(new Error("RandomizeBracketSeeds is unavailable"));
+					return app.RandomizeBracketSeeds();
+				});
+			});
+		}
+
+		page.addEventListener("click", function (event) {
+			const target = event.target instanceof Element ? event.target : null;
+			const currentButton = target?.closest("[data-bracket-current]");
+			if (currentButton instanceof HTMLButtonElement) {
+				const matchID = currentButton.getAttribute("data-bracket-current") || "";
+				void runBracketAction(page, function (app) {
+					return app.SetCurrentMatch(matchID);
+				});
+				return;
+			}
+
+			const winnerButton = target?.closest("[data-bracket-winner]");
+			if (winnerButton instanceof HTMLButtonElement) {
+				const matchID = winnerButton.getAttribute("data-bracket-winner") || "";
+				const playerID = winnerButton.getAttribute("data-player-id") || "";
+				const reason = winnerButton.getAttribute("data-result-reason") || "";
+				void runBracketAction(page, function (app) {
+					if (reason) {
+						if (typeof app.SetMatchResult !== "function") return Promise.reject(new Error("SetMatchResult is unavailable"));
+						return app.SetMatchResult(matchID, playerID, reason);
+					}
+					return app.SetMatchWinner(matchID, playerID);
+				});
+				return;
+			}
+
+			const byeButton = target?.closest("[data-bracket-bye]");
+			if (byeButton instanceof HTMLButtonElement) {
+				const matchID = byeButton.getAttribute("data-bracket-bye") || "";
+				const side = Number(byeButton.getAttribute("data-side") || 0);
+				const bye = byeButton.getAttribute("data-bye") === "true";
+				void runBracketAction(page, function (app) {
+					if (typeof app.SetMatchParticipantBye !== "function") return Promise.reject(new Error("SetMatchParticipantBye is unavailable"));
+					return app.SetMatchParticipantBye(matchID, side, bye);
+				});
+				return;
+			}
+
+			const clearButton = target?.closest("[data-bracket-clear]");
+			if (clearButton instanceof HTMLButtonElement) {
+				const matchID = clearButton.getAttribute("data-bracket-clear") || "";
+				void runBracketAction(page, function (app) {
+					return app.SetMatchWinner(matchID, "");
+				});
+				return;
+			}
+
+			const seed = bracketSwapSeedFromTarget(target);
+			if (seed) selectBracketSeedForSwap(page, seed);
+		});
+
+		page.addEventListener("keydown", function (event) {
+			if (event.key !== "Enter" && event.key !== " ") return;
+			const target = event.target instanceof Element ? event.target : null;
+			const swapTarget = target?.closest("[data-bracket-seed-player], [data-bracket-seed-swap]");
+			if (!(swapTarget instanceof HTMLElement)) return;
+			event.preventDefault();
+			const seed = bracketSwapSeedFromTarget(target) || Number(swapTarget.dataset.seed || swapTarget.dataset.bracketSeedSwap || 0);
+			selectBracketSeedForSwap(page, seed);
+		});
+
+		void loadBracket(page, BRACKET_ADMIN_VIEW);
+	}
+
+	/** Binds the standalone overlay bracket page with a light refresh loop. */
+	function bindBracketOverlay(root) {
+		if (root.dataset.bound === "true") return;
+		root.dataset.bound = "true";
+		void loadBracket(root);
+		global.setInterval(function () {
+			void loadBracket(root);
+		}, BRACKET_OVERLAY_REFRESH_MS);
 	}
 
 	// --- Players page ---
@@ -1323,11 +2123,37 @@
 		enhanceSelects(root);
 	}
 
-	/** Applies SPA.js i18n to dynamically injected markup. */
+	/** Returns root plus descendants matching a selector without firing SPA.js lifecycle events. */
+	function matchingElements(root, selector) {
+		const matches = [];
+		if (root instanceof Element && root.matches(selector)) matches.push(root);
+		root.querySelectorAll?.(selector).forEach(function (element) {
+			matches.push(element);
+		});
+		return matches;
+	}
+
+	/** Applies i18n to injected markup without dispatching bycommon:language again. */
 	function applyLanguage(root) {
-		if (global.byCommon?.applyLanguage && global.byCommon?.LANG_STRINGS) {
-			global.byCommon.applyLanguage(root, global.byCommon.LANG_STRINGS);
-		}
+		matchingElements(root, "[data-i18n]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n") || "";
+			element.textContent = t(key, element.textContent);
+		});
+		matchingElements(root, "[data-i18n-html]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n-html") || "";
+			element.innerHTML = t(key, element.innerHTML);
+		});
+		matchingElements(root, "[data-i18n-title]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n-title") || "";
+			const value = t(key, element.getAttribute("title") || "");
+			element.setAttribute("title", value);
+			if (element.hasAttribute("data-bs-toggle")) element.setAttribute("data-bs-title", value);
+		});
+		matchingElements(root, "[data-i18n-route]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n-route") || "";
+			const route = t(key, "").replace(/^\/+/, "");
+			if (route) element.setAttribute("href", `#/${route}`);
+		});
 	}
 
 	/** Renders player cards and binds each generated form. */
@@ -1582,6 +2408,12 @@
 		root.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
 			if (page instanceof HTMLElement) bindPlayerPage(page);
 		});
+		root.querySelectorAll(BRACKET_PAGE).forEach(function (page) {
+			if (page instanceof HTMLElement) bindBracketPage(page);
+		});
+		root.querySelectorAll(BRACKET_OVERLAY).forEach(function (page) {
+			if (page instanceof HTMLElement) bindBracketOverlay(page);
+		});
 	}
 
 	document.addEventListener("DOMContentLoaded", function () {
@@ -1603,6 +2435,9 @@
 			countryNames = (await loadCountryNames()) || {};
 			const matchPanel = document.querySelector(CURRENT_MATCH);
 			if (matchPanel instanceof HTMLElement && currentState) await loadCurrentMatch(matchPanel);
+			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
+				if (page instanceof HTMLElement) void loadBracket(page, page.matches(BRACKET_PAGE) ? BRACKET_ADMIN_VIEW : "");
+			});
 			await refreshCountrySelects(document);
 			refreshStatusIcons(document);
 		})();
