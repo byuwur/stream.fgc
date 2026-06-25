@@ -18,13 +18,16 @@
 	const FALLBACK_ASSET = "./assets/nopic.png";
 	const EMPTY_STATE_CLASS = "fgc-empty border rounded p-3 text-center";
 	const SPA_BACKGROUND_FALLBACK = "./assets/nobg.jpg";
+	const EVENT_LOGO_PATH = "/players/_logo.png";
+	const EVENT_BACKGROUND_PATH = "/players/_bg.jpg";
 	const PLAYER_PORTRAIT_MAX_MB = 10;
+	const TOURNAMENT_ASSET_MAX_MB = 20;
 	const DEFAULT_RULES = [
-		{ key: "ft1", name: "FT1" },
-		{ key: "ft2", name: "FT2" },
-		{ key: "ft3", name: "FT3" },
-		{ key: "ft5", name: "FT5" },
-		{ key: "ft10", name: "FT10" },
+		{ key: "1", name: "FT1" },
+		{ key: "2", name: "FT2" },
+		{ key: "3", name: "FT3" },
+		{ key: "5", name: "FT5" },
+		{ key: "10", name: "FT10" },
 	];
 	const DEFAULT_FORMATS = [
 		{ key: "single_elimination", name: "Single Elimination" },
@@ -208,6 +211,7 @@
 
 	/** Writes a backend event state into the event form controls. */
 	function fillEventForm(form, event) {
+		pageRoot(form).dataset.rule = String(parseRuleValue(event?.rule || 3) || 3);
 		["name", "phase", "rule", "game", "format", "size"].forEach(function (field) {
 			const control = formControl(form, field);
 			if (!control) return;
@@ -224,12 +228,35 @@
 		applyGameBackground(form);
 	}
 
+	/** Converts old FT labels and new numeric values into a first-to score limit. */
+	function parseRuleValue(value) {
+		const normalized = String(value ?? "")
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, "")
+			.replace(/^ft/, "");
+		const parsed = Number(normalized);
+		if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+		return Math.floor(parsed);
+	}
+
+	/** Reads the active first-to rule from a page, form, or the cached tournament state. */
+	function eventRuleLimit(root = document) {
+		const page = root instanceof Element ? pageRoot(root) : document;
+		return parseRuleValue(page?.dataset?.rule || currentState?.event?.rule || document.querySelector('[name="rule"]')?.value || 0);
+	}
+
+	/** Keeps score inputs between zero and the active first-to rule. */
+	function clampScore(value, limit = eventRuleLimit()) {
+		const parsed = Math.max(0, Math.floor(Number(value || 0)));
+		return limit > 0 ? Math.min(parsed, limit) : parsed;
+	}
+
 	/** Reads the event editor into the backend EventInfo shape. */
 	function readEventForm(form) {
 		return {
 			name: formControl(form, "name")?.value.trim() || "",
 			phase: formControl(form, "phase")?.value.trim() || "",
-			rule: formControl(form, "rule")?.value.trim() || "",
+			rule: parseRuleValue(formControl(form, "rule")?.value || currentState?.event?.rule || 3) || 3,
 			game: formControl(form, "game")?.value.trim() || "",
 			format: formControl(form, "format")?.value || "double_elimination",
 			size: Number(formControl(form, "size")?.value || 8),
@@ -241,7 +268,7 @@
 		return JSON.stringify({
 			name: String(event?.name || ""),
 			phase: String(event?.phase || ""),
-			rule: String(event?.rule || ""),
+			rule: parseRuleValue(event?.rule || 3) || 3,
 			game: String(event?.game || ""),
 			format: String(event?.format || "double_elimination"),
 			size: Number(event?.size || 8),
@@ -545,12 +572,43 @@
 		background.style.backgroundImage = `url("${imageURL.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
 	}
 
+	/** Appends a timestamp so freshly changed external images repaint immediately. */
+	function cacheBustURL(url) {
+		const value = String(url || "");
+		if (!value) return "";
+		return `${value}${value.includes("?") ? "&" : "?"}v=${Date.now()}`;
+	}
+
+	/** Returns the external tournament asset URL used by Wails and Apache. */
+	function eventAssetURL(kind, cacheBust = false) {
+		const url = kind === "background" ? EVENT_BACKGROUND_PATH : EVENT_LOGO_PATH;
+		return cacheBust ? cacheBustURL(url) : url;
+	}
+
+	/** Uses a custom tournament background when it exists, otherwise falls back to the game art. */
+	function setSpaBackgroundWithFallback(primaryURL, fallbackURL) {
+		const primary = String(primaryURL || "");
+		if (!primary) {
+			setSpaBackground(fallbackURL);
+			return;
+		}
+		const testImage = new Image();
+		const testedURL = cacheBustURL(primary);
+		testImage.addEventListener("load", function () {
+			setSpaBackground(testedURL);
+		});
+		testImage.addEventListener("error", function () {
+			setSpaBackground(fallbackURL);
+		});
+		testImage.src = testedURL;
+	}
+
 	/** Reads the selected game option background and applies it to #spa-bg. */
 	function applyGameBackground(form) {
 		const select = formControl(form, "game");
 		if (!(select instanceof HTMLSelectElement)) return;
 		const option = select.selectedOptions[0];
-		setSpaBackground(option?.dataset?.background || "");
+		setSpaBackgroundWithFallback(eventAssetURL("background"), option?.dataset?.background || "");
 	}
 
 	/** Ensures the games catalog is loaded before background-only routes need it. */
@@ -571,7 +629,7 @@
 	function applyGameBackgroundFromState(state) {
 		const game = state?.event?.game || "";
 		const entry = gameCatalogEntry(game);
-		setSpaBackground(entry?.background || "");
+		setSpaBackgroundWithFallback(eventAssetURL("background"), entry?.background || "");
 	}
 
 	/** Ensures the character catalog matches the active event game. */
@@ -793,6 +851,7 @@
 			renderCatalogSelect(form, "size", sizes, currentState.event?.size, "key");
 			renderGameSelect(form, currentState.event?.game);
 			fillEventForm(form, currentState.event || {});
+			refreshEventAssetPreviews(form);
 			setFormEnabled(form, true);
 			enhanceSelects(form);
 			applyAutosavePreference();
@@ -842,10 +901,117 @@
 		}
 	}
 
+	/** Refreshes one tournament asset preview without touching event JSON. */
+	function refreshEventAssetPreview(form, kind, url) {
+		const image = form.querySelector(`[data-event-asset-preview="${kind}"]`);
+		if (!(image instanceof HTMLImageElement)) return;
+		delete image.dataset.fallbackApplied;
+		image.src = url || eventAssetURL(kind, true);
+	}
+
+	/** Refreshes both event asset previews after loading the page. */
+	function refreshEventAssetPreviews(form) {
+		refreshEventAssetPreview(form, "logo", eventAssetURL("logo", true));
+		refreshEventAssetPreview(form, "background", eventAssetURL("background", true));
+	}
+
+	/** Uploads a tournament logo/background through the backend filesystem API. */
+	async function uploadEventAsset(form, kind, file) {
+		const app = await waitForBackend();
+		const methodName = kind === "background" ? "SaveEventBackground" : "SaveEventLogo";
+		if (!app || typeof app[methodName] !== "function") {
+			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		setStatus(form, "event_status_asset_uploading", "Uploading tournament asset...", "neutral");
+		try {
+			const imageData = await fileAsDataURL(file);
+			const url = await app[methodName](imageData);
+			refreshEventAssetPreview(form, kind, cacheBustURL(url));
+			if (kind === "background") applyGameBackground(form);
+			setStatus(form, "event_status_asset_saved", "Tournament asset uploaded", "success");
+		} catch (error) {
+			console.error(`${methodName} failed`, error);
+			setStatus(form, "event_status_asset_failed", "Tournament asset upload failed", "error");
+		}
+	}
+
+	/** Removes a tournament logo/background through the backend filesystem API. */
+	async function removeEventAsset(form, kind) {
+		const app = await waitForBackend();
+		const methodName = kind === "background" ? "RemoveEventBackground" : "RemoveEventLogo";
+		if (!app || typeof app[methodName] !== "function") {
+			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			return;
+		}
+
+		setStatus(form, "event_status_asset_removing", "Removing tournament asset...", "neutral");
+		try {
+			const url = await app[methodName]();
+			refreshEventAssetPreview(form, kind, cacheBustURL(url));
+			if (kind === "background") applyGameBackground(form);
+			setStatus(form, "event_status_asset_removed", "Tournament asset removed", "success");
+		} catch (error) {
+			console.error(`${methodName} failed`, error);
+			setStatus(form, "event_status_asset_remove_failed", "Tournament asset remove failed", "error");
+		}
+	}
+
+	/** Binds Dropzone to event logo/background controls without direct frontend writes. */
+	function bindEventAssetDropzones(form) {
+		form.querySelectorAll("[data-event-asset-dropzone]").forEach(function (dropzoneElement) {
+			if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
+			dropzoneElement.dataset.bound = "true";
+
+			const kind = dropzoneElement.getAttribute("data-event-asset-dropzone") || "logo";
+			const image = form.querySelector(`[data-event-asset-preview="${kind}"]`);
+			setImageFallback(image);
+
+			if (typeof global.Dropzone === "undefined") {
+				dropzoneElement.dataset.disabled = "true";
+				return;
+			}
+
+			global.Dropzone.autoDiscover = false;
+			const dropzone = new global.Dropzone(dropzoneElement, {
+				acceptedFiles: "image/png,image/jpeg,image/gif",
+				autoProcessQueue: false,
+				autoQueue: false,
+				clickable: true,
+				createImageThumbnails: false,
+				disablePreviews: true,
+				maxFiles: 1,
+				maxFilesize: TOURNAMENT_ASSET_MAX_MB,
+				previewsContainer: false,
+				url: "/players",
+			});
+
+			dropzone.on("addedfile", function (file) {
+				dropzone.removeAllFiles(true);
+				if (!(file instanceof File)) return;
+				void uploadEventAsset(form, kind, file);
+			});
+		});
+	}
+
+	/** Binds clear buttons for event logo/background previews. */
+	function bindEventAssetRemove(form) {
+		form.querySelectorAll("[data-event-asset-remove]").forEach(function (button) {
+			if (!(button instanceof HTMLButtonElement) || button.dataset.bound === "true") return;
+			button.dataset.bound = "true";
+			button.addEventListener("click", function () {
+				void removeEventAsset(form, button.getAttribute("data-event-asset-remove") || "logo");
+			});
+		});
+	}
+
 	/** Binds event form submit, reload, and autosave behavior once. */
 	function bindEventForm(form) {
 		if (form.dataset.bound === "true") return;
 		form.dataset.bound = "true";
+		bindEventAssetDropzones(form);
+		bindEventAssetRemove(form);
 
 		form.addEventListener("submit", function (event) {
 			event.preventDefault();
@@ -909,7 +1075,7 @@
 	function readMatchScore(panel, playerNumber) {
 		const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
 		if (!(input instanceof HTMLInputElement)) return 0;
-		return Math.max(0, Math.floor(Number(input.value || 0)));
+		return clampScore(input.value, eventRuleLimit(panel));
 	}
 
 	/** Locks score controls while a score write is in flight. */
@@ -1018,6 +1184,7 @@
 		const side = Number(options?.side || 0);
 		const matchID = options?.matchID || "";
 		const prefix = options?.prefix || "score";
+		const scoreValue = clampScore(score, options?.limit || eventRuleLimit());
 		const inputAttr = prefix === "bracket" ? `data-bracket-score-input="${side}"` : `data-score-input="${side}"`;
 		const decAttrs =
 			prefix === "bracket"
@@ -1032,7 +1199,7 @@
 		return [
 			`<div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>`,
 			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} aria-label="${escapeHtml(t("match_score_down", "Decrease score"))}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
-			`<input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${Number(score || 0)}" ${inputAttr} aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
+			`<input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${scoreValue}" ${inputAttr} aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
 			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${incAttrs} aria-label="${escapeHtml(t("match_score_up", "Increase score"))}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
 			`</div>`,
 		].join("");
@@ -1061,7 +1228,8 @@
 	function matchPlayerCard(match, side) {
 		const participant = side === 1 ? match?.player1 : match?.player2;
 		const scoreKey = side === 1 ? "player1_score" : "player2_score";
-		const score = Math.max(0, Number(match?.state?.[scoreKey] || 0));
+		const scoreLimit = eventRuleLimit();
+		const score = clampScore(match?.state?.[scoreKey] || 0, scoreLimit);
 		const name = participantName(participant);
 		const meta = participantMeta(participant);
 		const country = participantCountryHTML(participant);
@@ -1091,7 +1259,7 @@
 			`<h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>`,
 			`<p class="m-0 mt-2 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
 			country,
-			scoreStepperHTML(score, { side, prefix: "score" }),
+			scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit }),
 			`</div>`,
 			side === 1 ? "" : matchMediaHTML(participant, side),
 			`</div>`,
@@ -1114,8 +1282,9 @@
 			title.textContent = matchID ? `${matchName} (${matchID})` : matchName;
 		}
 
-		const player1Score = Math.max(0, Number(match?.state?.player1_score || 0));
-		const player2Score = Math.max(0, Number(match?.state?.player2_score || 0));
+		const scoreLimit = eventRuleLimit(panel);
+		const player1Score = clampScore(match?.state?.player1_score || 0, scoreLimit);
+		const player2Score = clampScore(match?.state?.player2_score || 0, scoreLimit);
 		body.innerHTML = [
 			matchPlayerCard(match, 1),
 			`<div class="col-12 col-lg-2 d-flex align-items-stretch">`,
@@ -1250,7 +1419,7 @@
 				const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
 				if (!(input instanceof HTMLInputElement)) return;
 				const delta = button.getAttribute("data-score-action") === "dec" ? -1 : 1;
-				input.value = String(Math.max(0, readMatchScore(panel, playerNumber) + delta));
+				input.value = String(clampScore(readMatchScore(panel, playerNumber) + delta, eventRuleLimit(panel)));
 				void saveCurrentMatchScore(panel);
 				return;
 			}
@@ -1535,6 +1704,7 @@
 	/** Writes projection metadata into the optional view selector and summary. */
 	function renderBracketHeader(root, projection) {
 		const admin = root.matches(BRACKET_PAGE);
+		root.dataset.rule = String(parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3);
 		const summary = root.querySelector("[data-bracket-summary]");
 		if (summary) summary.textContent = bracketSummary(projection, admin);
 
@@ -1587,7 +1757,7 @@
 				].join("")
 			: "";
 		const scoreControl = admin
-			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true })
+			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true, limit: parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3 })
 			: `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
 		const actionControls = bracketParticipantActionsHTML(match, side, admin);
 		return [
@@ -1651,8 +1821,9 @@
 
 	/** Builds one bracket match card. */
 	function bracketMatchHTML(match, admin, projection) {
-		const score1 = Number(match?.state?.player1_score || 0);
-		const score2 = Number(match?.state?.player2_score || 0);
+		const scoreLimit = parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3;
+		const score1 = clampScore(match?.state?.player1_score || 0, scoreLimit);
+		const score2 = clampScore(match?.state?.player2_score || 0, scoreLimit);
 		return [
 			`<article class="w-100" data-bracket-match-wrap>`,
 			`<div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}">`,
@@ -1812,7 +1983,7 @@
 	function readBracketScore(matchCard, side) {
 		const input = matchCard?.querySelector(`[data-bracket-score-input="${side}"]`);
 		if (!(input instanceof HTMLInputElement)) return 0;
-		return Math.max(0, Math.floor(Number(input.value || 0)));
+		return clampScore(input.value, eventRuleLimit(matchCard));
 	}
 
 	/** Handles compact bracket score +/- controls. */
@@ -1825,8 +1996,9 @@
 
 		let player1Score = readBracketScore(matchCard, 1);
 		let player2Score = readBracketScore(matchCard, 2);
-		if (side === 1) player1Score = Math.max(0, player1Score + delta);
-		if (side === 2) player2Score = Math.max(0, player2Score + delta);
+		const scoreLimit = eventRuleLimit(page);
+		if (side === 1) player1Score = clampScore(player1Score + delta, scoreLimit);
+		if (side === 2) player2Score = clampScore(player2Score + delta, scoreLimit);
 
 		const player1Input = matchCard.querySelector('[data-bracket-score-input="1"]');
 		const player2Input = matchCard.querySelector('[data-bracket-score-input="2"]');
@@ -2040,13 +2212,13 @@
 		return `/players/${key}.png${suffix}`;
 	}
 
-	/** Applies the nopic fallback when a portrait URL cannot be loaded. */
-	function setImageFallback(image) {
+	/** Applies a fallback when a preview URL cannot be loaded. */
+	function setImageFallback(image, fallback = FALLBACK_ASSET) {
 		if (!(image instanceof HTMLImageElement)) return;
 		image.addEventListener("error", function () {
 			if (image.dataset.fallbackApplied === "true") return;
 			image.dataset.fallbackApplied = "true";
-			image.src = FALLBACK_ASSET;
+			image.src = fallback;
 		});
 	}
 

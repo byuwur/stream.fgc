@@ -34,10 +34,35 @@ type TournamentState struct {
 type EventInfo struct {
 	Name   string `json:"name"`
 	Phase  string `json:"phase"`
-	Rule   string `json:"rule"`
+	Rule   int    `json:"rule"`
 	Game   string `json:"game"`
 	Format string `json:"format"`
 	Size   int    `json:"size"`
+}
+
+// UnmarshalJSON accepts old "FT3"/"ft3" rule strings while the app now saves rule as a number.
+func (event *EventInfo) UnmarshalJSON(data []byte) error {
+	type rawEventInfo struct {
+		Name   string      `json:"name"`
+		Phase  string      `json:"phase"`
+		Rule   interface{} `json:"rule"`
+		Game   string      `json:"game"`
+		Format string      `json:"format"`
+		Size   int         `json:"size"`
+	}
+
+	var raw rawEventInfo
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	event.Name = raw.Name
+	event.Phase = raw.Phase
+	event.Rule = parseEventRule(raw.Rule)
+	event.Game = raw.Game
+	event.Format = raw.Format
+	event.Size = raw.Size
+	return nil
 }
 
 // Player stores editable player metadata persisted into tournament.json.
@@ -189,8 +214,9 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	}
 
 	matchState := state.Matches[matchID]
-	matchState.Player1Score = max(0, player1Score)
-	matchState.Player2Score = max(0, player2Score)
+	scoreLimit := normalizeEventRule(state.Event.Rule)
+	matchState.Player1Score = clampMatchScore(player1Score, scoreLimit)
+	matchState.Player2Score = clampMatchScore(player2Score, scoreLimit)
 	state.Matches[matchID] = matchState
 
 	normalized := normalizeTournamentState(state)
@@ -617,6 +643,7 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	if state.Version == 0 {
 		state.Version = 1
 	}
+	state.Event.Rule = normalizeEventRule(state.Event.Rule)
 	if state.Event.Format == "" {
 		state.Event.Format = "double_elimination"
 	}
@@ -641,8 +668,60 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 		}
 		state.Bracket.Matches = nil
 	}
+	clampMatchScores(state.Matches, state.Event.Rule)
 	state.Bracket.OverlayView = normalizeBracketViewKey(state.Bracket.OverlayView)
 	return state
+}
+
+// parseEventRule converts legacy FT labels and JSON numbers into the stored first-to value.
+func parseEventRule(value interface{}) int {
+	return normalizeEventRule(parseEventRuleNumber(value))
+}
+
+// parseEventRuleNumber extracts the rule number without applying defaults.
+func parseEventRuleNumber(value interface{}) int {
+	switch typed := value.(type) {
+	case float64:
+		return int(typed)
+	case int:
+		return typed
+	case string:
+		normalized := normalizeAssetName(typed)
+		normalized = strings.TrimPrefix(normalized, "ft")
+		rule, err := strconv.Atoi(normalized)
+		if err != nil {
+			return 0
+		}
+		return rule
+	default:
+		return 0
+	}
+}
+
+// normalizeEventRule defaults invalid first-to values to the MVP rule.
+func normalizeEventRule(rule int) int {
+	if rule > 0 {
+		return rule
+	}
+	return 3
+}
+
+// clampMatchScore keeps score mutations inside the active first-to rule.
+func clampMatchScore(score int, limit int) int {
+	score = max(0, score)
+	if limit > 0 {
+		return min(score, limit)
+	}
+	return score
+}
+
+// clampMatchScores keeps existing JSON scores inside the current first-to rule after event edits.
+func clampMatchScores(matches map[string]MatchState, limit int) {
+	for id, match := range matches {
+		match.Player1Score = clampMatchScore(match.Player1Score, limit)
+		match.Player2Score = clampMatchScore(match.Player2Score, limit)
+		matches[id] = match
+	}
 }
 
 // gameIdentity returns a stable comparison key for game-change detection.
@@ -902,7 +981,7 @@ func defaultTournamentState() TournamentState {
 		Event: EventInfo{
 			Name:   "Chimbacaneria",
 			Phase:  "2026:25",
-			Rule:   "FT3",
+			Rule:   3,
 			Game:   "SF6",
 			Format: "double_elimination",
 			Size:   defaultTournamentSize,

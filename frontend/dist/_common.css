@@ -330,12 +330,28 @@
 	border-color: var(--fgc-border-soft) !important;
 	background: rgba(var(--fgc-light-rgb), 0.045);
 }
+[data-event-asset] {
+	border-color: var(--fgc-border-soft) !important; /* Bootstrap-derived --fgc-border-soft */
+	background: rgba(var(--fgc-light-rgb), 0.045); /* Bootstrap --bs-white-rgb through --fgc-light-rgb */
+}
+[data-event-asset-preview-frame] {
+	min-height: 8rem;
+	border-color: rgba(var(--fgc-light-rgb), 0.14) !important; /* Bootstrap --bs-white-rgb through --fgc-light-rgb */
+	background: rgba(var(--fgc-light-rgb), 0.08); /* Bootstrap --bs-white-rgb through --fgc-light-rgb */
+}
+[data-event-asset-preview-frame="logo"] {
+	aspect-ratio: 1 / 1;
+}
+[data-event-asset-preview-frame="background"] {
+	aspect-ratio: 16 / 9;
+}
 [data-player-portrait-frame] {
 	max-width: 14rem;
 	border-color: rgba(var(--fgc-light-rgb), 0.14) !important;
 	background: rgba(var(--fgc-light-rgb), 0.08);
 }
-[data-player-dropzone] {
+[data-player-dropzone],
+[data-event-asset-dropzone] {
 	min-height: 2.45rem;
 	min-width: 10.5rem;
 	border: 1px dashed var(--fgc-border-strong);
@@ -347,26 +363,35 @@
 }
 [data-player-dropzone].dz-clickable,
 [data-player-dropzone].dz-clickable .dz-message,
-[data-player-dropzone].dz-clickable .dz-message * {
+[data-player-dropzone].dz-clickable .dz-message *,
+[data-event-asset-dropzone].dz-clickable,
+[data-event-asset-dropzone].dz-clickable .dz-message,
+[data-event-asset-dropzone].dz-clickable .dz-message * {
 	cursor: pointer;
 }
-[data-player-dropzone].dz-drag-hover {
+[data-player-dropzone].dz-drag-hover,
+[data-event-asset-dropzone].dz-drag-hover {
 	border-color: var(--fgc-control-active);
 	background: rgba(var(--fgc-control-active-rgb), 0.16);
 }
-[data-player-dropzone] .dz-message {
+[data-player-dropzone] .dz-message,
+[data-event-asset-dropzone] .dz-message {
 	color: var(--fgc-text-soft);
 	font-size: 0.78rem;
 }
-[data-player-dropzone] .dz-message i {
+[data-player-dropzone] .dz-message i,
+[data-event-asset-dropzone] .dz-message i,
+[data-event-asset-dropzone] i {
 	color: var(--fgc-brand-soft);
 	font-size: 0.95rem;
 }
-[data-player-dropzone][data-disabled="true"] {
+[data-player-dropzone][data-disabled="true"],
+[data-event-asset-dropzone][data-disabled="true"] {
 	opacity: 0.55;
 	pointer-events: none;
 }
 [data-player-portrait-remove],
+[data-event-asset-remove],
 [data-player-form] [data-manual-save] {
 	min-height: 2.45rem;
 	font-size: 0.78rem;

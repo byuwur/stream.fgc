@@ -170,6 +170,26 @@ func (a *App) RemovePlayerPortrait(playerID string) (string, error) {
 	return a.backend.RemovePlayerPortrait(playerID)
 }
 
+// SaveEventLogo stores a custom tournament logo through the backend filesystem boundary.
+func (a *App) SaveEventLogo(imageData string) (string, error) {
+	return a.backend.SaveEventLogo(imageData)
+}
+
+// RemoveEventLogo removes the custom tournament logo through the backend filesystem boundary.
+func (a *App) RemoveEventLogo() (string, error) {
+	return a.backend.RemoveEventLogo()
+}
+
+// SaveEventBackground stores a custom tournament background through the backend filesystem boundary.
+func (a *App) SaveEventBackground(imageData string) (string, error) {
+	return a.backend.SaveEventBackground(imageData)
+}
+
+// RemoveEventBackground removes the custom tournament background through the backend filesystem boundary.
+func (a *App) RemoveEventBackground() (string, error) {
+	return a.backend.RemoveEventBackground()
+}
+
 // staticLibraryHandler serves external asset folders beside the embedded SPA.
 func staticLibraryHandler() http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {

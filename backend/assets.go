@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -47,7 +48,7 @@ func (a *App) ListRules() ([]CatalogOption, error) {
 	if err != nil {
 		return []CatalogOption{}, nil
 	}
-	return options, nil
+	return normalizeRuleOptions(options), nil
 }
 
 // ListFormats returns bracket format options from assets/formats.json.
@@ -145,6 +146,27 @@ func (a *App) readCatalogOptions(rel string) ([]CatalogOption, error) {
 	}
 
 	return options, nil
+}
+
+// normalizeRuleOptions keeps old FT keys readable while saving numeric first-to values.
+func normalizeRuleOptions(options []CatalogOption) []CatalogOption {
+	normalized := make([]CatalogOption, 0, len(options))
+	seen := map[int]bool{}
+	for _, option := range options {
+		rule := parseEventRuleNumber(option.Key)
+		if rule <= 0 {
+			rule = parseEventRuleNumber(option.Name)
+		}
+		if rule <= 0 || seen[rule] {
+			continue
+		}
+		seen[rule] = true
+		normalized = append(normalized, CatalogOption{
+			Key:  strconv.Itoa(rule),
+			Name: "FT" + strconv.Itoa(rule),
+		})
+	}
+	return normalized
 }
 
 // resolveGameKey accepts either a stored game key or a display name.

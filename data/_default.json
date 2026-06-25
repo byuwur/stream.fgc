@@ -3,7 +3,7 @@
 	"event": {
 		"name": "Chimbacanería",
 		"phase": "2026:25",
-		"rule": "ft3",
+		"rule": 3,
 		"game": "sf6",
 		"format": "double_elimination",
 		"size": 8

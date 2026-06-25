@@ -3,12 +3,12 @@
   "event": {
     "name": "Chimbacanería",
     "phase": "2026:25",
-    "rule": "ft3",
+    "rule": 3,
     "game": "sf6",
     "format": "double_elimination",
-    "size": 16
+    "size": 4
   },
-  "current": "A",
+  "current": "B",
   "players": {
     "1": {
       "name": "BONYUR",
@@ -16,17 +16,155 @@
       "country": "CO",
       "character": "chunli"
     },
+    "10": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "11": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "12": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "13": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "14": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "15": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "16": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "17": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "18": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "19": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
     "2": {
       "name": "MenaRD",
       "team": "WBG - Bandits",
       "country": "DO",
       "character": "blanka"
     },
+    "20": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "21": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "22": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "23": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "24": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "25": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "26": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "27": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "28": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "29": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
     "3": {
       "name": "Punk",
       "team": "FlyQuest",
       "country": "US",
       "character": "ingrid"
+    },
+    "30": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "31": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "32": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
     },
     "4": {
       "name": "RobTV",
@@ -57,9 +195,20 @@
       "team": "",
       "country": "DO",
       "character": ""
+    },
+    "9": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
     }
   },
-  "matches": {},
+  "matches": {
+    "A": {
+      "player1_score": 3,
+      "player2_score": 1
+    }
+  },
   "bracket": {
     "overlay_view": "winners"
   }

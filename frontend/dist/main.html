@@ -47,6 +47,62 @@
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_size">Size</span>
 					<select class="form-select" name="size" data-enhance="select2"></select>
 				</label>
+
+				<div class="col-12 col-lg-6 pt-3">
+					<div class="border rounded p-3 h-100" data-event-asset="logo">
+						<div class="row g-3 align-items-stretch">
+							<div class="col-12 col-sm-4">
+								<div class="w-100 overflow-hidden rounded border d-flex align-items-center justify-content-center" data-event-asset-preview-frame="logo">
+									<img class="w-100 h-100 object-fit-contain" src="/players/_logo.png" alt="" loading="lazy" data-event-asset-preview="logo" data-fallback-image />
+								</div>
+							</div>
+							<div class="col-12 col-sm d-flex flex-column gap-3 justify-content-between">
+								<div>
+									<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_logo">Tournament logo</span>
+									<p class="m-0 small" data-muted-text data-i18n="event_logo_hint">Used by future overlays.</p>
+								</div>
+								<div class="d-flex flex-wrap gap-2 align-items-stretch">
+									<div class="rounded px-3 py-2 d-inline-flex gap-2 align-items-center justify-content-center text-center" data-event-asset-dropzone="logo">
+										<i class="fas fa-cloud-arrow-up" aria-hidden="true"></i>
+										<span class="fw-bold" data-i18n="event_asset_drop">Drop or click image</span>
+									</div>
+									<button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-event-asset-remove="logo">
+										<i class="fas fa-trash" aria-hidden="true"></i>
+										<span data-i18n="event_asset_remove">Remove image</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-12 col-lg-6 pt-3">
+					<div class="border rounded p-3 h-100" data-event-asset="background">
+						<div class="row g-3 align-items-stretch">
+							<div class="col-12 col-sm-5">
+								<div class="w-100 overflow-hidden rounded border d-flex align-items-center justify-content-center" data-event-asset-preview-frame="background">
+									<img class="w-100 h-100 object-fit-cover" src="/players/_bg.jpg" alt="" loading="lazy" data-event-asset-preview="background" data-fallback-image />
+								</div>
+							</div>
+							<div class="col-12 col-sm d-flex flex-column gap-3 justify-content-between">
+								<div>
+									<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_background">Tournament background</span>
+									<p class="m-0 small" data-muted-text data-i18n="event_background_hint">Overrides the selected game background.</p>
+								</div>
+								<div class="d-flex flex-wrap gap-2 align-items-stretch">
+									<div class="rounded px-3 py-2 d-inline-flex gap-2 align-items-center justify-content-center text-center" data-event-asset-dropzone="background">
+										<i class="fas fa-cloud-arrow-up" aria-hidden="true"></i>
+										<span class="fw-bold" data-i18n="event_asset_drop">Drop or click image</span>
+									</div>
+									<button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-event-asset-remove="background">
+										<i class="fas fa-trash" aria-hidden="true"></i>
+										<span data-i18n="event_asset_remove">Remove image</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="d-flex flex-wrap gap-2 justify-content-end mt-3 pt-3">
