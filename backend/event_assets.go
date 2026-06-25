@@ -1,3 +1,9 @@
+/*
+ * File: event_assets.go
+ * Desc: Validates and stores tournament logo/background uploads used by overlays.
+ * Deps: Go bytes/fmt/image/jpeg/png/os/path/filepath, portrait image decoder helpers.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package backend
 
 import (
@@ -34,6 +40,7 @@ func (a *App) RemoveEventBackground() (string, error) {
 	return removeTournamentAsset("background")
 }
 
+// saveTournamentAsset validates browser image data and writes the normalized overlay asset.
 func saveTournamentAsset(key string, imageData string) (string, error) {
 	fileName, err := tournamentAssetFileName(key)
 	if err != nil {
@@ -74,6 +81,7 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 	return tournamentAssetURL(fileName), nil
 }
 
+// removeTournamentAsset deletes the named overlay asset from every portable lookup folder.
 func removeTournamentAsset(key string) (string, error) {
 	fileName, err := tournamentAssetFileName(key)
 	if err != nil {
@@ -90,6 +98,7 @@ func removeTournamentAsset(key string) (string, error) {
 	return tournamentAssetURL(fileName), nil
 }
 
+// tournamentAssetFileName maps logical upload keys to their fixed player-folder names.
 func tournamentAssetFileName(key string) (string, error) {
 	switch key {
 	case "logo":
@@ -101,6 +110,7 @@ func tournamentAssetFileName(key string) (string, error) {
 	}
 }
 
+// tournamentAssetWritePath chooses where a tournament asset should be written.
 func tournamentAssetWritePath(fileName string) string {
 	for _, dirPath := range playerPortraitDirs() {
 		if info, err := os.Stat(dirPath); err == nil && info.IsDir() {
@@ -110,6 +120,7 @@ func tournamentAssetWritePath(fileName string) string {
 	return filepath.Join(playerPortraitDirPath, fileName)
 }
 
+// tournamentAssetURL returns the Wails/Apache URL used by previews and overlays.
 func tournamentAssetURL(fileName string) string {
 	return "/players/" + fileName
 }

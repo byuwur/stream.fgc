@@ -4,6 +4,16 @@
  * File: _app.js
  * Desc: Stream.FGC controller UI. Keeps SPA.js pages in sync with the Wails backend JSON state.
  * Deps: SPA.js, jQuery, Select2, Dropzone, Font Awesome, Wails bindings.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ *
+ * Notes:
+ * - The frontend never writes files directly. JSON, portraits, and tournament assets go through Go.
+ * - All named functions below use SPA.js-style doc blocks so the app can be read section by section.
+ * - `players/_logo.png` and `players/_bg.jpg` are overlay assets. The admin SPA background follows the selected game.
+ */
+/**
+ * Boots the Stream.FGC controller against the browser global object.
+ * @param {Object} global The global object, usually `window` in Wails or a browser.
  */
 (function (global) {
 	const EVENT_FORM = "[data-event-form]";
@@ -613,7 +623,7 @@
 		);
 	}
 
-	/** Writes the selected game's background image into the SPA shell. */
+	/** Writes the selected game's background image into the admin SPA shell. */
 	function setSpaBackground(url) {
 		const background = document.getElementById("spa-bg");
 		if (!(background instanceof HTMLElement)) return;
@@ -628,7 +638,7 @@
 		return `${value}${value.includes("?") ? "&" : "?"}v=${Date.now()}`;
 	}
 
-	/** Returns the external tournament asset URL used by Wails and Apache. */
+	/** Returns the external tournament overlay asset URL used by Wails and Apache. */
 	function eventAssetURL(kind, cacheBust = false) {
 		const url = kind === "background" ? EVENT_BACKGROUND_PATH : EVENT_LOGO_PATH;
 		return cacheBust ? cacheBustURL(url) : url;
@@ -656,7 +666,7 @@
 		});
 	}
 
-	/** Applies the saved event game's background without requiring the event page. */
+	/** Applies the saved event game's admin background without using the overlay _bg.jpg. */
 	function applyGameBackgroundFromState(state) {
 		const game = state?.event?.game || "";
 		const entry = gameCatalogEntry(game);
@@ -694,7 +704,7 @@
 		});
 	}
 
-	/** Keeps #spa-bg aligned with tournament.json on any SPA route. */
+	/** Keeps #spa-bg aligned with the selected game on any SPA route. */
 	async function syncSpaBackground() {
 		if (backgroundSyncing) return;
 		backgroundSyncing = true;
@@ -953,7 +963,7 @@
 		refreshEventAssetPreview(form, "background", eventAssetURL("background", true));
 	}
 
-	/** Uploads a tournament logo/background through the backend filesystem API. */
+	/** Uploads a tournament overlay logo/background through the backend filesystem API. */
 	async function uploadEventAsset(form, kind, file) {
 		const app = await waitForBackend();
 		const methodName = kind === "background" ? "SaveEventBackground" : "SaveEventLogo";
@@ -974,7 +984,7 @@
 		}
 	}
 
-	/** Removes a tournament logo/background through the backend filesystem API. */
+	/** Removes a tournament overlay logo/background through the backend filesystem API. */
 	async function removeEventAsset(form, kind) {
 		const app = await waitForBackend();
 		const methodName = kind === "background" ? "RemoveEventBackground" : "RemoveEventLogo";
@@ -1437,7 +1447,7 @@
 		}
 	}
 
-	/** Performs a seed swap from the event page current-match panel. */
+	/** Performs a bracket seed assignment swap from the event page current-match panel. */
 	async function swapCurrentMatchSeeds(panel, seed, targetSeed) {
 		const scrollState = captureScrollState(pageRoot(panel));
 		const app = await waitForBackend();
@@ -1463,7 +1473,7 @@
 		}
 	}
 
-	/** Handles first/second click selection for current-match player swaps. */
+	/** Handles first/second click selection for current-match bracket seed swaps. */
 	function selectCurrentSeedForSwap(panel, seed) {
 		if (!seed) return;
 		const selectedSeed = currentSeedSelections.get(panel) || 0;
@@ -1880,7 +1890,7 @@
 		].join("");
 	}
 
-	/** Builds admin-only result controls for one bracket participant row. */
+	/** Builds admin-only result controls for one bracket participant row, hidden after completion. */
 	function bracketParticipantActionsHTML(match, side, admin) {
 		if (!admin) return "";
 		if (match?.status === "complete" || match?.winner_id || match?.state?.winner) return "";
@@ -2130,7 +2140,7 @@
 		});
 	}
 
-	/** Handles first/second click selection for bracket seed swaps. */
+	/** Handles first/second click selection for bracket seed swaps without moving player records. */
 	function selectBracketSeedForSwap(page, seed) {
 		if (!seed) return;
 		const selectedSeed = bracketSeedSelections.get(page) || 0;

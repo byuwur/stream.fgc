@@ -1,3 +1,9 @@
+/*
+ * File: app.go
+ * Desc: Defines the backend service container and lifecycle used by the Wails wrapper.
+ * Deps: Go context/sync.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package backend
 
 import (

@@ -1,3 +1,9 @@
+/*
+ * File: portraits.go
+ * Desc: Validates player portrait uploads and stores them in the external players folder.
+ * Deps: Go bytes/base64/fmt/image/png/os/path/filepath/strings.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package backend
 
 import (

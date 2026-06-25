@@ -1,3 +1,9 @@
+/*
+ * File: assets.go
+ * Desc: Reads local game, character, rule, format, and size catalogs for the controller UI.
+ * Deps: Go bytes/encoding-json/fmt/os/path/filepath/strconv/strings.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package backend
 
 import (

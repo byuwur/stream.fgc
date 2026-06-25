@@ -21,7 +21,7 @@
 	/**
 	 * Replaces "\\" directory separators to "/"
 	 * @param {string} path String to convert
-	 * @return string Converted path
+	 * @return {string} Converted path
 	 */
 	const std_dir_separator = (path) => {
 		return String(path || "").replace(/\\/g, "/");

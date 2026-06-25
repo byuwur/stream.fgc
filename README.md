@@ -4,58 +4,124 @@
 
 ~ For the FGC made easy, with love, for the FGC, with Go. ~
 
-## Overview
+Stream.FGC is built on top of [byuwur/spa.js](https://github.com/byuwur/spa.js) as a static frontend shell, with a local Go backend provided by Wails.
 
-This project is designed to provide various overlay options for live streaming tournaments using OBS (Open Broadcaster Software).
+## What's this about?
 
-## Current Architecture
+This project is a local tournament control system for fighting game streams. It is meant for events such as Street Fighter 6 brackets where an operator needs to edit event data, player data, the current match, scores, bracket results, and visual assets without using a cloud service or a database.
 
-Stream.FGC is a local Wails desktop app. The backend is Go, the frontend is plain HTML/CSS/JavaScript using the SPA.js submodule libraries already present in `frontend/dist/spa.js`.
+The saved JSON file is the source of truth for future OBS overlays. The desktop app is the controller; OBS-facing pages can read the same local files and render scoreboard, winner, and bracket views.
 
-- Tournament state lives in `data/tournament.json`.
-- External tournament assets live in `assets/`.
-- Player portraits live in `players/`.
-- Bracket templates live in `templates/`, but the backend can generate a template when a size/format file is missing.
-- OBS-facing pages are standalone files in `frontend/dist/`, separate from admin SPA fragments.
+## What does it do?
+
+- **Local Desktop Control:** Runs as a Wails desktop app and targets a portable Windows `.exe`.
+- **Plain Frontend:** Uses static HTML/CSS/JavaScript through SPA.js. No React, no Vite build, no frontend package install.
+- **Go Filesystem Boundary:** The browser UI calls Wails methods; only Go reads or writes tournament JSON and uploaded assets.
+- **Live Tournament JSON:** Saves the current state into `data/tournament.json`.
+- **Event Editor:** Edits name, phase, first-to rule, game, format, size, logo, and overlay background.
+- **Player Editor:** Edits every player slot, country flags, characters, portraits, and responsive player cards.
+- **Current Match Control:** Resolves the current match from the bracket template, edits scores, swaps display sides, and prevents score edits after a winner is locked.
+- **Bracket Admin:** Shows a resolved bracket, sets current match, records wins/DQs/BYEs, swaps bracket seed assignments, randomizes before play starts, and resets bracket state.
+- **Overlay View Setting:** Stores which bracket slice OBS should show without changing the admin bracket view.
+
+## How is it done?
+
+### Core Files [in priority order]
+
+- **main.go:** Starts Wails, embeds `frontend/dist`, binds the app API, and serves external `assets/` and `players/` folders beside the executable.
+- **backend/app.go:** Owns backend state and the mutex used to serialize tournament JSON access.
+- **backend/tournament.go:** Loads, normalizes, mutates, and saves `data/tournament.json`.
+- **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections and generates fallback bracket graphs.
+- **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
+- **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
+- **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
+- **frontend/dist/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
+- **frontend/dist/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
+- **frontend/dist/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
+- **frontend/dist/main.html:** Event editor and Playing Now page fragment.
+- **frontend/dist/players.html:** Player editor page fragment.
+- **frontend/dist/brackets.html:** Admin bracket page fragment.
+
+### Additional Files
+
+- **frontend/dist/_common.css:** Stream.FGC visual overrides on top of SPA.js, Bootstrap, Shards, and Select2.
+- **frontend/dist/_var.js:** SPA.js app-level settings.
+- **frontend/dist/sidebar.html:** Shared SPA navigation component.
+- **frontend/dist/lang/en.json** and **frontend/dist/lang/es.json:** App language dictionaries.
+- **frontend/dist/lang/flags.en.json** and **frontend/dist/lang/flags.es.json:** Localized country names for flag selects.
+- **data/_default.json:** Default tournament state used when `data/tournament.json` is missing or empty.
+- **templates/**: Optional bracket templates. When a matching file is missing, Go can generate a template from the selected format and size.
+
+### Public Assets
+
+- **assets/games.json:** Game catalog. Keys are saved into tournament JSON.
+- **assets/{game}/_logo.png:** Game logo shown in event game selects.
+- **assets/{game}/_bg.jpg:** Game background used by the admin SPA shell.
+- **assets/{game}/characters.json:** Character catalog for that game. Keys are saved into player records.
+- **assets/{game}/portraits/{character}.png:** Character portrait used in Select2 and bracket/current-match cards.
+- **assets/rules.json:** First-to rule catalog. Rule keys are normalized to numbers.
+- **assets/formats.json:** Bracket format catalog.
+- **assets/sizes.json:** Allowed bracket capacities.
+- **players/{player}.png:** Custom player portrait uploaded from the player page.
+- **players/_logo.png:** Custom tournament logo for overlays.
+- **players/_bg.jpg:** Custom tournament background for overlays only.
+
+## Data Model
+
+`data/tournament.json` is the live document. The important top-level keys are:
+
+- **version:** Schema version.
+- **event:** Event fields such as name, phase, rule, game, format, and bracket size.
+- **current:** Current match ID.
+- **players:** Player records keyed by stable player slot ID.
+- **matches:** Match state keyed by template match ID.
+- **bracket:** Bracket-only state such as overlay view, seed assignments, and BYEs.
+
+`event.size` is bracket capacity, not necessarily the number of real players. Reducing size trims unused player slots so the JSON does not keep unnecessary records.
+
+`event.rule` is stored as a number. For example, `3` means FT3. Score controls clamp at zero and at the active first-to limit.
+
+Player records intentionally do not store portrait paths. Player portraits are resolved from `players/{player}.png`, with `frontend/dist/assets/nopic.png` as the UI fallback.
 
 ## Bracket Model
 
-`event.size` means bracket capacity, not the number of real players currently checked in. The backend normalizes player seed slots `1..size` so a bracket can render consistently even when some players are blank.
+Bracket logic is template-driven. A participant can come from:
+
+- **seed:** A bracket seed assignment, resolved through `bracket.seeds` when present.
+- **winner:** The winner of another match.
+- **loser:** The loser of another match.
 
 Participant states:
 
-- `player`: a real player seed has a name.
-- `tbd`: a seed slot exists but is blank.
-- `bye`: reserved for intentional free advancement with `bye: true`.
-- `pending`: a winner/loser source has not been decided yet.
+- **player:** A real player is resolved.
+- **tbd:** A seed slot exists but does not have a real player yet.
+- **bye:** A seed slot is intentionally marked as BYE.
+- **pending:** A winner/loser source has not been decided yet.
 
-The backend exposes a resolved `BracketProjection` through `GetBracketView(view)`. Admin and overlay pages both render that same projection, so their bracket logic stays aligned. The admin bracket page intentionally requests `all`; changing the overlay view selector only changes what `bracket.html` renders.
+Match results can be normal, `bye`, or `dq`. BYE results are generated during setup and do not count as bracket-started state, so randomize/reset setup tools can still work before real play begins.
 
-Overlay selection is stored in `tournament.json` at `bracket.overlay_view`. Supported views are:
+## Usage
 
-- `all`
-- `winners`
-- `losers`
-- `finals`
+1. Run the app with Wails during development.
+2. Open the Event page to set event info, selected game, format, size, rule, logo, and overlay background.
+3. Open the Players page to fill player slots, countries, characters, and portraits.
+4. Open the Bracket page to randomize/swap bracket seeds, set the current match, and record wins, DQs, or BYEs.
+5. Let autosave write changes through Go into `data/tournament.json`.
+6. Point OBS overlays at the local JSON/assets when those overlay pages are added.
 
-The admin route uses `frontend/dist/brackets.html`. The OBS-style standalone overlay is `bracket.html`.
+> The frontend does not write files directly. Any save, upload, remove, reset, randomize, or swap operation goes through a Wails-bound Go method.
 
-Admin match controls use winner saves for normal wins. DQs use a reasoned match result with `reason: "dq"`. BYE is separate: it marks a seeded player slot with `bye: true`, writes auto-advanced matches with `reason: "bye"`, and lets the backend move the non-BYE participant through template-defined winner/loser sources.
+> The admin SPA background uses the selected game's `assets/{game}/_bg.jpg`. The custom tournament `players/_bg.jpg` is reserved for overlays and should not change the controller UI.
 
-Setup controls are backend-owned too. `ResetBracket()` clears match state, bracket seed assignments, and setup BYEs while keeping player records intact. `RandomizeBracketSeeds()` shuffles `bracket.seeds` only when no real match score/result has been recorded; auto-advanced BYE matches do not count as started. `SwapBracketSeeds(seed, targetSeed)` powers the click-to-swap player controls on the bracket and current-match views, swapping bracket assignments instead of moving `players["1"]`, `players["2"]`, etc.
+> Current-match side swap is a display override for the selected match. Bracket seed swap changes `bracket.seeds` and does not move `players["1"]`, `players["2"]`, etc.
 
-Key backend entry points:
+## Documentation Notes
 
-- `GetBracketView(view)`
-- `SetBracketOverlayView(view)`
-- `SetCurrentMatch(matchID)`
-- `SetMatchWinner(matchID, winnerPlayerID)`
-- `SetMatchResult(matchID, winnerPlayerID, reason)`
-- `SetMatchParticipantBye(matchID, side, bye)`
-- `ResetBracket()`
-- `RandomizeBracketSeeds()`
-- `SwapBracketSeeds(seed, targetSeed)`
-- `UpdateMatchScore(matchID, player1Score, player2Score)`
+The code follows the same documentation idea used in SPA.js and SPA.php:
+
+- Project-owned JavaScript files use a file header plus `/** ... */` doc blocks before bootstrappers and named functions.
+- Project-owned Go files use a file header plus GoDoc comments before every function, including internal helpers.
+- Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, filesystem writes in backend upload helpers, and UI/backend boundaries in `frontend/dist/_app.js`.
 
 ## License
 

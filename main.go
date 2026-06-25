@@ -1,3 +1,9 @@
+/*
+ * File: main.go
+ * Desc: Starts the Wails desktop shell, embeds the SPA frontend, and exposes local asset folders.
+ * Deps: Go embed/net/http/os/path/filepath/strings, Wails v2, backend package.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package main
 
 import (

@@ -1,3 +1,9 @@
+/*
+ * File: tournament.go
+ * Desc: Loads, normalizes, mutates, and saves the live tournament JSON state.
+ * Deps: Go encoding-json/fmt/os/path/filepath/strconv/strings, bracket and asset helpers.
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
+ */
 package backend
 
 import (
@@ -302,6 +308,7 @@ func (a *App) SetMatchResult(matchID string, winnerPlayerID string, reason strin
 	return a.setMatchWinner(matchID, winnerPlayerID, reason)
 }
 
+// setMatchWinner validates a winner against the resolved match participants and persists the result.
 func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason string) (TournamentState, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
