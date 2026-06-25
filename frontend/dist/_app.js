@@ -1379,7 +1379,7 @@
 			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match_vs", "VS"))}</span>`,
 			`<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
 			`</div>`,
-			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-current-side-swap><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
+			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-4" type="button" data-current-side-swap><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
 			`</div>`,
 			`</div>`,
 			matchPlayerCard(match, 2),
