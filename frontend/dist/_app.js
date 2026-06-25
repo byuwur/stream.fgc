@@ -577,8 +577,23 @@
 	/** Ensures the character catalog matches the active event game. */
 	async function ensureCharacterCatalog(app, game) {
 		const gameKey = String(game || "");
-		if (charactersGame === gameKey) return characters;
-		characters = typeof app?.ListCharacters === "function" ? normalizeAssetRows(await app.ListCharacters(gameKey)) : [];
+		if (charactersGame === gameKey && characters.length) return characters;
+		if (typeof app?.ListCharacters === "function") {
+			characters = normalizeAssetRows(await app.ListCharacters(gameKey));
+		} else {
+			try {
+				const rows = await loadJSON(`/assets/${gameKey}/characters.json`);
+				characters = Object.entries(rows || {}).map(function ([key, name]) {
+					return {
+						key: String(key || ""),
+						name: String(name || key || ""),
+						portrait: appAssetURL(`/assets/${gameKey}/portraits/${key}.png`),
+					};
+				});
+			} catch (_) {
+				characters = [];
+			}
+		}
 		charactersGame = gameKey;
 		return characters;
 	}
@@ -986,18 +1001,60 @@
 		});
 	}
 
-	/** Returns true when a click should keep controlling a nested form/button. */
-	function isInteractiveTarget(target) {
-		return Boolean(target?.closest("button, a, input, select, textarea, label"));
+	/** Reads a current-match bracket seed slot from its explicit swap handle. */
+	function currentSwapSeedFromTarget(target) {
+		const explicitHandle = target?.closest("[data-current-seed-swap]");
+		return explicitHandle instanceof HTMLElement ? Number(explicitHandle.dataset.currentSeedSwap || 0) : 0;
 	}
 
-	/** Reads a bracket seed slot from either a row click or its explicit swap handle. */
+	/** Reads a bracket seed slot from its explicit swap handle. */
 	function bracketSwapSeedFromTarget(target) {
 		const explicitHandle = target?.closest("[data-bracket-seed-swap]");
-		if (explicitHandle instanceof HTMLElement) return Number(explicitHandle.dataset.bracketSeedSwap || 0);
-		const participant = target?.closest("[data-bracket-seed-player]");
-		if (!(participant instanceof HTMLElement) || isInteractiveTarget(target)) return 0;
-		return Number(participant.dataset.seed || 0);
+		return explicitHandle instanceof HTMLElement ? Number(explicitHandle.dataset.bracketSeedSwap || 0) : 0;
+	}
+
+	/** Builds the compact score control used by current match and bracket admin. */
+	function scoreStepperHTML(score, options) {
+		const side = Number(options?.side || 0);
+		const matchID = options?.matchID || "";
+		const prefix = options?.prefix || "score";
+		const inputAttr = prefix === "bracket" ? `data-bracket-score-input="${side}"` : `data-score-input="${side}"`;
+		const decAttrs =
+			prefix === "bracket"
+				? `data-bracket-score-action data-match-id="${escapeHtml(matchID)}" data-side="${side}" data-delta="-1"`
+				: `data-score-action="dec" data-score-player="${side}"`;
+		const incAttrs =
+			prefix === "bracket"
+				? `data-bracket-score-action data-match-id="${escapeHtml(matchID)}" data-side="${side}" data-delta="1"`
+				: `data-score-action="inc" data-score-player="${side}"`;
+		const stepperAttr = prefix === "bracket" ? "data-bracket-score-stepper" : "";
+		const spacing = options?.compact ? "m-0" : "mt-3";
+		return [
+			`<div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>`,
+			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} aria-label="${escapeHtml(t("match_score_down", "Decrease score"))}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
+			`<input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${Number(score || 0)}" ${inputAttr} aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
+			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${incAttrs} aria-label="${escapeHtml(t("match_score_up", "Increase score"))}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
+			`</div>`,
+		].join("");
+	}
+
+	/** Creates compact player and character media for bracket participant rows. */
+	function bracketParticipantMediaHTML(participant) {
+		const character = participantCharacter(participant);
+		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
+		return [
+			`<div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media>`,
+			`<div class="d-flex gap-2 align-items-center">`,
+			`<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-player-image>`,
+			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`,
+			`</div>`,
+			`<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-character-image>`,
+			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+			`</div>`,
+			`</div>`,
+			//`<span class="small fw-bold text-truncate d-inline-block text-center" data-bracket-character-label>${escapeHtml(character.name)}</span>`,
+			`</div>`,
+		].join("");
 	}
 
 	/** Creates one side of the current-match scoreboard. */
@@ -1011,16 +1068,20 @@
 		const playerID = participant?.player_id ? `${participant.player_id}` : "";
 		const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
 		const seed = swappableParticipantSeed(participant);
-		const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}" role="button" tabindex="0" aria-label="${escapeHtml(t("match_swap_player", "Select player to swap"))}"` : "";
+		const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}"` : "";
+		const swapButton = seed
+			? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-current-seed-swap="${seed}" aria-label="${escapeHtml(t("match_swap_player", "Select player to swap"))}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
+			: "";
 
 		return [
 			`<article class="col-12 col-lg-5">`,
 			`<div class="h-100 border rounded p-3"${opacity} data-match-card${swapAttrs}>`,
 			`<div class="row g-3 align-items-stretch">`,
-			`<div class="col-12 d-flex flex-wrap gap-2 align-items-baseline justify-content-between">`,
+			`<div class="col-12 d-flex flex-wrap gap-2 align-items-center justify-content-between">`,
 			side === 1
 				? `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`
 				: `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`,
+			swapButton,
 			side === 1
 				? `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
 				: `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`,
@@ -1030,11 +1091,7 @@
 			`<h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>`,
 			`<p class="m-0 mt-2 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
 			country,
-			`<div class="input-group mt-3" data-score-group="${side}" style="max-width: 10rem;">`,
-			`<button class="btn btn-outline-light" type="button" data-score-action="dec" data-score-player="${side}" aria-label="${escapeHtml(t("match_score_down", "Decrease score"))}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
-			`<input class="form-control text-center" style="max-width: 4.5rem;" type="number" min="0" step="1" value="${score}" data-score-input="${side}" aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
-			`<button class="btn btn-outline-light" type="button" data-score-action="inc" data-score-player="${side}" aria-label="${escapeHtml(t("match_score_up", "Increase score"))}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
-			`</div>`,
+			scoreStepperHTML(score, { side, prefix: "score" }),
 			`</div>`,
 			side === 1 ? "" : matchMediaHTML(participant, side),
 			`</div>`,
@@ -1175,8 +1232,9 @@
 
 	/** Binds delegated score and reload controls for the current-match panel. */
 	function bindCurrentMatch(panel) {
-		if (panel.dataset.bound === "true") return;
-		panel.dataset.bound = "true";
+		const bindingVersion = "score-swap-v1";
+		if (panel.dataset.bound === bindingVersion) return;
+		panel.dataset.bound = bindingVersion;
 
 		panel.addEventListener("click", function (event) {
 			const target = event.target instanceof Element ? event.target : null;
@@ -1197,25 +1255,19 @@
 				return;
 			}
 
-			const swapTarget = target?.closest("[data-current-seed-player]");
-			if (swapTarget instanceof HTMLElement && !isInteractiveTarget(target)) {
-				selectCurrentSeedForSwap(panel, Number(swapTarget.dataset.seed || 0));
+			const swapSeed = currentSwapSeedFromTarget(target);
+			if (swapSeed) {
+				selectCurrentSeedForSwap(panel, swapSeed);
 			}
 		});
 
 		panel.addEventListener("keydown", function (event) {
 			if (event.key !== "Enter" && event.key !== " ") return;
 			const target = event.target instanceof Element ? event.target : null;
-			const swapTarget = target?.closest("[data-current-seed-player]");
-			if (!(swapTarget instanceof HTMLElement)) return;
+			const swapSeed = currentSwapSeedFromTarget(target);
+			if (!swapSeed) return;
 			event.preventDefault();
-			selectCurrentSeedForSwap(panel, Number(swapTarget.dataset.seed || 0));
-		});
-
-		panel.addEventListener("change", function (event) {
-			if (!(event.target instanceof HTMLInputElement) || !event.target.matches("[data-score-input]")) return;
-			event.target.value = String(Math.max(0, Math.floor(Number(event.target.value || 0))));
-			void saveCurrentMatchScore(panel);
+			selectCurrentSeedForSwap(panel, swapSeed);
 		});
 	}
 
@@ -1525,62 +1577,73 @@
 		const reason = bracketResultReasonLabel(reasonKey);
 		const country = String(participant?.player?.country || "").toUpperCase();
 		const seed = swappableParticipantSeed(participant);
-		const swapAttrs = admin && seed ? ` data-bracket-seed-player data-seed="${seed}" role="button" tabindex="0" aria-label="${escapeHtml(t("bracket_swap_player", "Select player to swap"))}"` : "";
+		const swapAttrs = admin && seed ? ` data-bracket-seed-player data-seed="${seed}"` : "";
 		const flag = participant?.resolved && isISO2Code(country) && status !== "bye"
-			? `<img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.1rem; height: 0.78rem; object-fit: cover; box-shadow: 0 0 0 1px var(--fgc-border);" />`
+			? [
+					`<span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country>`,
+					`<img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.88rem; object-fit: cover; box-shadow: 0 0 0 1px var(--fgc-border);" />`,
+					`<span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>`,
+					`</span>`,
+				].join("")
 			: "";
+		const scoreControl = admin
+			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true })
+			: `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
+		const actionControls = bracketParticipantActionsHTML(match, side, admin);
 		return [
 			`<div class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}" data-bracket-participant data-status="${escapeHtml(status)}" data-outcome="${winner ? "winner" : loser ? "loser" : ""}"${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>`,
-			`<div class="d-flex gap-2 align-items-center">`,
-			`<span class="small fw-bold" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>`,
+			`<div class="d-flex flex-nowrap gap-2 align-items-center">`,
+			`<span class="small fw-bold flex-shrink-0" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>`,
 			flag,
+			bracketParticipantMediaHTML(participant),
 			`<span class="min-w-0 flex-grow-1">`,
 			`<span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>`,
 			team ? `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : "",
 			`</span>`,
 			reason && (winner || loser) ? `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : "",
-			`<span class="fgc-title fs-6">${Number(score || 0)}</span>`,
+			`<div class="d-flex flex-nowrap gap-1 align-items-center justify-content-end flex-shrink-0 ms-2" data-bracket-player-controls>`,
+			scoreControl,
+			actionControls,
 			swapAttrs
 				? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bracket-seed-swap="${seed}" aria-label="${escapeHtml(t("bracket_swap_player", "Select player to swap"))}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
 				: "",
 			`</div>`,
 			`</div>`,
+			`</div>`,
 		].join("");
 	}
 
-	/** Builds admin-only match actions. */
-	function bracketMatchActionsHTML(match, admin) {
+	/** Builds admin-only result controls for one bracket participant row. */
+	function bracketParticipantActionsHTML(match, side, admin) {
 		if (!admin) return "";
 		const p1 = match?.player1?.player_id || "";
 		const p2 = match?.player2?.player_id || "";
 		const canDecide = Boolean(match?.can_decide);
+		const playerID = side === 1 ? p1 : p2;
+		const opponentID = side === 1 ? p2 : p1;
+		const seedParticipant = (side === 1 ? match?.player1 : match?.player2)?.source?.type === "seed";
+		const bye = (side === 1 ? match?.player1 : match?.player2)?.status === "bye";
+		return [
+			canDecide
+				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}">${escapeHtml(t("bracket_win", "Win"))}</button>`
+				: "",
+			canDecide
+				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq">${escapeHtml(t("bracket_dq", "DQ"))}</button>`
+				: "",
+			seedParticipant
+				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}">${escapeHtml(bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
+				: "",
+		].join("");
+	}
+
+	/** Builds admin-only match-level controls that are not tied to one player. */
+	function bracketMatchActionsHTML(match, admin) {
+		if (!admin) return "";
 		const current = match?.current ? " disabled" : "";
 		const currentLabel = match?.current ? t("bracket_current", "Current") : t("bracket_set_current", "Current");
-		const p1Seed = match?.player1?.source?.type === "seed";
-		const p2Seed = match?.player2?.source?.type === "seed";
-		const p1Bye = match?.player1?.status === "bye";
-		const p2Bye = match?.player2?.status === "bye";
 		return [
 			`<div class="d-flex flex-wrap gap-2 mt-2">`,
 			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`,
-			canDecide
-				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p1)}">P1 ${escapeHtml(t("bracket_win", "Win"))}</button>`
-				: "",
-			canDecide
-				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p2)}">P2 ${escapeHtml(t("bracket_win", "Win"))}</button>`
-				: "",
-			canDecide
-				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p2)}" data-result-reason="dq">P1 ${escapeHtml(t("bracket_dq", "DQ"))}</button>`
-				: "",
-			canDecide
-				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(p1)}" data-result-reason="dq">P2 ${escapeHtml(t("bracket_dq", "DQ"))}</button>`
-				: "",
-			p1Seed
-				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="1" data-bye="${p1Bye ? "false" : "true"}">P1 ${escapeHtml(p1Bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
-				: "",
-			p2Seed
-				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="2" data-bye="${p2Bye ? "false" : "true"}">P2 ${escapeHtml(p2Bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
-				: "",
 			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
 			`</div>`,
 		].join("");
@@ -1663,6 +1726,9 @@
 				image.remove();
 			});
 		});
+		board.querySelectorAll("[data-fallback-image]").forEach(function (image) {
+			setImageFallback(image);
+		});
 		applyLanguage(board);
 	}
 
@@ -1674,6 +1740,7 @@
 			try {
 				const projection = await withTimeout(loadStaticBracketProjection(requestedView), 5000, "Static bracket load timed out");
 				if (!isCurrentBracketLoad(root, ticket)) return projection;
+				await ensureCharacterCatalog(null, projection?.event?.game || "");
 				renderBracketProjection(root, projection, false);
 				setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
 				return projection;
@@ -1691,6 +1758,7 @@
 		try {
 			const projection = await withTimeout(app.GetBracketView(requestedView), 5000, "Bracket load timed out");
 			if (!isCurrentBracketLoad(root, ticket)) return projection;
+			await ensureCharacterCatalog(app, projection?.event?.game || "");
 			renderBracketProjection(root, projection, root.matches(BRACKET_PAGE));
 			setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
 			return projection;
@@ -1740,6 +1808,37 @@
 		}
 	}
 
+	/** Reads one bracket score from a rendered match card. */
+	function readBracketScore(matchCard, side) {
+		const input = matchCard?.querySelector(`[data-bracket-score-input="${side}"]`);
+		if (!(input instanceof HTMLInputElement)) return 0;
+		return Math.max(0, Math.floor(Number(input.value || 0)));
+	}
+
+	/** Handles compact bracket score +/- controls. */
+	function updateBracketScoreFromButton(page, button) {
+		const matchID = button.getAttribute("data-match-id") || "";
+		const side = Number(button.getAttribute("data-side") || 0);
+		const delta = Number(button.getAttribute("data-delta") || 0);
+		const matchCard = button.closest("[data-bracket-match]");
+		if (!matchID || !side || !delta || !(matchCard instanceof HTMLElement)) return;
+
+		let player1Score = readBracketScore(matchCard, 1);
+		let player2Score = readBracketScore(matchCard, 2);
+		if (side === 1) player1Score = Math.max(0, player1Score + delta);
+		if (side === 2) player2Score = Math.max(0, player2Score + delta);
+
+		const player1Input = matchCard.querySelector('[data-bracket-score-input="1"]');
+		const player2Input = matchCard.querySelector('[data-bracket-score-input="2"]');
+		if (player1Input instanceof HTMLInputElement) player1Input.value = String(player1Score);
+		if (player2Input instanceof HTMLInputElement) player2Input.value = String(player2Score);
+
+		void runBracketAction(page, function (app) {
+			if (typeof app.UpdateMatchScore !== "function") return Promise.reject(new Error("UpdateMatchScore is unavailable"));
+			return app.UpdateMatchScore(matchID, player1Score, player2Score);
+		});
+	}
+
 	/** Handles first/second click selection for bracket seed swaps. */
 	function selectBracketSeedForSwap(page, seed) {
 		if (!seed) return;
@@ -1764,7 +1863,7 @@
 
 	/** Binds admin bracket controls. */
 	function bindBracketPage(page) {
-		const bindingVersion = "seed-swap-v2";
+		const bindingVersion = "score-swap-v4";
 		if (page.dataset.bound === bindingVersion) return;
 		page.dataset.bound = bindingVersion;
 
@@ -1814,6 +1913,12 @@
 
 		page.addEventListener("click", function (event) {
 			const target = event.target instanceof Element ? event.target : null;
+			const scoreButton = target?.closest("[data-bracket-score-action]");
+			if (scoreButton instanceof HTMLButtonElement) {
+				updateBracketScoreFromButton(page, scoreButton);
+				return;
+			}
+
 			const currentButton = target?.closest("[data-bracket-current]");
 			if (currentButton instanceof HTMLButtonElement) {
 				const matchID = currentButton.getAttribute("data-bracket-current") || "";
@@ -1866,10 +1971,10 @@
 		page.addEventListener("keydown", function (event) {
 			if (event.key !== "Enter" && event.key !== " ") return;
 			const target = event.target instanceof Element ? event.target : null;
-			const swapTarget = target?.closest("[data-bracket-seed-player], [data-bracket-seed-swap]");
+			const swapTarget = target?.closest("[data-bracket-seed-swap]");
 			if (!(swapTarget instanceof HTMLElement)) return;
 			event.preventDefault();
-			const seed = bracketSwapSeedFromTarget(target) || Number(swapTarget.dataset.seed || swapTarget.dataset.bracketSeedSwap || 0);
+			const seed = bracketSwapSeedFromTarget(target) || Number(swapTarget.dataset.bracketSeedSwap || 0);
 			selectBracketSeedForSwap(page, seed);
 		});
 
