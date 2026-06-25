@@ -201,6 +201,11 @@ func (a *App) RemoveEventBackground() (string, error) {
 	return a.backend.RemoveEventBackground()
 }
 
+// ShowOverlaysFolder opens the local overlays folder through the backend filesystem boundary.
+func (a *App) ShowOverlaysFolder() (string, error) {
+	return a.backend.ShowOverlaysFolder()
+}
+
 // staticLibraryHandler serves external asset folders beside the embedded SPA.
 func staticLibraryHandler() http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
@@ -284,7 +289,7 @@ func main() {
 			Assets:  assets,
 			Handler: staticLibraryHandler(),
 		},
-		BackgroundColour: &options.RGBA{R: 17, G: 19, B: 18, A: 1},
+		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 1},
 		OnStartup:        app.Startup,
 		Bind: []interface{}{
 			app,

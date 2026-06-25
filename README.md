@@ -35,6 +35,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
 - **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
+- **backend/overlays.go:** Opens the local `overlays/` folder from the sidebar through the OS file explorer.
 - **frontend/dist/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
 - **frontend/dist/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
 - **frontend/dist/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
@@ -65,6 +66,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **players/{player}.png:** Custom player portrait uploaded from the player page.
 - **players/_logo.png:** Custom tournament logo for overlays.
 - **players/_bg.jpg:** Custom tournament background for overlays only.
+- **overlays/**: Local OBS overlay workspace opened from the controller sidebar.
 
 ## Data Model
 

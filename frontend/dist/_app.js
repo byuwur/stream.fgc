@@ -236,6 +236,42 @@
 		return bracketLoadTickets.get(root) === ticket;
 	}
 
+	/**
+	 * Opens the overlays folder through the Wails backend.
+	 * @param {HTMLElement} control Sidebar control that triggered the request.
+	 */
+	async function showOverlaysFolder(control) {
+		const app = await waitForBackend();
+		if (!app || typeof app.ShowOverlaysFolder !== "function") {
+			console.warn("ShowOverlaysFolder is not available in this Wails runtime.");
+			return;
+		}
+
+		if (control instanceof HTMLButtonElement || control instanceof HTMLAnchorElement) control.setAttribute("aria-busy", "true");
+		try {
+			await app.ShowOverlaysFolder();
+		} catch (error) {
+			console.error("ShowOverlaysFolder failed", error);
+		} finally {
+			if (control instanceof HTMLButtonElement || control instanceof HTMLAnchorElement) control.removeAttribute("aria-busy");
+		}
+	}
+
+	/**
+	 * Binds sidebar actions that need backend access instead of SPA navigation.
+	 * @param {Document|Element} root Document or SPA fragment that may contain sidebar controls.
+	 */
+	function bindSidebarActions(root = document) {
+		root.querySelectorAll("[data-overlays-open]").forEach(function (control) {
+			if (!(control instanceof HTMLElement) || control.dataset.bound === "true") return;
+			control.dataset.bound = "true";
+			control.addEventListener("click", function (event) {
+				event.preventDefault();
+				void showOverlaysFolder(control);
+			});
+		});
+	}
+
 	// --- DOM and form helpers ---
 
 	/** Escapes strings before interpolating dynamic HTML. */
@@ -2809,6 +2845,7 @@
 
 	/** Initializes controls in the current document or newly loaded SPA content. */
 	function init(root = document) {
+		bindSidebarActions(root);
 		bindAutosaveToggles(root);
 		applyAutosavePreference();
 		refreshStatusIcons(root);
