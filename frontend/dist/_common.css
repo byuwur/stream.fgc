@@ -54,7 +54,7 @@
 	/* Stream.FGC override: readable warning text on dark translucent surfaces */
 	--fgc-status-warning-text: #ffdd66;
 	/* Stream.FGC bracket layout token */
-	--fgc-bracket-round-width: 25rem;
+	--fgc-bracket-round-width: 10rem;
 	/* Stream.FGC bracket layout token */
 	--fgc-bracket-match-min-height: 10rem;
 	/* Bootstrap */

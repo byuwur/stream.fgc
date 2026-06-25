@@ -82,6 +82,7 @@ type MatchState struct {
 	Winner       string `json:"winner,omitempty"`
 	Loser        string `json:"loser,omitempty"`
 	Reason       string `json:"reason,omitempty"`
+	SwapSides    bool   `json:"swap_sides,omitempty"`
 }
 
 // BracketTemplate describes the static bracket graph loaded from templates.
@@ -214,9 +215,48 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	}
 
 	matchState := state.Matches[matchID]
+	if matchState.Winner != "" {
+		return cloneTournamentState(a.state), fmt.Errorf("match already has a winner; clear it before editing scores")
+	}
 	scoreLimit := normalizeEventRule(state.Event.Rule)
-	matchState.Player1Score = clampMatchScore(player1Score, scoreLimit)
-	matchState.Player2Score = clampMatchScore(player2Score, scoreLimit)
+	player1Score = clampMatchScore(player1Score, scoreLimit)
+	player2Score = clampMatchScore(player2Score, scoreLimit)
+	if matchState.SwapSides {
+		player1Score, player2Score = player2Score, player1Score
+	}
+	matchState.Player1Score = player1Score
+	matchState.Player2Score = player2Score
+	state.Matches[matchID] = matchState
+
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SwapMatchSides toggles the display side override for the current-match controller.
+func (a *App) SwapMatchSides(matchID string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	if matchID == "" {
+		matchID = state.Current
+	}
+
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return cloneTournamentState(a.state), err
+	}
+	if _, ok := template.Matches[matchID]; !ok {
+		return cloneTournamentState(a.state), fmt.Errorf("unknown match: %s", matchID)
+	}
+
+	matchState := state.Matches[matchID]
+	matchState.SwapSides = !matchState.SwapSides
 	state.Matches[matchID] = matchState
 
 	normalized := normalizeTournamentState(state)
@@ -531,12 +571,20 @@ func (a *App) ResolveMatch(matchID string) ResolvedMatch {
 		return ResolvedMatch{ID: matchID, Name: "Unknown match", State: state.Matches[matchID]}
 	}
 
+	matchState := state.Matches[matchID]
+	player1 := resolveParticipant(templateMatch.Player1, state)
+	player2 := resolveParticipant(templateMatch.Player2, state)
+	if matchState.SwapSides {
+		player1, player2 = player2, player1
+		matchState.Player1Score, matchState.Player2Score = matchState.Player2Score, matchState.Player1Score
+	}
+
 	return ResolvedMatch{
 		ID:      matchID,
 		Name:    templateMatch.Name,
-		Player1: resolveParticipant(templateMatch.Player1, state),
-		Player2: resolveParticipant(templateMatch.Player2, state),
-		State:   state.Matches[matchID],
+		Player1: player1,
+		Player2: player2,
+		State:   matchState,
 	}
 }
 
@@ -654,6 +702,7 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	if state.Players == nil {
 		state.Players = map[string]Player{}
 	}
+	trimPlayerSlots(state.Players, state.Event.Size)
 	ensurePlayerSlots(state.Players, state.Event.Size)
 	stripPlayerPortraits(state.Players)
 	normalizeBracketSeedAssignments(&state)
@@ -913,7 +962,18 @@ func clearBracketSeeds(state *TournamentState) {
 	state.Bracket.Seeds = nil
 }
 
-// ensurePlayerSlots keeps seed slots 1..size present without deleting hidden extras.
+// trimPlayerSlots removes numeric slots above the configured tournament size.
+func trimPlayerSlots(players map[string]Player, size int) {
+	for id := range players {
+		seed, err := strconv.Atoi(id)
+		if err != nil || seed <= size {
+			continue
+		}
+		delete(players, id)
+	}
+}
+
+// ensurePlayerSlots keeps seed slots 1..size present for the configured tournament.
 func ensurePlayerSlots(players map[string]Player, size int) {
 	for seed := 1; seed <= size; seed++ {
 		id := strconv.Itoa(seed)

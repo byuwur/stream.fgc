@@ -70,6 +70,11 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	return a.backend.UpdateMatchScore(matchID, player1Score, player2Score)
 }
 
+// SwapMatchSides toggles the display side override for one match.
+func (a *App) SwapMatchSides(matchID string) (backend.TournamentState, error) {
+	return a.backend.SwapMatchSides(matchID)
+}
+
 // SetCurrentMatch selects the match shown in the current-match controller.
 func (a *App) SetCurrentMatch(matchID string) (backend.TournamentState, error) {
 	return a.backend.SetCurrentMatch(matchID)
