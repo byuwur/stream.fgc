@@ -1,0 +1,21 @@
+{
+  "type": "single_elimination",
+  "size": 2,
+  "matches": {
+    "A": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    }
+  },
+  "placements": {}
+}

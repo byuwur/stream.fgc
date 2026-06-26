@@ -19,11 +19,11 @@ import (
 )
 
 const (
-	dataDirPath               = "data"
-	templatesDirPath          = "templates"
-	tournamentJSONFile        = "tournament.json"
-	defaultTournamentJSONFile = "_default.json"
-	defaultTournamentSize     = 8
+	dataDirPath                   = "data"
+	templatesDirPath              = "templates"
+	tournamentJSONFile            = "tournament.json"
+	defaultTournamentTemplateFile = "default.json"
+	defaultTournamentSize         = 8
 )
 
 // TournamentState is the JSON document used by the app and future OBS overlays.
@@ -97,6 +97,7 @@ type BracketTemplate struct {
 	Size       int                      `json:"size"`
 	Matches    map[string]TemplateMatch `json:"matches"`
 	Placements map[string]interface{}   `json:"placements,omitempty"`
+	Error      string                   `json:"error,omitempty"`
 }
 
 // BracketSettings stores admin choices that affect bracket overlays.
@@ -549,11 +550,11 @@ func (a *App) SwapBracketSeeds(seed int, targetSeed int) (TournamentState, error
 	return cloneTournamentState(a.state), nil
 }
 
-// LoadTemplate returns a bracket template or an empty template fallback.
+// LoadTemplate returns a bracket template or an empty template with a missing-template message.
 func (a *App) LoadTemplate(format string, size int) BracketTemplate {
 	template, err := loadBracketTemplate(format, size)
 	if err != nil {
-		return emptyBracketTemplate(format, size)
+		return emptyBracketTemplate(format, size, err.Error())
 	}
 	return template
 }
@@ -570,7 +571,7 @@ func (a *App) ResolveMatch(matchID string) ResolvedMatch {
 
 	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
 	if err != nil {
-		return ResolvedMatch{ID: matchID, Name: "Unknown match", State: state.Matches[matchID]}
+		return ResolvedMatch{ID: matchID, Name: err.Error(), State: state.Matches[matchID]}
 	}
 
 	templateMatch, ok := template.Matches[matchID]
@@ -662,9 +663,9 @@ func readTournamentState() (TournamentState, error) {
 	return readTournamentStateFileCandidates(externalFilePaths(dataDirPath, tournamentJSONFile))
 }
 
-// readDefaultTournamentState reads the editable starter state.
+// readDefaultTournamentState reads the editable starter state from templates/default.json.
 func readDefaultTournamentState() (TournamentState, error) {
-	return readTournamentStateFileCandidates(externalFilePaths(dataDirPath, defaultTournamentJSONFile))
+	return readTournamentStateFileCandidates(externalFilePaths(templatesDirPath, defaultTournamentTemplateFile))
 }
 
 // readTournamentStateFileCandidates loads the first available state file from lookup paths.
@@ -1049,33 +1050,19 @@ func cloneTournamentState(state TournamentState) TournamentState {
 	return cloned
 }
 
-// defaultTournamentState uses data/_default.json, then falls back to built-in seed data.
+// defaultTournamentState uses templates/default.json, then a minimal missing-template state.
 func defaultTournamentState() TournamentState {
 	if state, err := readDefaultTournamentState(); err == nil {
 		return state
 	}
 
-	players := map[string]Player{}
-	for seed := 1; seed <= 8; seed++ {
-		players[strconv.Itoa(seed)] = Player{
-			Name:      "Player " + strconv.Itoa(seed),
-			Country:   "CO",
-			Character: "Ryu",
-		}
-	}
-
 	return TournamentState{
 		Version: 1,
 		Event: EventInfo{
-			Name:   "Stream.FGC Tournament",
-			Phase:  "2026:25",
-			Rule:   3,
-			Game:   "SF6",
-			Format: "double_elimination",
-			Size:   defaultTournamentSize,
+			Name: templateMissingMessage(defaultTournamentTemplateFile),
 		},
 		Current: "A",
-		Players: players,
+		Players: map[string]Player{},
 		Matches: map[string]MatchState{},
 	}
 }
@@ -1104,7 +1091,7 @@ func fallbackTournamentSize(allowed []int) int {
 	return defaultTournamentSize
 }
 
-// configuredTournamentSizes reads assets/sizes.json and falls back to MVP sizes.
+// configuredTournamentSizes reads assets/sizes.json and leaves the select empty when missing.
 func configuredTournamentSizes() []int {
 	for _, diskPath := range assetDiskPaths("sizes.json") {
 		data, err := os.ReadFile(diskPath)
@@ -1131,13 +1118,14 @@ func configuredTournamentSizes() []int {
 			return sizes
 		}
 	}
-	return []int{2, 4, defaultTournamentSize, 16, 32}
+	return []int{}
 }
 
-// loadBracketTemplate reads templates/{format}{size}.json and normalizes it.
+// loadBracketTemplate reads templates/{format}{size}.json and fails loudly when it is missing.
 func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 	var data []byte
-	for _, diskPath := range externalFilePaths(templatesDirPath, templateFileName(format, size)) {
+	fileName := templateFileName(format, size)
+	for _, diskPath := range externalFilePaths(templatesDirPath, fileName) {
 		fileData, err := os.ReadFile(diskPath)
 		if err == nil {
 			data = fileData
@@ -1145,7 +1133,7 @@ func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 		}
 	}
 	if len(data) == 0 {
-		return generateBracketTemplate(format, size), nil
+		return BracketTemplate{}, fmt.Errorf("%s", templateMissingMessage(fileName))
 	}
 
 	var template BracketTemplate
@@ -1267,23 +1255,34 @@ func normalizeBracketTemplate(template BracketTemplate, format string, size int)
 }
 
 // emptyBracketTemplate keeps frontend calls predictable when a template is missing.
-func emptyBracketTemplate(format string, size int) BracketTemplate {
+func emptyBracketTemplate(format string, size int, message string) BracketTemplate {
 	return BracketTemplate{
 		Type:       format,
 		Size:       size,
 		Matches:    map[string]TemplateMatch{},
 		Placements: map[string]interface{}{},
+		Error:      message,
 	}
+}
+
+// templateMissingMessage returns the operator-facing message for missing JSON templates.
+func templateMissingMessage(fileName string) string {
+	return fmt.Sprintf("[%s] template missing", fileName)
 }
 
 // templateFileName maps event format/size to a JSON template filename.
 func templateFileName(format string, size int) string {
 	normalized := strings.ToLower(strings.TrimSpace(format))
-	switch normalized {
-	case "double", "double_elimination":
+	compact := normalizeAssetName(normalized)
+	switch {
+	case normalized == "double" || normalized == "double_elimination" || compact == "double" || compact == "doubleelimination":
 		return fmt.Sprintf("double%d.json", size)
-	case "single", "single_elimination":
+	case normalized == "single" || normalized == "single_elimination" || compact == "single" || compact == "singleelimination":
 		return fmt.Sprintf("single%d.json", size)
+	case normalized == "robin" || normalized == "round" || normalized == "round_robin" || compact == "robin" || compact == "round" || compact == "roundrobin":
+		return fmt.Sprintf("robin%d.json", size)
+	case normalized == "swiss" || normalized == "swiss_system" || compact == "swiss" || compact == "swisssystem":
+		return fmt.Sprintf("swiss%d.json", size)
 	default:
 		name := strings.ReplaceAll(normalized, "_elimination", "")
 		name = strings.ReplaceAll(name, "_", "")

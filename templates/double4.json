@@ -1,0 +1,117 @@
+{
+  "type": "double_elimination",
+  "size": 4,
+  "matches": {
+    "A": {
+      "name": "Winners Round 1 - A",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      },
+      "winner_to": "C",
+      "loser_to": "D"
+    },
+    "B": {
+      "name": "Winners Round 1 - B",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      },
+      "winner_to": "C",
+      "loser_to": "D"
+    },
+    "C": {
+      "name": "Winners Final - A",
+      "group": "winners",
+      "round": "Winners Final",
+      "order": 3,
+      "p1": {
+        "type": "winner",
+        "match": "A"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "B"
+      },
+      "loser_to": "E",
+      "winner_to": "F"
+    },
+    "D": {
+      "name": "Losers Round 1 - D",
+      "group": "losers",
+      "round": "Losers Round 1",
+      "order": 4,
+      "p1": {
+        "type": "loser",
+        "match": "A"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "B"
+      },
+      "winner_to": "E"
+    },
+    "E": {
+      "name": "Losers Final",
+      "group": "losers",
+      "round": "Losers Final",
+      "order": 5,
+      "p1": {
+        "type": "winner",
+        "match": "D"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "C"
+      },
+      "winner_to": "F"
+    },
+    "F": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 6,
+      "p1": {
+        "type": "winner",
+        "match": "C"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "E"
+      },
+      "reset": true,
+      "winner_to": "G"
+    },
+    "G": {
+      "name": "Grand Final Reset",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 7,
+      "p1": {
+        "type": "winner",
+        "match": "F"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "F"
+      },
+      "optional": true,
+      "reset": true
+    }
+  },
+  "placements": {}
+}

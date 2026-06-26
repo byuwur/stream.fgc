@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "event": {
+    "name": "Stream.FGC Tournament",
+    "phase": "",
+    "rule": 3,
+    "game": "",
+    "format": "double_elimination",
+    "size": 8
+  },
+  "current": "A",
+  "players": {
+    "1": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "2": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "3": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "4": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "5": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "6": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "7": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    },
+    "8": {
+      "name": "",
+      "team": "",
+      "country": "",
+      "character": ""
+    }
+  },
+  "matches": {},
+  "bracket": {}
+}

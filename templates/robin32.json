@@ -1,0 +1,6951 @@
+{
+  "type": "robin",
+  "size": 32,
+  "matches": {
+    "A": {
+      "name": "Robin Round 1 - A",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "B": {
+      "name": "Robin Round 1 - B",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "C": {
+      "name": "Robin Round 1 - C",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 3,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "D": {
+      "name": "Robin Round 1 - D",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 4,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "E": {
+      "name": "Robin Round 1 - E",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 5,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "F": {
+      "name": "Robin Round 1 - F",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 6,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "G": {
+      "name": "Robin Round 1 - G",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 7,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "H": {
+      "name": "Robin Round 1 - H",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 8,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "I": {
+      "name": "Robin Round 1 - I",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 9,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "J": {
+      "name": "Robin Round 1 - J",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 10,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "K": {
+      "name": "Robin Round 1 - K",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 11,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "L": {
+      "name": "Robin Round 1 - L",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 12,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "M": {
+      "name": "Robin Round 1 - M",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 13,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "N": {
+      "name": "Robin Round 1 - N",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 14,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "O": {
+      "name": "Robin Round 1 - O",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 15,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "P": {
+      "name": "Robin Round 1 - P",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 16,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "Q": {
+      "name": "Robin Round 2 - A",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 17,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "R": {
+      "name": "Robin Round 2 - B",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 18,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "S": {
+      "name": "Robin Round 2 - C",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 19,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "T": {
+      "name": "Robin Round 2 - D",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 20,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "U": {
+      "name": "Robin Round 2 - E",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 21,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "V": {
+      "name": "Robin Round 2 - F",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 22,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "W": {
+      "name": "Robin Round 2 - G",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 23,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "X": {
+      "name": "Robin Round 2 - H",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 24,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "Y": {
+      "name": "Robin Round 2 - I",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 25,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "Z": {
+      "name": "Robin Round 2 - J",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 26,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "AA": {
+      "name": "Robin Round 2 - K",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 27,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "AB": {
+      "name": "Robin Round 2 - L",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 28,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "AC": {
+      "name": "Robin Round 2 - M",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 29,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "AD": {
+      "name": "Robin Round 2 - N",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 30,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "AE": {
+      "name": "Robin Round 2 - O",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 31,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "AF": {
+      "name": "Robin Round 2 - P",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 32,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "AG": {
+      "name": "Robin Round 3 - A",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 33,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "AH": {
+      "name": "Robin Round 3 - B",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 34,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "AI": {
+      "name": "Robin Round 3 - C",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 35,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "AJ": {
+      "name": "Robin Round 3 - D",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 36,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "AK": {
+      "name": "Robin Round 3 - E",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 37,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "AL": {
+      "name": "Robin Round 3 - F",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 38,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "AM": {
+      "name": "Robin Round 3 - G",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 39,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "AN": {
+      "name": "Robin Round 3 - H",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 40,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "AO": {
+      "name": "Robin Round 3 - I",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 41,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "AP": {
+      "name": "Robin Round 3 - J",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 42,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "AQ": {
+      "name": "Robin Round 3 - K",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 43,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "AR": {
+      "name": "Robin Round 3 - L",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 44,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "AS": {
+      "name": "Robin Round 3 - M",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 45,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "AT": {
+      "name": "Robin Round 3 - N",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 46,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "AU": {
+      "name": "Robin Round 3 - O",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 47,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "AV": {
+      "name": "Robin Round 3 - P",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 48,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "AW": {
+      "name": "Robin Round 4 - A",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 49,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "AX": {
+      "name": "Robin Round 4 - B",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 50,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "AY": {
+      "name": "Robin Round 4 - C",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 51,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "AZ": {
+      "name": "Robin Round 4 - D",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 52,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "BA": {
+      "name": "Robin Round 4 - E",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 53,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "BB": {
+      "name": "Robin Round 4 - F",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 54,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "BC": {
+      "name": "Robin Round 4 - G",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 55,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "BD": {
+      "name": "Robin Round 4 - H",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 56,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "BE": {
+      "name": "Robin Round 4 - I",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 57,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "BF": {
+      "name": "Robin Round 4 - J",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 58,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "BG": {
+      "name": "Robin Round 4 - K",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 59,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "BH": {
+      "name": "Robin Round 4 - L",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 60,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "BI": {
+      "name": "Robin Round 4 - M",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 61,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "BJ": {
+      "name": "Robin Round 4 - N",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 62,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "BK": {
+      "name": "Robin Round 4 - O",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 63,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "BL": {
+      "name": "Robin Round 4 - P",
+      "group": "robin",
+      "round": "Round 4",
+      "order": 64,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "BM": {
+      "name": "Robin Round 5 - A",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 65,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "BN": {
+      "name": "Robin Round 5 - B",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 66,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "BO": {
+      "name": "Robin Round 5 - C",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 67,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "BP": {
+      "name": "Robin Round 5 - D",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 68,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "BQ": {
+      "name": "Robin Round 5 - E",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 69,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "BR": {
+      "name": "Robin Round 5 - F",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 70,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "BS": {
+      "name": "Robin Round 5 - G",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 71,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "BT": {
+      "name": "Robin Round 5 - H",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 72,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "BU": {
+      "name": "Robin Round 5 - I",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 73,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "BV": {
+      "name": "Robin Round 5 - J",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 74,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "BW": {
+      "name": "Robin Round 5 - K",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 75,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "BX": {
+      "name": "Robin Round 5 - L",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 76,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "BY": {
+      "name": "Robin Round 5 - M",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 77,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "BZ": {
+      "name": "Robin Round 5 - N",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 78,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "CA": {
+      "name": "Robin Round 5 - O",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 79,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "CB": {
+      "name": "Robin Round 5 - P",
+      "group": "robin",
+      "round": "Round 5",
+      "order": 80,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "CC": {
+      "name": "Robin Round 6 - A",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 81,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "CD": {
+      "name": "Robin Round 6 - B",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 82,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "CE": {
+      "name": "Robin Round 6 - C",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 83,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "CF": {
+      "name": "Robin Round 6 - D",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 84,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "CG": {
+      "name": "Robin Round 6 - E",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 85,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "CH": {
+      "name": "Robin Round 6 - F",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 86,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "CI": {
+      "name": "Robin Round 6 - G",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 87,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "CJ": {
+      "name": "Robin Round 6 - H",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 88,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "CK": {
+      "name": "Robin Round 6 - I",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 89,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "CL": {
+      "name": "Robin Round 6 - J",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 90,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "CM": {
+      "name": "Robin Round 6 - K",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 91,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "CN": {
+      "name": "Robin Round 6 - L",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 92,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "CO": {
+      "name": "Robin Round 6 - M",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 93,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "CP": {
+      "name": "Robin Round 6 - N",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 94,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "CQ": {
+      "name": "Robin Round 6 - O",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 95,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "CR": {
+      "name": "Robin Round 6 - P",
+      "group": "robin",
+      "round": "Round 6",
+      "order": 96,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "CS": {
+      "name": "Robin Round 7 - A",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 97,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "CT": {
+      "name": "Robin Round 7 - B",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 98,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "CU": {
+      "name": "Robin Round 7 - C",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 99,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "CV": {
+      "name": "Robin Round 7 - D",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 100,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "CW": {
+      "name": "Robin Round 7 - E",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 101,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "CX": {
+      "name": "Robin Round 7 - F",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 102,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "CY": {
+      "name": "Robin Round 7 - G",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 103,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "CZ": {
+      "name": "Robin Round 7 - H",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 104,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "DA": {
+      "name": "Robin Round 7 - I",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 105,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "DB": {
+      "name": "Robin Round 7 - J",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 106,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "DC": {
+      "name": "Robin Round 7 - K",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 107,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "DD": {
+      "name": "Robin Round 7 - L",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 108,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "DE": {
+      "name": "Robin Round 7 - M",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 109,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "DF": {
+      "name": "Robin Round 7 - N",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 110,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "DG": {
+      "name": "Robin Round 7 - O",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 111,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "DH": {
+      "name": "Robin Round 7 - P",
+      "group": "robin",
+      "round": "Round 7",
+      "order": 112,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "DI": {
+      "name": "Robin Round 8 - A",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 113,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "DJ": {
+      "name": "Robin Round 8 - B",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 114,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "DK": {
+      "name": "Robin Round 8 - C",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 115,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "DL": {
+      "name": "Robin Round 8 - D",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 116,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "DM": {
+      "name": "Robin Round 8 - E",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 117,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "DN": {
+      "name": "Robin Round 8 - F",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 118,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "DO": {
+      "name": "Robin Round 8 - G",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 119,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "DP": {
+      "name": "Robin Round 8 - H",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 120,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "DQ": {
+      "name": "Robin Round 8 - I",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 121,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "DR": {
+      "name": "Robin Round 8 - J",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 122,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "DS": {
+      "name": "Robin Round 8 - K",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 123,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "DT": {
+      "name": "Robin Round 8 - L",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 124,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "DU": {
+      "name": "Robin Round 8 - M",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 125,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "DV": {
+      "name": "Robin Round 8 - N",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 126,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "DW": {
+      "name": "Robin Round 8 - O",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 127,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "DX": {
+      "name": "Robin Round 8 - P",
+      "group": "robin",
+      "round": "Round 8",
+      "order": 128,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "DY": {
+      "name": "Robin Round 9 - A",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 129,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "DZ": {
+      "name": "Robin Round 9 - B",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 130,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "EA": {
+      "name": "Robin Round 9 - C",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 131,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "EB": {
+      "name": "Robin Round 9 - D",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 132,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "EC": {
+      "name": "Robin Round 9 - E",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 133,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "ED": {
+      "name": "Robin Round 9 - F",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 134,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "EE": {
+      "name": "Robin Round 9 - G",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 135,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "EF": {
+      "name": "Robin Round 9 - H",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 136,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "EG": {
+      "name": "Robin Round 9 - I",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 137,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "EH": {
+      "name": "Robin Round 9 - J",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 138,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "EI": {
+      "name": "Robin Round 9 - K",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 139,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "EJ": {
+      "name": "Robin Round 9 - L",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 140,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "EK": {
+      "name": "Robin Round 9 - M",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 141,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "EL": {
+      "name": "Robin Round 9 - N",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 142,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "EM": {
+      "name": "Robin Round 9 - O",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 143,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "EN": {
+      "name": "Robin Round 9 - P",
+      "group": "robin",
+      "round": "Round 9",
+      "order": 144,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "EO": {
+      "name": "Robin Round 10 - A",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 145,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "EP": {
+      "name": "Robin Round 10 - B",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 146,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "EQ": {
+      "name": "Robin Round 10 - C",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 147,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "ER": {
+      "name": "Robin Round 10 - D",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 148,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "ES": {
+      "name": "Robin Round 10 - E",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 149,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "ET": {
+      "name": "Robin Round 10 - F",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 150,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "EU": {
+      "name": "Robin Round 10 - G",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 151,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "EV": {
+      "name": "Robin Round 10 - H",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 152,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "EW": {
+      "name": "Robin Round 10 - I",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 153,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "EX": {
+      "name": "Robin Round 10 - J",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 154,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "EY": {
+      "name": "Robin Round 10 - K",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 155,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "EZ": {
+      "name": "Robin Round 10 - L",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 156,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "FA": {
+      "name": "Robin Round 10 - M",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 157,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "FB": {
+      "name": "Robin Round 10 - N",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 158,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "FC": {
+      "name": "Robin Round 10 - O",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 159,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "FD": {
+      "name": "Robin Round 10 - P",
+      "group": "robin",
+      "round": "Round 10",
+      "order": 160,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "FE": {
+      "name": "Robin Round 11 - A",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 161,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "FF": {
+      "name": "Robin Round 11 - B",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 162,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "FG": {
+      "name": "Robin Round 11 - C",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 163,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "FH": {
+      "name": "Robin Round 11 - D",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 164,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "FI": {
+      "name": "Robin Round 11 - E",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 165,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "FJ": {
+      "name": "Robin Round 11 - F",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 166,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "FK": {
+      "name": "Robin Round 11 - G",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 167,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "FL": {
+      "name": "Robin Round 11 - H",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 168,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "FM": {
+      "name": "Robin Round 11 - I",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 169,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "FN": {
+      "name": "Robin Round 11 - J",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 170,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "FO": {
+      "name": "Robin Round 11 - K",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 171,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "FP": {
+      "name": "Robin Round 11 - L",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 172,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "FQ": {
+      "name": "Robin Round 11 - M",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 173,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "FR": {
+      "name": "Robin Round 11 - N",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 174,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "FS": {
+      "name": "Robin Round 11 - O",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 175,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "FT": {
+      "name": "Robin Round 11 - P",
+      "group": "robin",
+      "round": "Round 11",
+      "order": 176,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "FU": {
+      "name": "Robin Round 12 - A",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 177,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "FV": {
+      "name": "Robin Round 12 - B",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 178,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "FW": {
+      "name": "Robin Round 12 - C",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 179,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "FX": {
+      "name": "Robin Round 12 - D",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 180,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "FY": {
+      "name": "Robin Round 12 - E",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 181,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "FZ": {
+      "name": "Robin Round 12 - F",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 182,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "GA": {
+      "name": "Robin Round 12 - G",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 183,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "GB": {
+      "name": "Robin Round 12 - H",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 184,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "GC": {
+      "name": "Robin Round 12 - I",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 185,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "GD": {
+      "name": "Robin Round 12 - J",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 186,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "GE": {
+      "name": "Robin Round 12 - K",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 187,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "GF": {
+      "name": "Robin Round 12 - L",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 188,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "GG": {
+      "name": "Robin Round 12 - M",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 189,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "GH": {
+      "name": "Robin Round 12 - N",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 190,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "GI": {
+      "name": "Robin Round 12 - O",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 191,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "GJ": {
+      "name": "Robin Round 12 - P",
+      "group": "robin",
+      "round": "Round 12",
+      "order": 192,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "GK": {
+      "name": "Robin Round 13 - A",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 193,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "GL": {
+      "name": "Robin Round 13 - B",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 194,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "GM": {
+      "name": "Robin Round 13 - C",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 195,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "GN": {
+      "name": "Robin Round 13 - D",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 196,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "GO": {
+      "name": "Robin Round 13 - E",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 197,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "GP": {
+      "name": "Robin Round 13 - F",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 198,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "GQ": {
+      "name": "Robin Round 13 - G",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 199,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "GR": {
+      "name": "Robin Round 13 - H",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 200,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "GS": {
+      "name": "Robin Round 13 - I",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 201,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "GT": {
+      "name": "Robin Round 13 - J",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 202,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "GU": {
+      "name": "Robin Round 13 - K",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 203,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "GV": {
+      "name": "Robin Round 13 - L",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 204,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "GW": {
+      "name": "Robin Round 13 - M",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 205,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "GX": {
+      "name": "Robin Round 13 - N",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 206,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "GY": {
+      "name": "Robin Round 13 - O",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 207,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "GZ": {
+      "name": "Robin Round 13 - P",
+      "group": "robin",
+      "round": "Round 13",
+      "order": 208,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "HA": {
+      "name": "Robin Round 14 - A",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 209,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "HB": {
+      "name": "Robin Round 14 - B",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 210,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "HC": {
+      "name": "Robin Round 14 - C",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 211,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "HD": {
+      "name": "Robin Round 14 - D",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 212,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "HE": {
+      "name": "Robin Round 14 - E",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 213,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "HF": {
+      "name": "Robin Round 14 - F",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 214,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "HG": {
+      "name": "Robin Round 14 - G",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 215,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "HH": {
+      "name": "Robin Round 14 - H",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 216,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "HI": {
+      "name": "Robin Round 14 - I",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 217,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "HJ": {
+      "name": "Robin Round 14 - J",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 218,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "HK": {
+      "name": "Robin Round 14 - K",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 219,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "HL": {
+      "name": "Robin Round 14 - L",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 220,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "HM": {
+      "name": "Robin Round 14 - M",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 221,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "HN": {
+      "name": "Robin Round 14 - N",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 222,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "HO": {
+      "name": "Robin Round 14 - O",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 223,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "HP": {
+      "name": "Robin Round 14 - P",
+      "group": "robin",
+      "round": "Round 14",
+      "order": 224,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "HQ": {
+      "name": "Robin Round 15 - A",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 225,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "HR": {
+      "name": "Robin Round 15 - B",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 226,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "HS": {
+      "name": "Robin Round 15 - C",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 227,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "HT": {
+      "name": "Robin Round 15 - D",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 228,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "HU": {
+      "name": "Robin Round 15 - E",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 229,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "HV": {
+      "name": "Robin Round 15 - F",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 230,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "HW": {
+      "name": "Robin Round 15 - G",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 231,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "HX": {
+      "name": "Robin Round 15 - H",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 232,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "HY": {
+      "name": "Robin Round 15 - I",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 233,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "HZ": {
+      "name": "Robin Round 15 - J",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 234,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "IA": {
+      "name": "Robin Round 15 - K",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 235,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "IB": {
+      "name": "Robin Round 15 - L",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 236,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "IC": {
+      "name": "Robin Round 15 - M",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 237,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "ID": {
+      "name": "Robin Round 15 - N",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 238,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "IE": {
+      "name": "Robin Round 15 - O",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 239,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "IF": {
+      "name": "Robin Round 15 - P",
+      "group": "robin",
+      "round": "Round 15",
+      "order": 240,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "IG": {
+      "name": "Robin Round 16 - A",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 241,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "IH": {
+      "name": "Robin Round 16 - B",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 242,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "II": {
+      "name": "Robin Round 16 - C",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 243,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "IJ": {
+      "name": "Robin Round 16 - D",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 244,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "IK": {
+      "name": "Robin Round 16 - E",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 245,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "IL": {
+      "name": "Robin Round 16 - F",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 246,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "IM": {
+      "name": "Robin Round 16 - G",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 247,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "IN": {
+      "name": "Robin Round 16 - H",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 248,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "IO": {
+      "name": "Robin Round 16 - I",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 249,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "IP": {
+      "name": "Robin Round 16 - J",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 250,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "IQ": {
+      "name": "Robin Round 16 - K",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 251,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "IR": {
+      "name": "Robin Round 16 - L",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 252,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "IS": {
+      "name": "Robin Round 16 - M",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 253,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "IT": {
+      "name": "Robin Round 16 - N",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 254,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "IU": {
+      "name": "Robin Round 16 - O",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 255,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "IV": {
+      "name": "Robin Round 16 - P",
+      "group": "robin",
+      "round": "Round 16",
+      "order": 256,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "IW": {
+      "name": "Robin Round 17 - A",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 257,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "IX": {
+      "name": "Robin Round 17 - B",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 258,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "IY": {
+      "name": "Robin Round 17 - C",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 259,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "IZ": {
+      "name": "Robin Round 17 - D",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 260,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "JA": {
+      "name": "Robin Round 17 - E",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 261,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "JB": {
+      "name": "Robin Round 17 - F",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 262,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "JC": {
+      "name": "Robin Round 17 - G",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 263,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "JD": {
+      "name": "Robin Round 17 - H",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 264,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "JE": {
+      "name": "Robin Round 17 - I",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 265,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "JF": {
+      "name": "Robin Round 17 - J",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 266,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "JG": {
+      "name": "Robin Round 17 - K",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 267,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "JH": {
+      "name": "Robin Round 17 - L",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 268,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "JI": {
+      "name": "Robin Round 17 - M",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 269,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "JJ": {
+      "name": "Robin Round 17 - N",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 270,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "JK": {
+      "name": "Robin Round 17 - O",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 271,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "JL": {
+      "name": "Robin Round 17 - P",
+      "group": "robin",
+      "round": "Round 17",
+      "order": 272,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "JM": {
+      "name": "Robin Round 18 - A",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 273,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "JN": {
+      "name": "Robin Round 18 - B",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 274,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "JO": {
+      "name": "Robin Round 18 - C",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 275,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "JP": {
+      "name": "Robin Round 18 - D",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 276,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "JQ": {
+      "name": "Robin Round 18 - E",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 277,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "JR": {
+      "name": "Robin Round 18 - F",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 278,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "JS": {
+      "name": "Robin Round 18 - G",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 279,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "JT": {
+      "name": "Robin Round 18 - H",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 280,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "JU": {
+      "name": "Robin Round 18 - I",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 281,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "JV": {
+      "name": "Robin Round 18 - J",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 282,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "JW": {
+      "name": "Robin Round 18 - K",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 283,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "JX": {
+      "name": "Robin Round 18 - L",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 284,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "JY": {
+      "name": "Robin Round 18 - M",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 285,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "JZ": {
+      "name": "Robin Round 18 - N",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 286,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "KA": {
+      "name": "Robin Round 18 - O",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 287,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "KB": {
+      "name": "Robin Round 18 - P",
+      "group": "robin",
+      "round": "Round 18",
+      "order": 288,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "KC": {
+      "name": "Robin Round 19 - A",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 289,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "KD": {
+      "name": "Robin Round 19 - B",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 290,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "KE": {
+      "name": "Robin Round 19 - C",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 291,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "KF": {
+      "name": "Robin Round 19 - D",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 292,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "KG": {
+      "name": "Robin Round 19 - E",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 293,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "KH": {
+      "name": "Robin Round 19 - F",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 294,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "KI": {
+      "name": "Robin Round 19 - G",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 295,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "KJ": {
+      "name": "Robin Round 19 - H",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 296,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "KK": {
+      "name": "Robin Round 19 - I",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 297,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "KL": {
+      "name": "Robin Round 19 - J",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 298,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "KM": {
+      "name": "Robin Round 19 - K",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 299,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "KN": {
+      "name": "Robin Round 19 - L",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 300,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "KO": {
+      "name": "Robin Round 19 - M",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 301,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "KP": {
+      "name": "Robin Round 19 - N",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 302,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "KQ": {
+      "name": "Robin Round 19 - O",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 303,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "KR": {
+      "name": "Robin Round 19 - P",
+      "group": "robin",
+      "round": "Round 19",
+      "order": 304,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "KS": {
+      "name": "Robin Round 20 - A",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 305,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "KT": {
+      "name": "Robin Round 20 - B",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 306,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "KU": {
+      "name": "Robin Round 20 - C",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 307,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "KV": {
+      "name": "Robin Round 20 - D",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 308,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "KW": {
+      "name": "Robin Round 20 - E",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 309,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "KX": {
+      "name": "Robin Round 20 - F",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 310,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "KY": {
+      "name": "Robin Round 20 - G",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 311,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "KZ": {
+      "name": "Robin Round 20 - H",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 312,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "LA": {
+      "name": "Robin Round 20 - I",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 313,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "LB": {
+      "name": "Robin Round 20 - J",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 314,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "LC": {
+      "name": "Robin Round 20 - K",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 315,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "LD": {
+      "name": "Robin Round 20 - L",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 316,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "LE": {
+      "name": "Robin Round 20 - M",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 317,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "LF": {
+      "name": "Robin Round 20 - N",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 318,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "LG": {
+      "name": "Robin Round 20 - O",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 319,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "LH": {
+      "name": "Robin Round 20 - P",
+      "group": "robin",
+      "round": "Round 20",
+      "order": 320,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "LI": {
+      "name": "Robin Round 21 - A",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 321,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "LJ": {
+      "name": "Robin Round 21 - B",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 322,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "LK": {
+      "name": "Robin Round 21 - C",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 323,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "LL": {
+      "name": "Robin Round 21 - D",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 324,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "LM": {
+      "name": "Robin Round 21 - E",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 325,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "LN": {
+      "name": "Robin Round 21 - F",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 326,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "LO": {
+      "name": "Robin Round 21 - G",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 327,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "LP": {
+      "name": "Robin Round 21 - H",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 328,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "LQ": {
+      "name": "Robin Round 21 - I",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 329,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "LR": {
+      "name": "Robin Round 21 - J",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 330,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "LS": {
+      "name": "Robin Round 21 - K",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 331,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "LT": {
+      "name": "Robin Round 21 - L",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 332,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "LU": {
+      "name": "Robin Round 21 - M",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 333,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "LV": {
+      "name": "Robin Round 21 - N",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 334,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "LW": {
+      "name": "Robin Round 21 - O",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 335,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "LX": {
+      "name": "Robin Round 21 - P",
+      "group": "robin",
+      "round": "Round 21",
+      "order": 336,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "LY": {
+      "name": "Robin Round 22 - A",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 337,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "LZ": {
+      "name": "Robin Round 22 - B",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 338,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "MA": {
+      "name": "Robin Round 22 - C",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 339,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "MB": {
+      "name": "Robin Round 22 - D",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 340,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "MC": {
+      "name": "Robin Round 22 - E",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 341,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "MD": {
+      "name": "Robin Round 22 - F",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 342,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "ME": {
+      "name": "Robin Round 22 - G",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 343,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "MF": {
+      "name": "Robin Round 22 - H",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 344,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "MG": {
+      "name": "Robin Round 22 - I",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 345,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "MH": {
+      "name": "Robin Round 22 - J",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 346,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "MI": {
+      "name": "Robin Round 22 - K",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 347,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "MJ": {
+      "name": "Robin Round 22 - L",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 348,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "MK": {
+      "name": "Robin Round 22 - M",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 349,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "ML": {
+      "name": "Robin Round 22 - N",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 350,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "MM": {
+      "name": "Robin Round 22 - O",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 351,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "MN": {
+      "name": "Robin Round 22 - P",
+      "group": "robin",
+      "round": "Round 22",
+      "order": 352,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "MO": {
+      "name": "Robin Round 23 - A",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 353,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "MP": {
+      "name": "Robin Round 23 - B",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 354,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "MQ": {
+      "name": "Robin Round 23 - C",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 355,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "MR": {
+      "name": "Robin Round 23 - D",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 356,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "MS": {
+      "name": "Robin Round 23 - E",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 357,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "MT": {
+      "name": "Robin Round 23 - F",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 358,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "MU": {
+      "name": "Robin Round 23 - G",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 359,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "MV": {
+      "name": "Robin Round 23 - H",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 360,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "MW": {
+      "name": "Robin Round 23 - I",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 361,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "MX": {
+      "name": "Robin Round 23 - J",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 362,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "MY": {
+      "name": "Robin Round 23 - K",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 363,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "MZ": {
+      "name": "Robin Round 23 - L",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 364,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "NA": {
+      "name": "Robin Round 23 - M",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 365,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "NB": {
+      "name": "Robin Round 23 - N",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 366,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "NC": {
+      "name": "Robin Round 23 - O",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 367,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "ND": {
+      "name": "Robin Round 23 - P",
+      "group": "robin",
+      "round": "Round 23",
+      "order": 368,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "NE": {
+      "name": "Robin Round 24 - A",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 369,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "NF": {
+      "name": "Robin Round 24 - B",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 370,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "NG": {
+      "name": "Robin Round 24 - C",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 371,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "NH": {
+      "name": "Robin Round 24 - D",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 372,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "NI": {
+      "name": "Robin Round 24 - E",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 373,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "NJ": {
+      "name": "Robin Round 24 - F",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 374,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "NK": {
+      "name": "Robin Round 24 - G",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 375,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "NL": {
+      "name": "Robin Round 24 - H",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 376,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "NM": {
+      "name": "Robin Round 24 - I",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 377,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "NN": {
+      "name": "Robin Round 24 - J",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 378,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "NO": {
+      "name": "Robin Round 24 - K",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 379,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "NP": {
+      "name": "Robin Round 24 - L",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 380,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "NQ": {
+      "name": "Robin Round 24 - M",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 381,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "NR": {
+      "name": "Robin Round 24 - N",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 382,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "NS": {
+      "name": "Robin Round 24 - O",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 383,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "NT": {
+      "name": "Robin Round 24 - P",
+      "group": "robin",
+      "round": "Round 24",
+      "order": 384,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "NU": {
+      "name": "Robin Round 25 - A",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 385,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      }
+    },
+    "NV": {
+      "name": "Robin Round 25 - B",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 386,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "NW": {
+      "name": "Robin Round 25 - C",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 387,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "NX": {
+      "name": "Robin Round 25 - D",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 388,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "NY": {
+      "name": "Robin Round 25 - E",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 389,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "NZ": {
+      "name": "Robin Round 25 - F",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 390,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "OA": {
+      "name": "Robin Round 25 - G",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 391,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "OB": {
+      "name": "Robin Round 25 - H",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 392,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "OC": {
+      "name": "Robin Round 25 - I",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 393,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "OD": {
+      "name": "Robin Round 25 - J",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 394,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "OE": {
+      "name": "Robin Round 25 - K",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 395,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "OF": {
+      "name": "Robin Round 25 - L",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 396,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "OG": {
+      "name": "Robin Round 25 - M",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 397,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "OH": {
+      "name": "Robin Round 25 - N",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 398,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "OI": {
+      "name": "Robin Round 25 - O",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 399,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "OJ": {
+      "name": "Robin Round 25 - P",
+      "group": "robin",
+      "round": "Round 25",
+      "order": 400,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "OK": {
+      "name": "Robin Round 26 - A",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 401,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 7
+      }
+    },
+    "OL": {
+      "name": "Robin Round 26 - B",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 402,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "OM": {
+      "name": "Robin Round 26 - C",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 403,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "ON": {
+      "name": "Robin Round 26 - D",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 404,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "OO": {
+      "name": "Robin Round 26 - E",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 405,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "OP": {
+      "name": "Robin Round 26 - F",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 406,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "OQ": {
+      "name": "Robin Round 26 - G",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 407,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "OR": {
+      "name": "Robin Round 26 - H",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 408,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "OS": {
+      "name": "Robin Round 26 - I",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 409,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "OT": {
+      "name": "Robin Round 26 - J",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 410,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "OU": {
+      "name": "Robin Round 26 - K",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 411,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "OV": {
+      "name": "Robin Round 26 - L",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 412,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "OW": {
+      "name": "Robin Round 26 - M",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 413,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "OX": {
+      "name": "Robin Round 26 - N",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 414,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "OY": {
+      "name": "Robin Round 26 - O",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 415,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "OZ": {
+      "name": "Robin Round 26 - P",
+      "group": "robin",
+      "round": "Round 26",
+      "order": 416,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "PA": {
+      "name": "Robin Round 27 - A",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 417,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      }
+    },
+    "PB": {
+      "name": "Robin Round 27 - B",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 418,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "PC": {
+      "name": "Robin Round 27 - C",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 419,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "PD": {
+      "name": "Robin Round 27 - D",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 420,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "PE": {
+      "name": "Robin Round 27 - E",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 421,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "PF": {
+      "name": "Robin Round 27 - F",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 422,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "PG": {
+      "name": "Robin Round 27 - G",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 423,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "PH": {
+      "name": "Robin Round 27 - H",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 424,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "PI": {
+      "name": "Robin Round 27 - I",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 425,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "PJ": {
+      "name": "Robin Round 27 - J",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 426,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "PK": {
+      "name": "Robin Round 27 - K",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 427,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "PL": {
+      "name": "Robin Round 27 - L",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 428,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "PM": {
+      "name": "Robin Round 27 - M",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 429,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "PN": {
+      "name": "Robin Round 27 - N",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 430,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "PO": {
+      "name": "Robin Round 27 - O",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 431,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "PP": {
+      "name": "Robin Round 27 - P",
+      "group": "robin",
+      "round": "Round 27",
+      "order": 432,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "PQ": {
+      "name": "Robin Round 28 - A",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 433,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 5
+      }
+    },
+    "PR": {
+      "name": "Robin Round 28 - B",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 434,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "PS": {
+      "name": "Robin Round 28 - C",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 435,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "PT": {
+      "name": "Robin Round 28 - D",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 436,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "PU": {
+      "name": "Robin Round 28 - E",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 437,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "PV": {
+      "name": "Robin Round 28 - F",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 438,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "PW": {
+      "name": "Robin Round 28 - G",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 439,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "PX": {
+      "name": "Robin Round 28 - H",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 440,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "PY": {
+      "name": "Robin Round 28 - I",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 441,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "PZ": {
+      "name": "Robin Round 28 - J",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 442,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "QA": {
+      "name": "Robin Round 28 - K",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 443,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "QB": {
+      "name": "Robin Round 28 - L",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 444,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "QC": {
+      "name": "Robin Round 28 - M",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 445,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "QD": {
+      "name": "Robin Round 28 - N",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 446,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "QE": {
+      "name": "Robin Round 28 - O",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 447,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "QF": {
+      "name": "Robin Round 28 - P",
+      "group": "robin",
+      "round": "Round 28",
+      "order": 448,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "QG": {
+      "name": "Robin Round 29 - A",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 449,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "QH": {
+      "name": "Robin Round 29 - B",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 450,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "QI": {
+      "name": "Robin Round 29 - C",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 451,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "QJ": {
+      "name": "Robin Round 29 - D",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 452,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "QK": {
+      "name": "Robin Round 29 - E",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 453,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "QL": {
+      "name": "Robin Round 29 - F",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 454,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "QM": {
+      "name": "Robin Round 29 - G",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 455,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "QN": {
+      "name": "Robin Round 29 - H",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 456,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "QO": {
+      "name": "Robin Round 29 - I",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 457,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "QP": {
+      "name": "Robin Round 29 - J",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 458,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "QQ": {
+      "name": "Robin Round 29 - K",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 459,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "QR": {
+      "name": "Robin Round 29 - L",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 460,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "QS": {
+      "name": "Robin Round 29 - M",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 461,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "QT": {
+      "name": "Robin Round 29 - N",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 462,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "QU": {
+      "name": "Robin Round 29 - O",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 463,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "QV": {
+      "name": "Robin Round 29 - P",
+      "group": "robin",
+      "round": "Round 29",
+      "order": 464,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "QW": {
+      "name": "Robin Round 30 - A",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 465,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "QX": {
+      "name": "Robin Round 30 - B",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 466,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "QY": {
+      "name": "Robin Round 30 - C",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 467,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "QZ": {
+      "name": "Robin Round 30 - D",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 468,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "RA": {
+      "name": "Robin Round 30 - E",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 469,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "RB": {
+      "name": "Robin Round 30 - F",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 470,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "RC": {
+      "name": "Robin Round 30 - G",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 471,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "RD": {
+      "name": "Robin Round 30 - H",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 472,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "RE": {
+      "name": "Robin Round 30 - I",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 473,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "RF": {
+      "name": "Robin Round 30 - J",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 474,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "RG": {
+      "name": "Robin Round 30 - K",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 475,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "RH": {
+      "name": "Robin Round 30 - L",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 476,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "RI": {
+      "name": "Robin Round 30 - M",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 477,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "RJ": {
+      "name": "Robin Round 30 - N",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 478,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "RK": {
+      "name": "Robin Round 30 - O",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 479,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "RL": {
+      "name": "Robin Round 30 - P",
+      "group": "robin",
+      "round": "Round 30",
+      "order": 480,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "RM": {
+      "name": "Robin Round 31 - A",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 481,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "RN": {
+      "name": "Robin Round 31 - B",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 482,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "RO": {
+      "name": "Robin Round 31 - C",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 483,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "RP": {
+      "name": "Robin Round 31 - D",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 484,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "RQ": {
+      "name": "Robin Round 31 - E",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 485,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "RR": {
+      "name": "Robin Round 31 - F",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 486,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "RS": {
+      "name": "Robin Round 31 - G",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 487,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "RT": {
+      "name": "Robin Round 31 - H",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 488,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "RU": {
+      "name": "Robin Round 31 - I",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 489,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "RV": {
+      "name": "Robin Round 31 - J",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 490,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "RW": {
+      "name": "Robin Round 31 - K",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 491,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "RX": {
+      "name": "Robin Round 31 - L",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 492,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "RY": {
+      "name": "Robin Round 31 - M",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 493,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "RZ": {
+      "name": "Robin Round 31 - N",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 494,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "SA": {
+      "name": "Robin Round 31 - O",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 495,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "SB": {
+      "name": "Robin Round 31 - P",
+      "group": "robin",
+      "round": "Round 31",
+      "order": 496,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    }
+  },
+  "placements": {}
+}

@@ -1,0 +1,21 @@
+{
+  "type": "robin",
+  "size": 2,
+  "matches": {
+    "A": {
+      "name": "Robin Round 1 - A",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    }
+  },
+  "placements": {}
+}

@@ -1,0 +1,55 @@
+{
+  "type": "double_elimination",
+  "size": 2,
+  "matches": {
+    "A": {
+      "name": "Winners Final",
+      "group": "winners",
+      "round": "Winners Final",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      },
+      "winner_to": "B",
+      "loser_to": "B"
+    },
+    "B": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 2,
+      "p1": {
+        "type": "winner",
+        "match": "A"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "A"
+      },
+      "winner_to": "C",
+      "reset": true
+    },
+    "C": {
+      "name": "Grand Final Reset",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 3,
+      "p1": {
+        "type": "winner",
+        "match": "B"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "B"
+      },
+      "optional": true,
+      "reset": true
+    }
+  },
+  "placements": {}
+}

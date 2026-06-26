@@ -1,0 +1,91 @@
+{
+  "type": "robin",
+  "size": 4,
+  "matches": {
+    "A": {
+      "name": "Robin Round 1 - A",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    },
+    "B": {
+      "name": "Robin Round 1 - B",
+      "group": "robin",
+      "round": "Round 1",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "C": {
+      "name": "Robin Round 2 - A",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 3,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 3
+      }
+    },
+    "D": {
+      "name": "Robin Round 2 - B",
+      "group": "robin",
+      "round": "Round 2",
+      "order": 4,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "E": {
+      "name": "Robin Round 3 - A",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 5,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      }
+    },
+    "F": {
+      "name": "Robin Round 3 - B",
+      "group": "robin",
+      "round": "Round 3",
+      "order": 6,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      }
+    }
+  },
+  "placements": {}
+}

@@ -1,0 +1,111 @@
+{
+  "type": "single_elimination",
+  "size": 8,
+  "matches": {
+    "A": {
+      "name": "Quarterfinal - A",
+      "group": "winners",
+      "round": "Quarterfinal",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      },
+      "winner_to": "E"
+    },
+    "B": {
+      "name": "Quarterfinal - B",
+      "group": "winners",
+      "round": "Quarterfinal",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      },
+      "winner_to": "E"
+    },
+    "C": {
+      "name": "Quarterfinal - C",
+      "group": "winners",
+      "round": "Quarterfinal",
+      "order": 3,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      },
+      "winner_to": "F"
+    },
+    "D": {
+      "name": "Quarterfinal - D",
+      "group": "winners",
+      "round": "Quarterfinal",
+      "order": 4,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      },
+      "winner_to": "F"
+    },
+    "E": {
+      "name": "Semifinal - A",
+      "group": "winners",
+      "round": "Semifinal",
+      "order": 5,
+      "p1": {
+        "type": "winner",
+        "match": "A"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "B"
+      },
+      "winner_to": "G"
+    },
+    "F": {
+      "name": "Semifinal - B",
+      "group": "winners",
+      "round": "Semifinal",
+      "order": 6,
+      "p1": {
+        "type": "winner",
+        "match": "C"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "D"
+      },
+      "winner_to": "G"
+    },
+    "G": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 7,
+      "p1": {
+        "type": "winner",
+        "match": "E"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "F"
+      }
+    }
+  },
+  "placements": {}
+}

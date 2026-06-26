@@ -49,6 +49,7 @@ type BracketProjection struct {
 	Sections     []BracketSection    `json:"sections"`
 	MatchCount   int                 `json:"match_count"`
 	PlayerCount  int                 `json:"player_count"`
+	Error        string              `json:"error,omitempty"`
 }
 
 // BracketViewOption describes a selectable overlay slice.
@@ -102,10 +103,6 @@ type BracketMatchView struct {
 	LoserID   string              `json:"loser_id,omitempty"`
 }
 
-type generatedParticipant struct {
-	participant TemplateParticipant
-}
-
 // GetBracketView resolves the current tournament into a display/overlay bracket.
 func (a *App) GetBracketView(view string) BracketProjection {
 	a.mu.Lock()
@@ -114,7 +111,7 @@ func (a *App) GetBracketView(view string) BracketProjection {
 
 	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
 	if err != nil {
-		template = emptyBracketTemplate(state.Event.Format, state.Event.Size)
+		template = emptyBracketTemplate(state.Event.Format, state.Event.Size, err.Error())
 	}
 	return buildBracketProjection(state, template, view)
 }
@@ -189,6 +186,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 		Sections:     sections,
 		MatchCount:   matchCount,
 		PlayerCount:  activePlayerCount(state),
+		Error:        template.Error,
 	}
 }
 
@@ -409,14 +407,17 @@ func normalizeBracketViewKey(view string) string {
 
 // bracketViewOptions returns the views available for the selected bracket format.
 func bracketViewOptions(format string) []BracketViewOption {
+	normalized := strings.ToLower(strings.TrimSpace(format))
 	options := []BracketViewOption{{Key: bracketViewAll, Name: "Full bracket"}}
-	if strings.Contains(strings.ToLower(format), "double") {
+	if strings.Contains(normalized, "double") {
 		options = append(options,
 			BracketViewOption{Key: bracketViewWinners, Name: "Winners bracket"},
 			BracketViewOption{Key: bracketViewLosers, Name: "Losers bracket"},
 		)
 	}
-	options = append(options, BracketViewOption{Key: bracketViewFinals, Name: "Finals"})
+	if strings.Contains(normalized, "single") || strings.Contains(normalized, "double") {
+		options = append(options, BracketViewOption{Key: bracketViewFinals, Name: "Finals"})
+	}
 	return options
 }
 
@@ -443,6 +444,12 @@ func bracketGroupName(group string) string {
 		return "Losers"
 	case bracketViewFinals:
 		return "Finals"
+	case "robin":
+		return "Round Robin"
+	case "roundrobin":
+		return "Round Robin"
+	case "swiss":
+		return "Swiss"
 	default:
 		return "Bracket"
 	}
@@ -607,220 +614,4 @@ func bracketSeedOptions(state TournamentState) []BracketSeedOption {
 		})
 	}
 	return options
-}
-
-// generateBracketTemplate creates a template graph when no file exists on disk.
-func generateBracketTemplate(format string, size int) BracketTemplate {
-	size = normalizeTournamentSize(size)
-	if strings.Contains(strings.ToLower(format), "single") {
-		return generateSingleEliminationTemplate(format, size)
-	}
-	return generateDoubleEliminationTemplate(format, size)
-}
-
-// generateSingleEliminationTemplate builds a winner-only power-of-two template graph.
-func generateSingleEliminationTemplate(format string, size int) BracketTemplate {
-	matches := map[string]TemplateMatch{}
-	id := 1
-	previous := []string{}
-	for round := 1; round <= bracketRoundCount(size); round++ {
-		matchCount := size / int(math.Pow(2, float64(round)))
-		current := make([]string, 0, matchCount)
-		for index := 0; index < matchCount; index++ {
-			matchID := generatedMatchID(id)
-			id++
-			current = append(current, matchID)
-			match := TemplateMatch{
-				Name:  fmt.Sprintf("Winners Round %d - %s", round, generatedMatchName(index)),
-				Group: bracketViewWinners,
-				Round: fmt.Sprintf("Winners Round %d", round),
-				Order: id - 1,
-			}
-			if round == 1 {
-				match.Player1 = TemplateParticipant{Type: "seed", Seed: index*2 + 1}
-				match.Player2 = TemplateParticipant{Type: "seed", Seed: index*2 + 2}
-			} else {
-				match.Player1 = TemplateParticipant{Type: "winner", Match: previous[index*2]}
-				match.Player2 = TemplateParticipant{Type: "winner", Match: previous[index*2+1]}
-			}
-			matches[matchID] = match
-		}
-		for index, matchID := range previous {
-			match := matches[matchID]
-			match.WinnerTo = current[index/2]
-			matches[matchID] = match
-		}
-		previous = current
-	}
-	return BracketTemplate{Type: format, Size: size, Matches: matches, Placements: map[string]interface{}{}}
-}
-
-// generateDoubleEliminationTemplate builds a generated winners/losers/finals template graph.
-func generateDoubleEliminationTemplate(format string, size int) BracketTemplate {
-	template := generateSingleEliminationTemplate(format, size)
-	matches := template.Matches
-	for id, match := range matches {
-		match.Group = bracketViewWinners
-		match.Round = strings.Replace(match.Round, "Winners", "Winners", 1)
-		matches[id] = match
-	}
-
-	nextID := len(matches) + 1
-	winnerRounds := winnerRoundMatches(matches)
-	lowerSurvivor := generatedParticipant{}
-	for roundIndex, winnerRound := range winnerRounds {
-		dropped := make([]generatedParticipant, 0, len(winnerRound))
-		for _, matchID := range winnerRound {
-			dropped = append(dropped, generatedParticipant{participant: TemplateParticipant{Type: "loser", Match: matchID}})
-		}
-
-		droppedWinner := reduceParticipants(matches, &nextID, dropped, bracketViewLosers, fmt.Sprintf("Losers Drop %d", roundIndex+1))
-		if droppedWinner.participant.Type == "" {
-			continue
-		}
-		if lowerSurvivor.participant.Type == "" {
-			lowerSurvivor = droppedWinner
-			continue
-		}
-		lowerSurvivor = createGeneratedMatch(matches, &nextID, lowerSurvivor, droppedWinner, bracketViewLosers, fmt.Sprintf("Losers Merge %d", roundIndex+1))
-	}
-
-	finalWinner := finalWinnerMatch(winnerRounds)
-	if lowerSurvivor.participant.Type != "" && finalWinner != "" {
-		grandFinal := createGeneratedMatch(
-			matches,
-			&nextID,
-			generatedParticipant{participant: TemplateParticipant{Type: "winner", Match: finalWinner}},
-			lowerSurvivor,
-			bracketViewFinals,
-			"Grand Final",
-		)
-		resetID := generatedMatchID(nextID)
-		nextID++
-		matches[resetID] = TemplateMatch{
-			Name:     "Grand Final Reset",
-			Group:    bracketViewFinals,
-			Round:    "Grand Finals",
-			Order:    nextID - 1,
-			Player1:  TemplateParticipant{Type: "winner", Match: grandFinal.participant.Match},
-			Player2:  TemplateParticipant{Type: "loser", Match: grandFinal.participant.Match},
-			Optional: true,
-			Reset:    true,
-		}
-		match := matches[grandFinal.participant.Match]
-		match.WinnerTo = resetID
-		match.Reset = true
-		matches[grandFinal.participant.Match] = match
-	}
-
-	template.Type = format
-	template.Matches = matches
-	return template
-}
-
-// bracketRoundCount returns how many winner rounds are needed for a power-of-two size.
-func bracketRoundCount(size int) int {
-	rounds := 0
-	for matches := size; matches > 1; matches /= 2 {
-		rounds++
-	}
-	return rounds
-}
-
-// generatedMatchID creates compact IDs for generated template matches.
-func generatedMatchID(order int) string {
-	if order >= 1 && order <= 26 {
-		return string(rune('A' + order - 1))
-	}
-	return fmt.Sprintf("M%d", order)
-}
-
-// generatedMatchName creates short display suffixes for generated match names.
-func generatedMatchName(index int) string {
-	if index >= 0 && index < 26 {
-		return string(rune('A' + index))
-	}
-	return strconv.Itoa(index + 1)
-}
-
-// winnerRoundMatches groups generated winner matches by round in display order.
-func winnerRoundMatches(matches map[string]TemplateMatch) [][]string {
-	roundsByName := map[string][]string{}
-	roundNames := []string{}
-	for id, match := range matches {
-		if match.Group != bracketViewWinners {
-			continue
-		}
-		if _, ok := roundsByName[match.Round]; !ok {
-			roundNames = append(roundNames, match.Round)
-		}
-		roundsByName[match.Round] = append(roundsByName[match.Round], id)
-	}
-	sort.SliceStable(roundNames, func(i, j int) bool {
-		return roundMatchOrder(matches, roundsByName[roundNames[i]]) < roundMatchOrder(matches, roundsByName[roundNames[j]])
-	})
-
-	rounds := make([][]string, 0, len(roundNames))
-	for _, roundName := range roundNames {
-		ids := roundsByName[roundName]
-		sort.SliceStable(ids, func(i, j int) bool {
-			return bracketMatchOrder(ids[i], matches[ids[i]]) < bracketMatchOrder(ids[j], matches[ids[j]])
-		})
-		rounds = append(rounds, ids)
-	}
-	return rounds
-}
-
-// roundMatchOrder returns the first match order in a generated round.
-func roundMatchOrder(matches map[string]TemplateMatch, ids []string) int {
-	if len(ids) == 0 {
-		return math.MaxInt
-	}
-	return bracketMatchOrder(ids[0], matches[ids[0]])
-}
-
-// finalWinnerMatch returns the last winners-side match feeding grand finals.
-func finalWinnerMatch(rounds [][]string) string {
-	if len(rounds) == 0 || len(rounds[len(rounds)-1]) == 0 {
-		return ""
-	}
-	return rounds[len(rounds)-1][0]
-}
-
-// reduceParticipants creates enough matches to reduce a participant list to one source.
-func reduceParticipants(matches map[string]TemplateMatch, nextID *int, participants []generatedParticipant, group string, roundName string) generatedParticipant {
-	current := participants
-	reduction := 1
-	for len(current) > 1 {
-		next := make([]generatedParticipant, 0, (len(current)+1)/2)
-		for index := 0; index < len(current); index += 2 {
-			if index+1 >= len(current) {
-				next = append(next, current[index])
-				continue
-			}
-			next = append(next, createGeneratedMatch(matches, nextID, current[index], current[index+1], group, fmt.Sprintf("%s.%d", roundName, reduction)))
-		}
-		current = next
-		reduction++
-	}
-	if len(current) == 0 {
-		return generatedParticipant{}
-	}
-	return current[0]
-}
-
-// createGeneratedMatch appends one generated match and returns its winner as a source.
-func createGeneratedMatch(matches map[string]TemplateMatch, nextID *int, player1 generatedParticipant, player2 generatedParticipant, group string, roundName string) generatedParticipant {
-	matchID := generatedMatchID(*nextID)
-	order := *nextID
-	*nextID = *nextID + 1
-	matches[matchID] = TemplateMatch{
-		Name:    fmt.Sprintf("%s - %s", roundName, matchID),
-		Group:   group,
-		Round:   roundName,
-		Order:   order,
-		Player1: player1.participant,
-		Player2: player2.participant,
-	}
-	return generatedParticipant{participant: TemplateParticipant{Type: "winner", Match: matchID}}
 }

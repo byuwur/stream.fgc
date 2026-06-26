@@ -32,24 +32,6 @@
 	const EVENT_BACKGROUND_PATH = "/players/_bg.jpg";
 	const PLAYER_PORTRAIT_MAX_MB = 10;
 	const TOURNAMENT_ASSET_MAX_MB = 20;
-	const DEFAULT_RULES = [
-		{ key: "1", name: "FT1" },
-		{ key: "2", name: "FT2" },
-		{ key: "3", name: "FT3" },
-		{ key: "5", name: "FT5" },
-		{ key: "10", name: "FT10" },
-	];
-	const DEFAULT_FORMATS = [
-		{ key: "single_elimination", name: "Single Elimination" },
-		{ key: "double_elimination", name: "Double Elimination" },
-	];
-	const DEFAULT_SIZES = [
-		{ key: "2", name: "2" },
-		{ key: "4", name: "4" },
-		{ key: "8", name: "8" },
-		{ key: "16", name: "16" },
-		{ key: "32", name: "32" },
-	];
 	let currentState = null;
 	let rules = [];
 	let formats = [];
@@ -385,8 +367,8 @@
 			phase: formControl(form, "phase")?.value.trim() || "",
 			rule: parseRuleValue(formControl(form, "rule")?.value || currentState?.event?.rule || 3) || 3,
 			game: formControl(form, "game")?.value.trim() || "",
-			format: formControl(form, "format")?.value || "double_elimination",
-			size: Number(formControl(form, "size")?.value || 8),
+			format: formControl(form, "format")?.value || "",
+			size: Number(formControl(form, "size")?.value || currentState?.event?.size || 0),
 		};
 	}
 
@@ -397,8 +379,8 @@
 			phase: String(event?.phase || ""),
 			rule: parseRuleValue(event?.rule || 3) || 3,
 			game: String(event?.game || ""),
-			format: String(event?.format || "double_elimination"),
-			size: Number(event?.size || 8),
+			format: String(event?.format || ""),
+			size: Number(event?.size || 0),
 		});
 	}
 
@@ -951,9 +933,9 @@
 		try {
 			const state = await app.LoadTournament();
 			const [ruleRows, formatRows, sizeRows, gameRows, names] = await Promise.all([
-				optionalBackendList(app, "ListRules", DEFAULT_RULES),
-				optionalBackendList(app, "ListFormats", DEFAULT_FORMATS),
-				optionalBackendList(app, "ListSizes", DEFAULT_SIZES),
+				optionalBackendList(app, "ListRules", []),
+				optionalBackendList(app, "ListFormats", []),
+				optionalBackendList(app, "ListSizes", []),
 				optionalBackendList(app, "ListGames", []),
 				loadCountryNames(),
 			]);
@@ -1668,19 +1650,25 @@
 	/** Mirrors the backend template filename mapping for read-only overlays. */
 	function staticTemplateFileName(format, size) {
 		const normalized = String(format || "double_elimination").toLowerCase().trim();
-		if (["double", "double_elimination"].includes(normalized)) return `double${size}.json`;
-		if (["single", "single_elimination"].includes(normalized)) return `single${size}.json`;
+		const compact = normalizeCatalogText(normalized);
+		if (["double", "double_elimination"].includes(normalized) || ["double", "doubleelimination"].includes(compact)) return `double${size}.json`;
+		if (["single", "single_elimination"].includes(normalized) || ["single", "singleelimination"].includes(compact)) return `single${size}.json`;
+		if (["robin", "round", "round_robin"].includes(normalized) || ["robin", "round", "roundrobin"].includes(compact)) return `robin${size}.json`;
+		if (["swiss", "swiss_system"].includes(normalized) || ["swiss", "swisssystem"].includes(compact)) return `swiss${size}.json`;
 		const name = normalized.replace("_elimination", "").replace(/_/g, "") || "double";
 		return `${name}${size}.json`;
 	}
 
 	/** Provides the same overlay view choices as the backend projection. */
 	function staticBracketViewOptions(format) {
+		const normalized = String(format || "").toLowerCase().trim();
 		const options = [{ key: "all", name: "Full bracket" }];
-		if (String(format || "").toLowerCase().includes("double")) {
+		if (normalized.includes("double")) {
 			options.push({ key: "winners", name: "Winners bracket" }, { key: "losers", name: "Losers bracket" });
 		}
-		options.push({ key: "finals", name: "Finals" });
+		if (normalized.includes("single") || normalized.includes("double")) {
+			options.push({ key: "finals", name: "Finals" });
+		}
 		return options;
 	}
 
@@ -1730,13 +1718,28 @@
 
 	/** Infers the bracket section for static templates. */
 	function staticMatchGroup(match) {
-		if (match?.group) return normalizeBracketView(match.group);
+		if (match?.group) {
+			const normalized = normalizeBracketView(match.group);
+			if (["winners", "losers", "finals"].includes(normalized)) return normalized;
+			return normalizeCatalogText(match.group) || "bracket";
+		}
 		const name = String(match?.name || "").toLowerCase();
 		if (name.includes("grand")) return "finals";
 		if (name.includes("loser")) return "losers";
 		if (name.includes("winner")) return "winners";
 		if (name.includes("final")) return "finals";
 		return "bracket";
+	}
+
+	/** Converts static section keys into readable names. */
+	function staticGroupName(group) {
+		if (group === "winners") return "Winners";
+		if (group === "losers") return "Losers";
+		if (group === "finals") return "Finals";
+		if (group === "robin") return "Round Robin";
+		if (group === "roundrobin") return "Round Robin";
+		if (group === "swiss") return "Swiss";
+		return "Bracket";
 	}
 
 	/** Infers the visual round for static templates. */
@@ -1766,7 +1769,20 @@
 	async function loadStaticBracketProjection(requestedView = "") {
 		const state = await loadStaticJSON(["../../data/tournament.json", "./data/tournament.json", "/data/tournament.json"]);
 		const fileName = staticTemplateFileName(state?.event?.format, Number(state?.event?.size || 8));
-		const template = await loadStaticJSON([`../../templates/${fileName}`, `./templates/${fileName}`, `/templates/${fileName}`]);
+		let template = null;
+		let templateError = "";
+		try {
+			template = await loadStaticJSON([`../../templates/${fileName}`, `./templates/${fileName}`, `/templates/${fileName}`]);
+		} catch (_) {
+			templateError = `[${fileName}] template missing`;
+			template = {
+				type: state?.event?.format || "",
+				size: Number(state?.event?.size || 0),
+				matches: {},
+				placements: {},
+				error: templateError,
+			};
+		}
 		const overlayView = normalizeBracketView(state?.bracket?.overlay_view || "all");
 		const view = normalizeBracketView(requestedView || overlayView);
 		const options = staticBracketViewOptions(template?.type || state?.event?.format);
@@ -1802,7 +1818,7 @@
 				const matchState = state?.matches?.[matchID] || {};
 				const status = matchState.winner ? "complete" : player1.status === "bye" || player2.status === "bye" ? "bye" : player1.resolved && player2.resolved ? "ready" : "pending";
 				if (!sectionMap.has(group)) {
-					const section = { key: group, name: group === "winners" ? "Winners" : group === "losers" ? "Losers" : group === "finals" ? "Finals" : "Bracket", rounds: [] };
+					const section = { key: group, name: staticGroupName(group), rounds: [] };
 					sectionMap.set(group, section);
 					sections.push(section);
 				}
@@ -1854,11 +1870,13 @@
 				}, 0);
 			}, 0),
 			player_count: playerCount,
+			error: templateError || template?.error || "",
 		};
 	}
 
 	/** Builds the compact summary shown above admin and overlay brackets. */
 	function bracketSummary(projection, admin = false) {
+		if (projection?.error) return projection.error;
 		const template = admin
 			? t("bracket_admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}")
 			: t("bracket_summary", "{players}/{size} players - {matches} matches - {view}");
@@ -2076,6 +2094,11 @@
 		renderBracketHeader(root, projection);
 		const board = root.querySelector("[data-bracket-board]");
 		if (!board) return;
+		const error = String(projection?.error || "");
+		if (error) {
+			board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(error)}</div></div>`;
+			return;
+		}
 		const sections = projection?.sections || [];
 		board.innerHTML = sections.length
 			? sections
@@ -2108,7 +2131,11 @@
 					if (!isCurrentBracketLoad(root, ticket)) return projection;
 					await ensureCharacterCatalog(null, projection?.event?.game || "");
 					renderBracketProjection(root, projection, false);
-					setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+					if (projection?.error) {
+						setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
+					} else {
+						setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+					}
 					return projection;
 				} catch (error) {
 					if (!isCurrentBracketLoad(root, ticket)) return null;
@@ -2125,7 +2152,11 @@
 			if (!isCurrentBracketLoad(root, ticket)) return projection;
 			await ensureCharacterCatalog(app, projection?.event?.game || "");
 			renderBracketProjection(root, projection, root.matches(BRACKET_PAGE));
-			setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+			if (projection?.error) {
+				setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
+			} else {
+				setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+			}
 			return projection;
 		} catch (error) {
 			if (!isCurrentBracketLoad(root, ticket)) return null;

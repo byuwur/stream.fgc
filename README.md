@@ -32,7 +32,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **backend/app.go:** Owns backend state and the mutex used to serialize tournament JSON access.
 - **backend/tournament.go:** Loads, normalizes, mutates, and saves `data/tournament.json`.
 - **backend/paths.go:** Resolves external folders for dev mode and portable release builds.
-- **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections and generates fallback bracket graphs.
+- **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections.
 - **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
 - **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
@@ -51,8 +51,8 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **frontend/sidebar.html:** Shared SPA navigation component.
 - **frontend/lang/en.json** and **frontend/lang/es.json:** App language dictionaries.
 - **frontend/lang/flags.en.json** and **frontend/lang/flags.es.json:** Localized country names for flag selects.
-- **data/_default.json:** Default tournament state used when `data/tournament.json` is missing or empty.
-- **templates/**: Optional bracket templates. When a matching file is missing, Go can generate a template from the selected format and size.
+- **templates/default.json:** Default tournament state used when `data/tournament.json` is missing or empty.
+- **templates/{format}{size}.json:** Required bracket templates, such as `double8.json` or `single4.json`. When a matching file is missing, the app shows `[template] template missing`.
 
 ### Public Assets
 
@@ -62,7 +62,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **assets/{game}/characters.json:** Character catalog for that game. Keys are saved into player records.
 - **assets/{game}/portraits/{character}.png:** Character portrait used in Select2 and bracket/current-match cards.
 - **assets/rules.json:** First-to rule catalog. Rule keys are normalized to numbers.
-- **assets/formats.json:** Bracket format catalog.
+- **assets/formats.json:** Format catalog for single elimination, double elimination, robin, and Swiss.
 - **assets/sizes.json:** Allowed bracket capacities.
 - **players/{player}.png:** Custom player portrait uploaded from the player page.
 - **players/_logo.png:** Custom tournament logo for overlays.
@@ -100,6 +100,10 @@ Participant states:
 - **tbd:** A seed slot exists but does not have a real player yet.
 - **bye:** A seed slot is intentionally marked as BYE.
 - **pending:** A winner/loser source has not been decided yet.
+
+The backend does not generate bracket shapes. `event.format` and `event.size` map to a template filename, for example `double_elimination` plus `8` loads `templates/double8.json`, while `robin` plus `8` loads `templates/robin8.json`. Unsupported sizes are allowed to exist in `assets/sizes.json`, but they need matching template files before the bracket can render.
+
+Bundled templates currently cover 2-player through 64-player single elimination, double elimination, robin, and Swiss. Robin templates include every seed pairing. Swiss templates are fixed-round seed schedules for now; dynamic Swiss re-pairing belongs in a future pairing/standings layer rather than hidden Go fallback generation.
 
 Match results can be normal, `bye`, or `dq`. BYE results are generated during setup and do not count as bracket-started state, so randomize/reset setup tools can still work before real play begins.
 

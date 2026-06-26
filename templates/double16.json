@@ -1,0 +1,489 @@
+{
+  "type": "double_elimination",
+  "size": 16,
+  "matches": {
+    "A": {
+      "name": "Winners Round 1 - A",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      },
+      "winner_to": "I",
+      "loser_to": "P"
+    },
+    "B": {
+      "name": "Winners Round 1 - B",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      },
+      "winner_to": "I",
+      "loser_to": "P"
+    },
+    "C": {
+      "name": "Winners Round 1 - C",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 3,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 6
+      },
+      "winner_to": "J",
+      "loser_to": "Q"
+    },
+    "D": {
+      "name": "Winners Round 1 - D",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 4,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 8
+      },
+      "winner_to": "J",
+      "loser_to": "Q"
+    },
+    "E": {
+      "name": "Winners Round 1 - E",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 5,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      },
+      "winner_to": "K",
+      "loser_to": "R"
+    },
+    "F": {
+      "name": "Winners Round 1 - F",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 6,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      },
+      "winner_to": "K",
+      "loser_to": "R"
+    },
+    "G": {
+      "name": "Winners Round 1 - G",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 7,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      },
+      "winner_to": "L",
+      "loser_to": "S"
+    },
+    "H": {
+      "name": "Winners Round 1 - H",
+      "group": "winners",
+      "round": "Winners Round 1",
+      "order": 8,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      },
+      "winner_to": "L",
+      "loser_to": "S"
+    },
+    "I": {
+      "name": "Winners Round 2 - A",
+      "group": "winners",
+      "round": "Winners Round 2",
+      "order": 9,
+      "p1": {
+        "type": "winner",
+        "match": "A"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "B"
+      },
+      "winner_to": "M",
+      "loser_to": "W"
+    },
+    "J": {
+      "name": "Winners Round 2 - B",
+      "group": "winners",
+      "round": "Winners Round 2",
+      "order": 10,
+      "p1": {
+        "type": "winner",
+        "match": "C"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "D"
+      },
+      "winner_to": "M",
+      "loser_to": "V"
+    },
+    "K": {
+      "name": "Winners Round 2 - C",
+      "group": "winners",
+      "round": "Winners Round 2",
+      "order": 11,
+      "p1": {
+        "type": "winner",
+        "match": "E"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "F"
+      },
+      "winner_to": "N",
+      "loser_to": "U"
+    },
+    "L": {
+      "name": "Winners Round 2 - D",
+      "group": "winners",
+      "round": "Winners Round 2",
+      "order": 12,
+      "p1": {
+        "type": "winner",
+        "match": "G"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "H"
+      },
+      "winner_to": "N",
+      "loser_to": "T"
+    },
+    "M": {
+      "name": "Winners Semifinal - A",
+      "group": "winners",
+      "round": "Winners Semifinal",
+      "order": 13,
+      "p1": {
+        "type": "winner",
+        "match": "I"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "J"
+      },
+      "winner_to": "O",
+      "loser_to": "AA"
+    },
+    "N": {
+      "name": "Winners Semifinal - B",
+      "group": "winners",
+      "round": "Winners Semifinal",
+      "order": 14,
+      "p1": {
+        "type": "winner",
+        "match": "K"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "L"
+      },
+      "winner_to": "O",
+      "loser_to": "Z"
+    },
+    "O": {
+      "name": "Winners Final - A",
+      "group": "winners",
+      "round": "Winners Final",
+      "order": 15,
+      "p1": {
+        "type": "winner",
+        "match": "M"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "N"
+      },
+      "loser_to": "AC",
+      "winner_to": "AD"
+    },
+    "P": {
+      "name": "Losers Round 1 - P",
+      "group": "losers",
+      "round": "Losers Round 1",
+      "order": 16,
+      "p1": {
+        "type": "loser",
+        "match": "A"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "B"
+      },
+      "winner_to": "T"
+    },
+    "Q": {
+      "name": "Losers Round 1 - Q",
+      "group": "losers",
+      "round": "Losers Round 1",
+      "order": 17,
+      "p1": {
+        "type": "loser",
+        "match": "C"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "D"
+      },
+      "winner_to": "U"
+    },
+    "R": {
+      "name": "Losers Round 1 - R",
+      "group": "losers",
+      "round": "Losers Round 1",
+      "order": 18,
+      "p1": {
+        "type": "loser",
+        "match": "E"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "F"
+      },
+      "winner_to": "V"
+    },
+    "S": {
+      "name": "Losers Round 1 - S",
+      "group": "losers",
+      "round": "Losers Round 1",
+      "order": 19,
+      "p1": {
+        "type": "loser",
+        "match": "G"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "H"
+      },
+      "winner_to": "W"
+    },
+    "T": {
+      "name": "Losers Round 2 - T",
+      "group": "losers",
+      "round": "Losers Round 2",
+      "order": 20,
+      "p1": {
+        "type": "winner",
+        "match": "P"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "L"
+      },
+      "winner_to": "X"
+    },
+    "U": {
+      "name": "Losers Round 2 - U",
+      "group": "losers",
+      "round": "Losers Round 2",
+      "order": 21,
+      "p1": {
+        "type": "winner",
+        "match": "Q"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "K"
+      },
+      "winner_to": "X"
+    },
+    "V": {
+      "name": "Losers Round 2 - V",
+      "group": "losers",
+      "round": "Losers Round 2",
+      "order": 22,
+      "p1": {
+        "type": "winner",
+        "match": "R"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "J"
+      },
+      "winner_to": "Y"
+    },
+    "W": {
+      "name": "Losers Round 2 - W",
+      "group": "losers",
+      "round": "Losers Round 2",
+      "order": 23,
+      "p1": {
+        "type": "winner",
+        "match": "S"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "I"
+      },
+      "winner_to": "Y"
+    },
+    "X": {
+      "name": "Losers Round 3 - X",
+      "group": "losers",
+      "round": "Losers Round 3",
+      "order": 24,
+      "p1": {
+        "type": "winner",
+        "match": "T"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "U"
+      },
+      "winner_to": "Z"
+    },
+    "Y": {
+      "name": "Losers Round 3 - Y",
+      "group": "losers",
+      "round": "Losers Round 3",
+      "order": 25,
+      "p1": {
+        "type": "winner",
+        "match": "V"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "W"
+      },
+      "winner_to": "AA"
+    },
+    "Z": {
+      "name": "Losers Round 4 - Z",
+      "group": "losers",
+      "round": "Losers Round 4",
+      "order": 26,
+      "p1": {
+        "type": "winner",
+        "match": "X"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "N"
+      },
+      "winner_to": "AB"
+    },
+    "AA": {
+      "name": "Losers Round 4 - AA",
+      "group": "losers",
+      "round": "Losers Round 4",
+      "order": 27,
+      "p1": {
+        "type": "winner",
+        "match": "Y"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "M"
+      },
+      "winner_to": "AB"
+    },
+    "AB": {
+      "name": "Losers Round 5 - AB",
+      "group": "losers",
+      "round": "Losers Round 5",
+      "order": 28,
+      "p1": {
+        "type": "winner",
+        "match": "Z"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "AA"
+      },
+      "winner_to": "AC"
+    },
+    "AC": {
+      "name": "Losers Final",
+      "group": "losers",
+      "round": "Losers Final",
+      "order": 29,
+      "p1": {
+        "type": "winner",
+        "match": "AB"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "O"
+      },
+      "winner_to": "AD"
+    },
+    "AD": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 30,
+      "p1": {
+        "type": "winner",
+        "match": "O"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "AC"
+      },
+      "reset": true,
+      "winner_to": "AE"
+    },
+    "AE": {
+      "name": "Grand Final Reset",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 31,
+      "p1": {
+        "type": "winner",
+        "match": "AD"
+      },
+      "p2": {
+        "type": "loser",
+        "match": "AD"
+      },
+      "optional": true,
+      "reset": true
+    }
+  },
+  "placements": {}
+}

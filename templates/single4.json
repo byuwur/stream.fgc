@@ -1,0 +1,51 @@
+{
+  "type": "single_elimination",
+  "size": 4,
+  "matches": {
+    "A": {
+      "name": "Semifinal - A",
+      "group": "winners",
+      "round": "Semifinal",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 2
+      },
+      "winner_to": "C"
+    },
+    "B": {
+      "name": "Semifinal - B",
+      "group": "winners",
+      "round": "Semifinal",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 4
+      },
+      "winner_to": "C"
+    },
+    "C": {
+      "name": "Grand Final",
+      "group": "finals",
+      "round": "Grand Finals",
+      "order": 3,
+      "p1": {
+        "type": "winner",
+        "match": "A"
+      },
+      "p2": {
+        "type": "winner",
+        "match": "B"
+      }
+    }
+  },
+  "placements": {}
+}

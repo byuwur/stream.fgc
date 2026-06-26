@@ -1,0 +1,2695 @@
+{
+  "type": "swiss",
+  "size": 64,
+  "matches": {
+    "A": {
+      "name": "Swiss Round 1 - A",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 1,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    },
+    "B": {
+      "name": "Swiss Round 1 - B",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 2,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "C": {
+      "name": "Swiss Round 1 - C",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 3,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "D": {
+      "name": "Swiss Round 1 - D",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 4,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "E": {
+      "name": "Swiss Round 1 - E",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 5,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "F": {
+      "name": "Swiss Round 1 - F",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 6,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "G": {
+      "name": "Swiss Round 1 - G",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 7,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "H": {
+      "name": "Swiss Round 1 - H",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 8,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "I": {
+      "name": "Swiss Round 1 - I",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 9,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 56
+      }
+    },
+    "J": {
+      "name": "Swiss Round 1 - J",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 10,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 55
+      }
+    },
+    "K": {
+      "name": "Swiss Round 1 - K",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 11,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 54
+      }
+    },
+    "L": {
+      "name": "Swiss Round 1 - L",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 12,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 53
+      }
+    },
+    "M": {
+      "name": "Swiss Round 1 - M",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 13,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 52
+      }
+    },
+    "N": {
+      "name": "Swiss Round 1 - N",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 14,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 51
+      }
+    },
+    "O": {
+      "name": "Swiss Round 1 - O",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 15,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 50
+      }
+    },
+    "P": {
+      "name": "Swiss Round 1 - P",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 16,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 49
+      }
+    },
+    "Q": {
+      "name": "Swiss Round 1 - Q",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 17,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 48
+      }
+    },
+    "R": {
+      "name": "Swiss Round 1 - R",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 18,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 47
+      }
+    },
+    "S": {
+      "name": "Swiss Round 1 - S",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 19,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 46
+      }
+    },
+    "T": {
+      "name": "Swiss Round 1 - T",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 20,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 45
+      }
+    },
+    "U": {
+      "name": "Swiss Round 1 - U",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 21,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 44
+      }
+    },
+    "V": {
+      "name": "Swiss Round 1 - V",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 22,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 43
+      }
+    },
+    "W": {
+      "name": "Swiss Round 1 - W",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 23,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 42
+      }
+    },
+    "X": {
+      "name": "Swiss Round 1 - X",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 24,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 41
+      }
+    },
+    "Y": {
+      "name": "Swiss Round 1 - Y",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 25,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 40
+      }
+    },
+    "Z": {
+      "name": "Swiss Round 1 - Z",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 26,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 39
+      }
+    },
+    "AA": {
+      "name": "Swiss Round 1 - AA",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 27,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 38
+      }
+    },
+    "AB": {
+      "name": "Swiss Round 1 - AB",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 28,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 37
+      }
+    },
+    "AC": {
+      "name": "Swiss Round 1 - AC",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 29,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 36
+      }
+    },
+    "AD": {
+      "name": "Swiss Round 1 - AD",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 30,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 35
+      }
+    },
+    "AE": {
+      "name": "Swiss Round 1 - AE",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 31,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 34
+      }
+    },
+    "AF": {
+      "name": "Swiss Round 1 - AF",
+      "group": "swiss",
+      "round": "Round 1",
+      "order": 32,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 33
+      }
+    },
+    "AG": {
+      "name": "Swiss Round 2 - A",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 33,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 33
+      }
+    },
+    "AH": {
+      "name": "Swiss Round 2 - B",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 34,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 34
+      }
+    },
+    "AI": {
+      "name": "Swiss Round 2 - C",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 35,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 35
+      }
+    },
+    "AJ": {
+      "name": "Swiss Round 2 - D",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 36,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 36
+      }
+    },
+    "AK": {
+      "name": "Swiss Round 2 - E",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 37,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 37
+      }
+    },
+    "AL": {
+      "name": "Swiss Round 2 - F",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 38,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 38
+      }
+    },
+    "AM": {
+      "name": "Swiss Round 2 - G",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 39,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 39
+      }
+    },
+    "AN": {
+      "name": "Swiss Round 2 - H",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 40,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 40
+      }
+    },
+    "AO": {
+      "name": "Swiss Round 2 - I",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 41,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 41
+      }
+    },
+    "AP": {
+      "name": "Swiss Round 2 - J",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 42,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 42
+      }
+    },
+    "AQ": {
+      "name": "Swiss Round 2 - K",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 43,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 43
+      }
+    },
+    "AR": {
+      "name": "Swiss Round 2 - L",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 44,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 44
+      }
+    },
+    "AS": {
+      "name": "Swiss Round 2 - M",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 45,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 45
+      }
+    },
+    "AT": {
+      "name": "Swiss Round 2 - N",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 46,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 46
+      }
+    },
+    "AU": {
+      "name": "Swiss Round 2 - O",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 47,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 47
+      }
+    },
+    "AV": {
+      "name": "Swiss Round 2 - P",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 48,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 48
+      }
+    },
+    "AW": {
+      "name": "Swiss Round 2 - Q",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 49,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 49
+      }
+    },
+    "AX": {
+      "name": "Swiss Round 2 - R",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 50,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 50
+      }
+    },
+    "AY": {
+      "name": "Swiss Round 2 - S",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 51,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 51
+      }
+    },
+    "AZ": {
+      "name": "Swiss Round 2 - T",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 52,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 52
+      }
+    },
+    "BA": {
+      "name": "Swiss Round 2 - U",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 53,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 53
+      }
+    },
+    "BB": {
+      "name": "Swiss Round 2 - V",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 54,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 54
+      }
+    },
+    "BC": {
+      "name": "Swiss Round 2 - W",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 55,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 55
+      }
+    },
+    "BD": {
+      "name": "Swiss Round 2 - X",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 56,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 56
+      }
+    },
+    "BE": {
+      "name": "Swiss Round 2 - Y",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 57,
+      "p1": {
+        "type": "seed",
+        "seed": 25
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "BF": {
+      "name": "Swiss Round 2 - Z",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 58,
+      "p1": {
+        "type": "seed",
+        "seed": 26
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "BG": {
+      "name": "Swiss Round 2 - AA",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 59,
+      "p1": {
+        "type": "seed",
+        "seed": 27
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "BH": {
+      "name": "Swiss Round 2 - AB",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 60,
+      "p1": {
+        "type": "seed",
+        "seed": 28
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "BI": {
+      "name": "Swiss Round 2 - AC",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 61,
+      "p1": {
+        "type": "seed",
+        "seed": 29
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "BJ": {
+      "name": "Swiss Round 2 - AD",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 62,
+      "p1": {
+        "type": "seed",
+        "seed": 30
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "BK": {
+      "name": "Swiss Round 2 - AE",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 63,
+      "p1": {
+        "type": "seed",
+        "seed": 31
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "BL": {
+      "name": "Swiss Round 2 - AF",
+      "group": "swiss",
+      "round": "Round 2",
+      "order": 64,
+      "p1": {
+        "type": "seed",
+        "seed": 32
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    },
+    "BM": {
+      "name": "Swiss Round 3 - A",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 65,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "BN": {
+      "name": "Swiss Round 3 - B",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 66,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "BO": {
+      "name": "Swiss Round 3 - C",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 67,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "BP": {
+      "name": "Swiss Round 3 - D",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 68,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "BQ": {
+      "name": "Swiss Round 3 - E",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 69,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "BR": {
+      "name": "Swiss Round 3 - F",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 70,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "BS": {
+      "name": "Swiss Round 3 - G",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 71,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "BT": {
+      "name": "Swiss Round 3 - H",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 72,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "BU": {
+      "name": "Swiss Round 3 - I",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 73,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "BV": {
+      "name": "Swiss Round 3 - J",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 74,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "BW": {
+      "name": "Swiss Round 3 - K",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 75,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "BX": {
+      "name": "Swiss Round 3 - L",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 76,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "BY": {
+      "name": "Swiss Round 3 - M",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 77,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "BZ": {
+      "name": "Swiss Round 3 - N",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 78,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "CA": {
+      "name": "Swiss Round 3 - O",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 79,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "CB": {
+      "name": "Swiss Round 3 - P",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 80,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "CC": {
+      "name": "Swiss Round 3 - Q",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 81,
+      "p1": {
+        "type": "seed",
+        "seed": 33
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    },
+    "CD": {
+      "name": "Swiss Round 3 - R",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 82,
+      "p1": {
+        "type": "seed",
+        "seed": 34
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "CE": {
+      "name": "Swiss Round 3 - S",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 83,
+      "p1": {
+        "type": "seed",
+        "seed": 35
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "CF": {
+      "name": "Swiss Round 3 - T",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 84,
+      "p1": {
+        "type": "seed",
+        "seed": 36
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "CG": {
+      "name": "Swiss Round 3 - U",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 85,
+      "p1": {
+        "type": "seed",
+        "seed": 37
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "CH": {
+      "name": "Swiss Round 3 - V",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 86,
+      "p1": {
+        "type": "seed",
+        "seed": 38
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "CI": {
+      "name": "Swiss Round 3 - W",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 87,
+      "p1": {
+        "type": "seed",
+        "seed": 39
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "CJ": {
+      "name": "Swiss Round 3 - X",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 88,
+      "p1": {
+        "type": "seed",
+        "seed": 40
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "CK": {
+      "name": "Swiss Round 3 - Y",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 89,
+      "p1": {
+        "type": "seed",
+        "seed": 41
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 56
+      }
+    },
+    "CL": {
+      "name": "Swiss Round 3 - Z",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 90,
+      "p1": {
+        "type": "seed",
+        "seed": 42
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 55
+      }
+    },
+    "CM": {
+      "name": "Swiss Round 3 - AA",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 91,
+      "p1": {
+        "type": "seed",
+        "seed": 43
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 54
+      }
+    },
+    "CN": {
+      "name": "Swiss Round 3 - AB",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 92,
+      "p1": {
+        "type": "seed",
+        "seed": 44
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 53
+      }
+    },
+    "CO": {
+      "name": "Swiss Round 3 - AC",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 93,
+      "p1": {
+        "type": "seed",
+        "seed": 45
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 52
+      }
+    },
+    "CP": {
+      "name": "Swiss Round 3 - AD",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 94,
+      "p1": {
+        "type": "seed",
+        "seed": 46
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 51
+      }
+    },
+    "CQ": {
+      "name": "Swiss Round 3 - AE",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 95,
+      "p1": {
+        "type": "seed",
+        "seed": 47
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 50
+      }
+    },
+    "CR": {
+      "name": "Swiss Round 3 - AF",
+      "group": "swiss",
+      "round": "Round 3",
+      "order": 96,
+      "p1": {
+        "type": "seed",
+        "seed": 48
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 49
+      }
+    },
+    "CS": {
+      "name": "Swiss Round 4 - A",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 97,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 17
+      }
+    },
+    "CT": {
+      "name": "Swiss Round 4 - B",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 98,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 18
+      }
+    },
+    "CU": {
+      "name": "Swiss Round 4 - C",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 99,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 19
+      }
+    },
+    "CV": {
+      "name": "Swiss Round 4 - D",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 100,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 20
+      }
+    },
+    "CW": {
+      "name": "Swiss Round 4 - E",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 101,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 21
+      }
+    },
+    "CX": {
+      "name": "Swiss Round 4 - F",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 102,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 22
+      }
+    },
+    "CY": {
+      "name": "Swiss Round 4 - G",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 103,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 23
+      }
+    },
+    "CZ": {
+      "name": "Swiss Round 4 - H",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 104,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 24
+      }
+    },
+    "DA": {
+      "name": "Swiss Round 4 - I",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 105,
+      "p1": {
+        "type": "seed",
+        "seed": 9
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "DB": {
+      "name": "Swiss Round 4 - J",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 106,
+      "p1": {
+        "type": "seed",
+        "seed": 10
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "DC": {
+      "name": "Swiss Round 4 - K",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 107,
+      "p1": {
+        "type": "seed",
+        "seed": 11
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "DD": {
+      "name": "Swiss Round 4 - L",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 108,
+      "p1": {
+        "type": "seed",
+        "seed": 12
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "DE": {
+      "name": "Swiss Round 4 - M",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 109,
+      "p1": {
+        "type": "seed",
+        "seed": 13
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "DF": {
+      "name": "Swiss Round 4 - N",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 110,
+      "p1": {
+        "type": "seed",
+        "seed": 14
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "DG": {
+      "name": "Swiss Round 4 - O",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 111,
+      "p1": {
+        "type": "seed",
+        "seed": 15
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "DH": {
+      "name": "Swiss Round 4 - P",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 112,
+      "p1": {
+        "type": "seed",
+        "seed": 16
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "DI": {
+      "name": "Swiss Round 4 - Q",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 113,
+      "p1": {
+        "type": "seed",
+        "seed": 33
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 49
+      }
+    },
+    "DJ": {
+      "name": "Swiss Round 4 - R",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 114,
+      "p1": {
+        "type": "seed",
+        "seed": 34
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 50
+      }
+    },
+    "DK": {
+      "name": "Swiss Round 4 - S",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 115,
+      "p1": {
+        "type": "seed",
+        "seed": 35
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 51
+      }
+    },
+    "DL": {
+      "name": "Swiss Round 4 - T",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 116,
+      "p1": {
+        "type": "seed",
+        "seed": 36
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 52
+      }
+    },
+    "DM": {
+      "name": "Swiss Round 4 - U",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 117,
+      "p1": {
+        "type": "seed",
+        "seed": 37
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 53
+      }
+    },
+    "DN": {
+      "name": "Swiss Round 4 - V",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 118,
+      "p1": {
+        "type": "seed",
+        "seed": 38
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 54
+      }
+    },
+    "DO": {
+      "name": "Swiss Round 4 - W",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 119,
+      "p1": {
+        "type": "seed",
+        "seed": 39
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 55
+      }
+    },
+    "DP": {
+      "name": "Swiss Round 4 - X",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 120,
+      "p1": {
+        "type": "seed",
+        "seed": 40
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 56
+      }
+    },
+    "DQ": {
+      "name": "Swiss Round 4 - Y",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 121,
+      "p1": {
+        "type": "seed",
+        "seed": 41
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "DR": {
+      "name": "Swiss Round 4 - Z",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 122,
+      "p1": {
+        "type": "seed",
+        "seed": 42
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "DS": {
+      "name": "Swiss Round 4 - AA",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 123,
+      "p1": {
+        "type": "seed",
+        "seed": 43
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "DT": {
+      "name": "Swiss Round 4 - AB",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 124,
+      "p1": {
+        "type": "seed",
+        "seed": 44
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "DU": {
+      "name": "Swiss Round 4 - AC",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 125,
+      "p1": {
+        "type": "seed",
+        "seed": 45
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "DV": {
+      "name": "Swiss Round 4 - AD",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 126,
+      "p1": {
+        "type": "seed",
+        "seed": 46
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "DW": {
+      "name": "Swiss Round 4 - AE",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 127,
+      "p1": {
+        "type": "seed",
+        "seed": 47
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "DX": {
+      "name": "Swiss Round 4 - AF",
+      "group": "swiss",
+      "round": "Round 4",
+      "order": 128,
+      "p1": {
+        "type": "seed",
+        "seed": 48
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    },
+    "DY": {
+      "name": "Swiss Round 5 - A",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 129,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "DZ": {
+      "name": "Swiss Round 5 - B",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 130,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "EA": {
+      "name": "Swiss Round 5 - C",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 131,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "EB": {
+      "name": "Swiss Round 5 - D",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 132,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "EC": {
+      "name": "Swiss Round 5 - E",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 133,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "ED": {
+      "name": "Swiss Round 5 - F",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 134,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "EE": {
+      "name": "Swiss Round 5 - G",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 135,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "EF": {
+      "name": "Swiss Round 5 - H",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 136,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "EG": {
+      "name": "Swiss Round 5 - I",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 137,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "EH": {
+      "name": "Swiss Round 5 - J",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 138,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "EI": {
+      "name": "Swiss Round 5 - K",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 139,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "EJ": {
+      "name": "Swiss Round 5 - L",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 140,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "EK": {
+      "name": "Swiss Round 5 - M",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 141,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "EL": {
+      "name": "Swiss Round 5 - N",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 142,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "EM": {
+      "name": "Swiss Round 5 - O",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 143,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "EN": {
+      "name": "Swiss Round 5 - P",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 144,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "EO": {
+      "name": "Swiss Round 5 - Q",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 145,
+      "p1": {
+        "type": "seed",
+        "seed": 33
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 48
+      }
+    },
+    "EP": {
+      "name": "Swiss Round 5 - R",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 146,
+      "p1": {
+        "type": "seed",
+        "seed": 34
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 47
+      }
+    },
+    "EQ": {
+      "name": "Swiss Round 5 - S",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 147,
+      "p1": {
+        "type": "seed",
+        "seed": 35
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 46
+      }
+    },
+    "ER": {
+      "name": "Swiss Round 5 - T",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 148,
+      "p1": {
+        "type": "seed",
+        "seed": 36
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 45
+      }
+    },
+    "ES": {
+      "name": "Swiss Round 5 - U",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 149,
+      "p1": {
+        "type": "seed",
+        "seed": 37
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 44
+      }
+    },
+    "ET": {
+      "name": "Swiss Round 5 - V",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 150,
+      "p1": {
+        "type": "seed",
+        "seed": 38
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 43
+      }
+    },
+    "EU": {
+      "name": "Swiss Round 5 - W",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 151,
+      "p1": {
+        "type": "seed",
+        "seed": 39
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 42
+      }
+    },
+    "EV": {
+      "name": "Swiss Round 5 - X",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 152,
+      "p1": {
+        "type": "seed",
+        "seed": 40
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 41
+      }
+    },
+    "EW": {
+      "name": "Swiss Round 5 - Y",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 153,
+      "p1": {
+        "type": "seed",
+        "seed": 49
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    },
+    "EX": {
+      "name": "Swiss Round 5 - Z",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 154,
+      "p1": {
+        "type": "seed",
+        "seed": 50
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "EY": {
+      "name": "Swiss Round 5 - AA",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 155,
+      "p1": {
+        "type": "seed",
+        "seed": 51
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "EZ": {
+      "name": "Swiss Round 5 - AB",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 156,
+      "p1": {
+        "type": "seed",
+        "seed": 52
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "FA": {
+      "name": "Swiss Round 5 - AC",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 157,
+      "p1": {
+        "type": "seed",
+        "seed": 53
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "FB": {
+      "name": "Swiss Round 5 - AD",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 158,
+      "p1": {
+        "type": "seed",
+        "seed": 54
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "FC": {
+      "name": "Swiss Round 5 - AE",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 159,
+      "p1": {
+        "type": "seed",
+        "seed": 55
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "FD": {
+      "name": "Swiss Round 5 - AF",
+      "group": "swiss",
+      "round": "Round 5",
+      "order": 160,
+      "p1": {
+        "type": "seed",
+        "seed": 56
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "FE": {
+      "name": "Swiss Round 6 - A",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 161,
+      "p1": {
+        "type": "seed",
+        "seed": 1
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 9
+      }
+    },
+    "FF": {
+      "name": "Swiss Round 6 - B",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 162,
+      "p1": {
+        "type": "seed",
+        "seed": 2
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 10
+      }
+    },
+    "FG": {
+      "name": "Swiss Round 6 - C",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 163,
+      "p1": {
+        "type": "seed",
+        "seed": 3
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 11
+      }
+    },
+    "FH": {
+      "name": "Swiss Round 6 - D",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 164,
+      "p1": {
+        "type": "seed",
+        "seed": 4
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 12
+      }
+    },
+    "FI": {
+      "name": "Swiss Round 6 - E",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 165,
+      "p1": {
+        "type": "seed",
+        "seed": 5
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 13
+      }
+    },
+    "FJ": {
+      "name": "Swiss Round 6 - F",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 166,
+      "p1": {
+        "type": "seed",
+        "seed": 6
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 14
+      }
+    },
+    "FK": {
+      "name": "Swiss Round 6 - G",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 167,
+      "p1": {
+        "type": "seed",
+        "seed": 7
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 15
+      }
+    },
+    "FL": {
+      "name": "Swiss Round 6 - H",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 168,
+      "p1": {
+        "type": "seed",
+        "seed": 8
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 16
+      }
+    },
+    "FM": {
+      "name": "Swiss Round 6 - I",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 169,
+      "p1": {
+        "type": "seed",
+        "seed": 17
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 25
+      }
+    },
+    "FN": {
+      "name": "Swiss Round 6 - J",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 170,
+      "p1": {
+        "type": "seed",
+        "seed": 18
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 26
+      }
+    },
+    "FO": {
+      "name": "Swiss Round 6 - K",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 171,
+      "p1": {
+        "type": "seed",
+        "seed": 19
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 27
+      }
+    },
+    "FP": {
+      "name": "Swiss Round 6 - L",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 172,
+      "p1": {
+        "type": "seed",
+        "seed": 20
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 28
+      }
+    },
+    "FQ": {
+      "name": "Swiss Round 6 - M",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 173,
+      "p1": {
+        "type": "seed",
+        "seed": 21
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 29
+      }
+    },
+    "FR": {
+      "name": "Swiss Round 6 - N",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 174,
+      "p1": {
+        "type": "seed",
+        "seed": 22
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 30
+      }
+    },
+    "FS": {
+      "name": "Swiss Round 6 - O",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 175,
+      "p1": {
+        "type": "seed",
+        "seed": 23
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 31
+      }
+    },
+    "FT": {
+      "name": "Swiss Round 6 - P",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 176,
+      "p1": {
+        "type": "seed",
+        "seed": 24
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 32
+      }
+    },
+    "FU": {
+      "name": "Swiss Round 6 - Q",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 177,
+      "p1": {
+        "type": "seed",
+        "seed": 33
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 41
+      }
+    },
+    "FV": {
+      "name": "Swiss Round 6 - R",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 178,
+      "p1": {
+        "type": "seed",
+        "seed": 34
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 42
+      }
+    },
+    "FW": {
+      "name": "Swiss Round 6 - S",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 179,
+      "p1": {
+        "type": "seed",
+        "seed": 35
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 43
+      }
+    },
+    "FX": {
+      "name": "Swiss Round 6 - T",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 180,
+      "p1": {
+        "type": "seed",
+        "seed": 36
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 44
+      }
+    },
+    "FY": {
+      "name": "Swiss Round 6 - U",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 181,
+      "p1": {
+        "type": "seed",
+        "seed": 37
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 45
+      }
+    },
+    "FZ": {
+      "name": "Swiss Round 6 - V",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 182,
+      "p1": {
+        "type": "seed",
+        "seed": 38
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 46
+      }
+    },
+    "GA": {
+      "name": "Swiss Round 6 - W",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 183,
+      "p1": {
+        "type": "seed",
+        "seed": 39
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 47
+      }
+    },
+    "GB": {
+      "name": "Swiss Round 6 - X",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 184,
+      "p1": {
+        "type": "seed",
+        "seed": 40
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 48
+      }
+    },
+    "GC": {
+      "name": "Swiss Round 6 - Y",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 185,
+      "p1": {
+        "type": "seed",
+        "seed": 49
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 57
+      }
+    },
+    "GD": {
+      "name": "Swiss Round 6 - Z",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 186,
+      "p1": {
+        "type": "seed",
+        "seed": 50
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 58
+      }
+    },
+    "GE": {
+      "name": "Swiss Round 6 - AA",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 187,
+      "p1": {
+        "type": "seed",
+        "seed": 51
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 59
+      }
+    },
+    "GF": {
+      "name": "Swiss Round 6 - AB",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 188,
+      "p1": {
+        "type": "seed",
+        "seed": 52
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 60
+      }
+    },
+    "GG": {
+      "name": "Swiss Round 6 - AC",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 189,
+      "p1": {
+        "type": "seed",
+        "seed": 53
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 61
+      }
+    },
+    "GH": {
+      "name": "Swiss Round 6 - AD",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 190,
+      "p1": {
+        "type": "seed",
+        "seed": 54
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 62
+      }
+    },
+    "GI": {
+      "name": "Swiss Round 6 - AE",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 191,
+      "p1": {
+        "type": "seed",
+        "seed": 55
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 63
+      }
+    },
+    "GJ": {
+      "name": "Swiss Round 6 - AF",
+      "group": "swiss",
+      "round": "Round 6",
+      "order": 192,
+      "p1": {
+        "type": "seed",
+        "seed": 56
+      },
+      "p2": {
+        "type": "seed",
+        "seed": 64
+      }
+    }
+  },
+  "placements": {}
+}
