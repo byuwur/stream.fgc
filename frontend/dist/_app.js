@@ -60,6 +60,7 @@
 	let countryCodes = [];
 	let countryNames = {};
 	let backgroundSyncing = false;
+	let generatedBackendPromise = null;
 	const countryNameCache = {};
 	const autosaveForms = new WeakMap();
 	const autosaveFormSet = new Set();
@@ -71,7 +72,25 @@
 
 	/** Returns the Wails backend binding, supporting current and generated namespaces. */
 	function backend() {
-		return global.go?.backend?.App || global.go?.main?.App || null;
+		return global.go?.backend?.App || global.go?.main?.App || global.streamFgcBackend || null;
+	}
+
+	/** Loads generated Wails bindings when the production build does not expose window.go. */
+	async function loadGeneratedBackend() {
+		if (backend()) return backend();
+		if (!global.runtime && typeof global.ObfuscatedCall !== "function") return null;
+		if (!generatedBackendPromise) {
+			generatedBackendPromise = import("./wailsjs/go/main/App.js")
+				.then(function (module) {
+					global.streamFgcBackend = module;
+					return module;
+				})
+				.catch(function (error) {
+					console.warn("Could not load generated Wails bindings.", error);
+					return null;
+				});
+		}
+		return generatedBackendPromise;
 	}
 
 	/** Waits without blocking the UI thread. */
@@ -100,9 +119,11 @@
 	async function waitForBackend(timeout = 2000) {
 		const started = Date.now();
 		let app = backend();
+		if (!app) app = await loadGeneratedBackend();
 		while (!app && Date.now() - started < timeout) {
 			await sleep(50);
 			app = backend();
+			if (!app) app = await loadGeneratedBackend();
 		}
 		return app;
 	}
@@ -633,7 +654,9 @@
 		}
 
 		try {
-			return await app[methodName]();
+			const rows = await app[methodName]();
+			if (Array.isArray(rows) && rows.length === 0 && Array.isArray(fallback) && fallback.length > 0) return fallback;
+			return rows;
 		} catch (error) {
 			console.warn(`${methodName} failed`, error);
 			return fallback;
@@ -2350,6 +2373,20 @@
 		return rows;
 	}
 
+	/** Normalizes country codes from backend flags or language dictionaries. */
+	function normalizeCountryCodes(codes, names = countryNames) {
+		const source = (codes || []).length ? codes : Object.keys(names || {});
+		return Array.from(
+			new Set(
+				source
+					.map(function (code) {
+						return String(code || "").toUpperCase();
+					})
+					.filter(isISO2Code),
+			),
+		).sort();
+	}
+
 	/** Builds country options from the backend flag list and loaded i18n names. */
 	function countryOptions(selectedCountry) {
 		const selected = String(selectedCountry || "").toUpperCase();
@@ -2559,6 +2596,7 @@
 	/** Reloads localized country labels and refreshes existing country selects. */
 	async function refreshCountrySelects(root = document) {
 		countryNames = await loadCountryNames();
+		if (!countryCodes.length) countryCodes = normalizeCountryCodes([], countryNames);
 		root.querySelectorAll("select[name='country']").forEach(function (select) {
 			if (!(select instanceof HTMLSelectElement)) return;
 			const selected = select.value;
@@ -2648,13 +2686,7 @@
 			applyGameBackgroundFromState(currentState);
 			await ensureCharacterCatalog(app, currentState.event?.game || "");
 			countryNames = names || {};
-			countryCodes = Array.from(
-				new Set(
-					(codes || []).map(function (code) {
-						return String(code).toUpperCase();
-					}),
-				),
-			).sort();
+			countryCodes = normalizeCountryCodes(codes, countryNames);
 			renderPlayers(page);
 			setPlayerReadyStatus(page);
 		} catch (error) {

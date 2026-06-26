@@ -34,7 +34,7 @@ func (a *App) ShowOverlaysFolder() (string, error) {
 
 // overlaysFolderPath resolves the overlays directory from the current app working directory.
 func overlaysFolderPath() (string, error) {
-	return filepath.Abs(overlaysDirPath)
+	return filepath.Abs(externalWriteDirPath(overlaysDirPath))
 }
 
 // openFolder launches the platform file manager without going through a shell.

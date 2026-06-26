@@ -130,34 +130,12 @@ func cleanPlayerPortraitKey(playerID string) (string, error) {
 
 // playerPortraitWritePath chooses the first existing portrait directory.
 func playerPortraitWritePath(playerKey string) string {
-	fileName := playerKey + ".png"
-	for _, dirPath := range playerPortraitDirs() {
-		if info, err := os.Stat(dirPath); err == nil && info.IsDir() {
-			return filepath.Join(dirPath, fileName)
-		}
-	}
-	return filepath.Join(playerPortraitDirPath, fileName)
+	return externalWriteFilePath(playerPortraitDirPath, playerKey+".png")
 }
 
 // playerPortraitDirs lists portrait folders for dev, built exe, and portable layouts.
 func playerPortraitDirs() []string {
-	paths := []string{playerPortraitDirPath}
-
-	if exePath, err := os.Executable(); err == nil {
-		exeDir := filepath.Dir(exePath)
-		for _, basePath := range []string{
-			exeDir,
-			filepath.Join(exeDir, ".."),
-			filepath.Join(exeDir, "..", ".."),
-		} {
-			dirPath := filepath.Clean(filepath.Join(basePath, playerPortraitDirPath))
-			if !stringInSlice(paths, dirPath) {
-				paths = append(paths, dirPath)
-			}
-		}
-	}
-
-	return paths
+	return externalDirPaths(playerPortraitDirPath)
 }
 
 // playerPortraitURL returns the asset-server URL used by the frontend preview.

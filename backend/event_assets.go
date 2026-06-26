@@ -112,12 +112,7 @@ func tournamentAssetFileName(key string) (string, error) {
 
 // tournamentAssetWritePath chooses where a tournament asset should be written.
 func tournamentAssetWritePath(fileName string) string {
-	for _, dirPath := range playerPortraitDirs() {
-		if info, err := os.Stat(dirPath); err == nil && info.IsDir() {
-			return filepath.Join(dirPath, fileName)
-		}
-	}
-	return filepath.Join(playerPortraitDirPath, fileName)
+	return externalWriteFilePath(playerPortraitDirPath, fileName)
 }
 
 // tournamentAssetURL returns the Wails/Apache URL used by previews and overlays.

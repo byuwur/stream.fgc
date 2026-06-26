@@ -1,5 +1,6 @@
 # === WAILS ===
 frontend/wailsjs/
+frontend/dist/wailsjs/
 build/bin/
 
 # === ENVIRONMENT ===

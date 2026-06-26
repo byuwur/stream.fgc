@@ -31,6 +31,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **main.go:** Starts Wails, embeds `frontend/dist`, binds the app API, and serves external `assets/` and `players/` folders beside the executable.
 - **backend/app.go:** Owns backend state and the mutex used to serialize tournament JSON access.
 - **backend/tournament.go:** Loads, normalizes, mutates, and saves `data/tournament.json`.
+- **backend/paths.go:** Resolves external folders for dev mode and portable release builds.
 - **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections and generates fallback bracket graphs.
 - **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.

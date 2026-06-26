@@ -7,7 +7,7 @@
 	"frontend:dev:install": "",
 	"frontend:dev:watcher": "",
 	"frontend:dev:serverUrl": "",
-	"wailsjsdir": "./frontend",
+	"wailsjsdir": "./frontend/dist",
 	"version": "1",
 	"build:dir": "build",
 	"build:tags": "",

@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -249,24 +248,7 @@ func (a *App) assetFileExists(rel string) bool {
 
 // assetDiskPaths lists the allowed asset lookup locations for dev and release.
 func assetDiskPaths(cleanRel string) []string {
-	rel := filepath.FromSlash(cleanRel)
-	paths := []string{filepath.Join(assetDirPath, rel)}
-
-	if exePath, err := os.Executable(); err == nil {
-		exeDir := filepath.Dir(exePath)
-		for _, basePath := range []string{
-			exeDir,
-			filepath.Join(exeDir, ".."),
-			filepath.Join(exeDir, "..", ".."),
-		} {
-			exeAssetPath := filepath.Clean(filepath.Join(basePath, assetDirPath, rel))
-			if !stringInSlice(paths, exeAssetPath) {
-				paths = append(paths, exeAssetPath)
-			}
-		}
-	}
-
-	return paths
+	return externalFilePaths(assetDirPath, cleanRel)
 }
 
 // stringInSlice reports whether values already contains needle.

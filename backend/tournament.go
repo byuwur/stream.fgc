@@ -654,12 +654,28 @@ func (a *App) loadTournamentLocked() TournamentState {
 
 // readTournamentState reads the live tournament JSON used by the UI and OBS.
 func readTournamentState() (TournamentState, error) {
-	return readTournamentStateFile(filepath.Join(dataDirPath, tournamentJSONFile))
+	return readTournamentStateFileCandidates(externalFilePaths(dataDirPath, tournamentJSONFile))
 }
 
 // readDefaultTournamentState reads the editable starter state.
 func readDefaultTournamentState() (TournamentState, error) {
-	return readTournamentStateFile(filepath.Join(dataDirPath, defaultTournamentJSONFile))
+	return readTournamentStateFileCandidates(externalFilePaths(dataDirPath, defaultTournamentJSONFile))
+}
+
+// readTournamentStateFileCandidates loads the first available state file from lookup paths.
+func readTournamentStateFileCandidates(paths []string) (TournamentState, error) {
+	var lastErr error
+	for _, path := range paths {
+		state, err := readTournamentStateFile(path)
+		if err == nil {
+			return state, nil
+		}
+		lastErr = err
+	}
+	if lastErr != nil {
+		return TournamentState{}, lastErr
+	}
+	return TournamentState{}, fmt.Errorf("no tournament state paths configured")
 }
 
 // readTournamentStateFile loads and normalizes a tournament state file.
@@ -679,7 +695,7 @@ func readTournamentStateFile(path string) (TournamentState, error) {
 
 // writeTournamentState writes data/tournament.json with stable formatting.
 func writeTournamentState(state TournamentState) error {
-	cleanPath := filepath.Clean(filepath.Join(dataDirPath, tournamentJSONFile))
+	cleanPath := externalWriteFilePath(dataDirPath, tournamentJSONFile)
 	if err := os.MkdirAll(filepath.Dir(cleanPath), 0755); err != nil {
 		return err
 	}
@@ -1115,8 +1131,15 @@ func configuredTournamentSizes() []int {
 
 // loadBracketTemplate reads templates/{format}{size}.json and normalizes it.
 func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
-	data, err := os.ReadFile(filepath.Join(templatesDirPath, templateFileName(format, size)))
-	if err != nil {
+	var data []byte
+	for _, diskPath := range externalFilePaths(templatesDirPath, templateFileName(format, size)) {
+		fileData, err := os.ReadFile(diskPath)
+		if err == nil {
+			data = fileData
+			break
+		}
+	}
+	if len(data) == 0 {
 		return generateBracketTemplate(format, size), nil
 	}
 

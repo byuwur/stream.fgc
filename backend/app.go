@@ -26,6 +26,7 @@ func NewApp() *App {
 // Startup stores the Wails context and eagerly loads the tournament state.
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	ensureRuntimeFolders()
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.state = a.loadTournamentLocked()
