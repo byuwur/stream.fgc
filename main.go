@@ -1,7 +1,7 @@
 /*
  * File: main.go
  * Desc: Starts the Wails desktop shell, embeds the SPA frontend, and exposes local asset folders.
- * Deps: Go embed/net/http/os/path/filepath/strings, Wails v2, backend package.
+ * Deps: Go embed/io-fs/net-http/os/path/strings, Wails v2, backend package.
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  */
 package main
@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"stream.fgc/backend"
@@ -244,7 +243,7 @@ func staticLibraryHandler() http.Handler {
 			return
 		}
 
-		for _, diskPath := range externalLibraryPaths(rootDir, filePath) {
+		for _, diskPath := range backend.ExternalFilePaths(rootDir, filePath) {
 			if info, err := os.Stat(diskPath); err == nil && !info.IsDir() {
 				http.ServeFile(response, request, diskPath)
 				return
@@ -253,38 +252,6 @@ func staticLibraryHandler() http.Handler {
 
 		http.NotFound(response, request)
 	})
-}
-
-// externalLibraryPaths resolves external library files for dev and portable exe layouts.
-func externalLibraryPaths(rootDir string, filePath string) []string {
-	rel := filepath.FromSlash(filePath)
-	paths := []string{filepath.Join(rootDir, rel)}
-
-	if exePath, err := os.Executable(); err == nil {
-		exeDir := filepath.Dir(exePath)
-		for _, basePath := range []string{
-			exeDir,
-			filepath.Join(exeDir, ".."),
-			filepath.Join(exeDir, "..", ".."),
-		} {
-			exeFilePath := filepath.Clean(filepath.Join(basePath, rootDir, rel))
-			if !stringInSlice(paths, exeFilePath) {
-				paths = append(paths, exeFilePath)
-			}
-		}
-	}
-
-	return paths
-}
-
-// stringInSlice reports whether values already contains needle.
-func stringInSlice(values []string, needle string) bool {
-	for _, value := range values {
-		if value == needle {
-			return true
-		}
-	}
-	return false
 }
 
 // main starts the Wails desktop shell with embedded frontend assets.

@@ -737,7 +737,12 @@
 		const gameKey = String(game || "");
 		if (charactersGame === gameKey && characters.length) return characters;
 		if (typeof app?.ListCharacters === "function") {
-			characters = normalizeAssetRows(await app.ListCharacters(gameKey));
+			try {
+				characters = normalizeAssetRows(await app.ListCharacters(gameKey));
+			} catch (error) {
+				console.warn("ListCharacters failed", error);
+				characters = [];
+			}
 		} else {
 			try {
 				const rows = await loadJSON(`/assets/${gameKey}/characters.json`);

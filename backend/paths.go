@@ -1,21 +1,48 @@
 /*
  * File: paths.go
  * Desc: Resolves external project folders for dev mode and portable release builds.
- * Deps: Go os/path-filepath.
+ * Deps: Go context/os/path-filepath.
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  */
 package backend
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 )
 
-// ensureRuntimeFolders creates writable folders that must exist beside portable releases.
+const (
+	externalPathModeAuto     = ""
+	externalPathModeDev      = "dev"
+	externalPathModePortable = "portable"
+)
+
+var externalPathMode = defaultExternalPathMode()
+
+// configureExternalPaths chooses repo-local folders for Wails dev and exe-local folders for builds.
+func configureExternalPaths(ctx context.Context) {
+	buildType, _ := ctx.Value("buildtype").(string)
+	switch buildType {
+	case "production", "debug":
+		externalPathMode = externalPathModePortable
+	case "dev":
+		externalPathMode = externalPathModeDev
+	default:
+		externalPathMode = externalPathModeAuto
+	}
+}
+
+// ensureRuntimeFolders creates writable folders required by the controller and overlays.
 func ensureRuntimeFolders() {
-	for _, dirPath := range []string{dataDirPath, playerPortraitDirPath, overlaysDirPath} {
+	for _, dirPath := range []string{dataDirPath, playerPortraitDirPath, assetDirPath, templatesDirPath, overlaysDirPath} {
 		_ = os.MkdirAll(externalWriteDirPath(dirPath), 0755)
 	}
+}
+
+// ExternalFilePaths lists lookup locations for a file in an external folder.
+func ExternalFilePaths(rootDir string, filePath string) []string {
+	return externalFilePaths(rootDir, filePath)
 }
 
 // externalDirPaths lists lookup locations for an external project folder.
@@ -43,7 +70,7 @@ func externalFilePaths(rootDir string, filePath string) []string {
 	return paths
 }
 
-// externalWriteDirPath chooses an existing external folder or creates one beside the executable.
+// externalWriteDirPath chooses the active external folder for writes.
 func externalWriteDirPath(rootDir string) string {
 	for _, dirPath := range externalDirPaths(rootDir) {
 		if info, err := os.Stat(dirPath); err == nil && info.IsDir() {
@@ -58,29 +85,83 @@ func externalWriteFilePath(rootDir string, filePath string) string {
 	return filepath.Clean(filepath.Join(externalWriteDirPath(rootDir), filepath.FromSlash(filePath)))
 }
 
-// externalBaseDirs returns dev and release base paths in lookup order.
+// externalBaseDirs returns exactly one active root so production never leaks into the repo.
 func externalBaseDirs() []string {
-	paths := []string{"."}
-	if exePath, err := os.Executable(); err == nil {
-		exeDir := filepath.Dir(exePath)
-		for _, basePath := range []string{
-			exeDir,
-			filepath.Join(exeDir, ".."),
-			filepath.Join(exeDir, "..", ".."),
-		} {
-			cleanBasePath := filepath.Clean(basePath)
-			if !stringInSlice(paths, cleanBasePath) {
-				paths = append(paths, cleanBasePath)
-			}
-		}
+	if usePortableExternalPaths() {
+		return []string{preferredExternalBaseDir()}
 	}
-	return paths
+	return []string{developmentExternalBaseDir()}
 }
 
-// preferredExternalBaseDir returns the folder where new release data should be created.
+// usePortableExternalPaths reports whether external files should live beside the executable.
+func usePortableExternalPaths() bool {
+	switch externalPathMode {
+	case externalPathModePortable:
+		return true
+	case externalPathModeDev:
+		return false
+	default:
+		return !projectRootAvailable()
+	}
+}
+
+// preferredExternalBaseDir returns the folder where new runtime data should be created.
 func preferredExternalBaseDir() string {
-	if exePath, err := os.Executable(); err == nil {
-		return filepath.Dir(exePath)
+	if usePortableExternalPaths() {
+		return executableDirPath()
+	}
+	return developmentExternalBaseDir()
+}
+
+// developmentExternalBaseDir returns the repository root used by Wails dev.
+func developmentExternalBaseDir() string {
+	if cwd, err := os.Getwd(); err == nil {
+		if rootPath, ok := findProjectRoot(cwd); ok {
+			return rootPath
+		}
+		return filepath.Clean(cwd)
 	}
 	return "."
+}
+
+// executableDirPath returns the folder containing the running binary.
+func executableDirPath() string {
+	if exePath, err := os.Executable(); err == nil {
+		return filepath.Clean(filepath.Dir(exePath))
+	}
+	return developmentExternalBaseDir()
+}
+
+// projectRootAvailable reports whether the process is currently inside this repo.
+func projectRootAvailable() bool {
+	_, ok := findProjectRoot(".")
+	return ok
+}
+
+// findProjectRoot walks up from startPath until it finds the Wails project root.
+func findProjectRoot(startPath string) (string, bool) {
+	currentPath, err := filepath.Abs(startPath)
+	if err != nil {
+		currentPath = filepath.Clean(startPath)
+	}
+
+	for {
+		if fileExists(filepath.Join(currentPath, "go.mod")) && fileExists(filepath.Join(currentPath, "wails.json")) {
+			return currentPath, true
+		}
+
+		parentPath := filepath.Dir(currentPath)
+		if parentPath == currentPath {
+			break
+		}
+		currentPath = parentPath
+	}
+
+	return "", false
+}
+
+// fileExists reports whether a regular file exists at path.
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
 }

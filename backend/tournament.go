@@ -621,15 +621,20 @@ func (a *App) ComputeTop8Placements() []ResolvedParticipant {
 	return []ResolvedParticipant{}
 }
 
-// ListCountryCodes returns ISO2 codes backed by frontend/flags SVGs.
+// ListCountryCodes returns ISO2 codes backed by dev frontend flags or exe-local flags.
 func (a *App) ListCountryCodes() ([]string, error) {
-	paths := []string{
-		filepath.Join("frontend", "flags"),
-		"flags",
+	paths := []string{}
+	if !usePortableExternalPaths() {
+		paths = append(paths, filepath.Join(developmentExternalBaseDir(), "frontend", "flags"))
+	}
+	for _, dirPath := range externalDirPaths("flags") {
+		if !stringInSlice(paths, dirPath) {
+			paths = append(paths, dirPath)
+		}
 	}
 
-	for _, path := range paths {
-		codes, err := listISO2SVGCodes(path)
+	for _, dirPath := range paths {
+		codes, err := listISO2SVGCodes(dirPath)
 		if err == nil {
 			return codes, nil
 		}
@@ -1062,7 +1067,7 @@ func defaultTournamentState() TournamentState {
 	return TournamentState{
 		Version: 1,
 		Event: EventInfo{
-			Name:   "Chimbacaneria",
+			Name:   "Stream.FGC Tournament",
 			Phase:  "2026:25",
 			Rule:   3,
 			Game:   "SF6",
