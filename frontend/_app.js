@@ -224,23 +224,34 @@
 		});
 	}
 
+	/** Finds the fixed global status badge before falling back to legacy page badges. */
+	function statusTarget(root, selector) {
+		const globalStatus = document.querySelector("[data-global-status]");
+		if (globalStatus instanceof HTMLElement) return globalStatus;
+		const scope = root instanceof Element ? pageRoot(root) : document;
+		const scoped = scope.querySelector(selector);
+		if (scoped instanceof HTMLElement) return scoped;
+		const fallback = document.querySelector(selector);
+		return fallback instanceof HTMLElement ? fallback : null;
+	}
+
 	/** Sets the event page status badge. */
 	function setStatus(form, key, fallback, tone = "neutral") {
-		const status = pageRoot(form).querySelector("[data-event-status]");
+		const status = statusTarget(form, "[data-event-status]");
 		if (!status) return;
 		setStatusElement(status, key, fallback, tone);
 	}
 
 	/** Sets the players page status badge. */
 	function setPlayerStatus(page, key, fallback, tone = "neutral") {
-		const status = page.querySelector("[data-player-status]");
+		const status = statusTarget(page, "[data-player-status]");
 		if (!status) return;
 		setStatusElement(status, key, fallback, tone);
 	}
 
 	/** Sets the bracket page status badge. */
 	function setBracketStatus(page, key, fallback, tone = "neutral") {
-		const status = page.querySelector("[data-bracket-status]");
+		const status = statusTarget(page, "[data-bracket-status]");
 		if (!status) return;
 		setStatusElement(status, key, fallback, tone);
 	}

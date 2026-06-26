@@ -36,6 +36,7 @@
 	"obfuscated": true,
 	"garbleargs": "",
 	"frontend:dir": "frontend",
+	"assetdir": "frontend",
 	"viteServerTimeout": 10,
 	"bindings": {
 		"ts_generation": {

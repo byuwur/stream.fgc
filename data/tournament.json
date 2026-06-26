@@ -35,51 +35,7 @@
       "character": "cammy"
     }
   },
-  "matches": {
-    "A": {
-      "player1_score": 3,
-      "player2_score": 2,
-      "winner": "1",
-      "loser": "2"
-    },
-    "B": {
-      "player1_score": 3,
-      "player2_score": 2,
-      "winner": "3",
-      "loser": "4"
-    },
-    "C": {
-      "player1_score": 1,
-      "player2_score": 3,
-      "winner": "3",
-      "loser": "1"
-    },
-    "D": {
-      "player1_score": 3,
-      "player2_score": 0,
-      "winner": "2",
-      "loser": "4"
-    },
-    "E": {
-      "player1_score": 3,
-      "player2_score": 1,
-      "winner": "2",
-      "loser": "1"
-    },
-    "F": {
-      "player1_score": 2,
-      "player2_score": 3,
-      "winner": "2",
-      "loser": "3"
-    },
-    "G": {
-      "player1_score": 0,
-      "player2_score": 0,
-      "winner": "2",
-      "loser": "3",
-      "reason": "dq"
-    }
-  },
+  "matches": {},
   "bracket": {
     "overlay_view": "losers"
   }
