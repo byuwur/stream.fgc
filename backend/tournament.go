@@ -621,10 +621,10 @@ func (a *App) ComputeTop8Placements() []ResolvedParticipant {
 	return []ResolvedParticipant{}
 }
 
-// ListCountryCodes returns ISO2 codes backed by frontend/dist/flags SVGs.
+// ListCountryCodes returns ISO2 codes backed by frontend/flags SVGs.
 func (a *App) ListCountryCodes() ([]string, error) {
 	paths := []string{
-		filepath.Join("frontend", "dist", "flags"),
+		filepath.Join("frontend", "flags"),
 		"flags",
 	}
 

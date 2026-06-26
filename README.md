@@ -28,7 +28,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 
 ### Core Files [in priority order]
 
-- **main.go:** Starts Wails, embeds `frontend/dist`, binds the app API, and serves external `assets/` and `players/` folders beside the executable.
+- **main.go:** Starts Wails, embeds `frontend/`, binds the app API, and serves external `assets/` and `players/` folders beside the executable.
 - **backend/app.go:** Owns backend state and the mutex used to serialize tournament JSON access.
 - **backend/tournament.go:** Loads, normalizes, mutates, and saves `data/tournament.json`.
 - **backend/paths.go:** Resolves external folders for dev mode and portable release builds.
@@ -37,20 +37,20 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
 - **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
 - **backend/overlays.go:** Opens the local `overlays/` folder from the sidebar through the OS file explorer.
-- **frontend/dist/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
-- **frontend/dist/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
-- **frontend/dist/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
-- **frontend/dist/main.html:** Event editor and Playing Now page fragment.
-- **frontend/dist/players.html:** Player editor page fragment.
-- **frontend/dist/brackets.html:** Admin bracket page fragment.
+- **frontend/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
+- **frontend/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
+- **frontend/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
+- **frontend/main.html:** Event editor and Playing Now page fragment.
+- **frontend/players.html:** Player editor page fragment.
+- **frontend/brackets.html:** Admin bracket page fragment.
 
 ### Additional Files
 
-- **frontend/dist/_common.css:** Stream.FGC visual overrides on top of SPA.js, Bootstrap, Shards, and Select2.
-- **frontend/dist/_var.js:** SPA.js app-level settings.
-- **frontend/dist/sidebar.html:** Shared SPA navigation component.
-- **frontend/dist/lang/en.json** and **frontend/dist/lang/es.json:** App language dictionaries.
-- **frontend/dist/lang/flags.en.json** and **frontend/dist/lang/flags.es.json:** Localized country names for flag selects.
+- **frontend/_common.css:** Stream.FGC visual overrides on top of SPA.js, Bootstrap, Shards, and Select2.
+- **frontend/_var.js:** SPA.js app-level settings.
+- **frontend/sidebar.html:** Shared SPA navigation component.
+- **frontend/lang/en.json** and **frontend/lang/es.json:** App language dictionaries.
+- **frontend/lang/flags.en.json** and **frontend/lang/flags.es.json:** Localized country names for flag selects.
 - **data/_default.json:** Default tournament state used when `data/tournament.json` is missing or empty.
 - **templates/**: Optional bracket templates. When a matching file is missing, Go can generate a template from the selected format and size.
 
@@ -84,7 +84,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 
 `event.rule` is stored as a number. For example, `3` means FT3. Score controls clamp at zero and at the active first-to limit.
 
-Player records intentionally do not store portrait paths. Player portraits are resolved from `players/{player}.png`, with `frontend/dist/assets/nopic.png` as the UI fallback.
+Player records intentionally do not store portrait paths. Player portraits are resolved from `players/{player}.png`, with `frontend/assets/nopic.png` as the UI fallback.
 
 ## Bracket Model
 
@@ -124,7 +124,7 @@ The code follows the same documentation idea used in SPA.js and SPA.php:
 
 - Project-owned JavaScript files use a file header plus `/** ... */` doc blocks before bootstrappers and named functions.
 - Project-owned Go files use a file header plus GoDoc comments before every function, including internal helpers.
-- Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, filesystem writes in backend upload helpers, and UI/backend boundaries in `frontend/dist/_app.js`.
+- Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, filesystem writes in backend upload helpers, and UI/backend boundaries in `frontend/_app.js`.
 
 ## License
 

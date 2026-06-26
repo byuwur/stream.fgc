@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"embed"
+	"io/fs"
 	"net/http"
 	"os"
 	"path"
@@ -22,9 +23,18 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
-//go:embed all:frontend/dist
+//go:embed all:frontend
 
 var assets embed.FS
+
+// embeddedFrontend returns frontend/ as the asset-server root.
+func embeddedFrontend() fs.FS {
+	frontend, err := fs.Sub(assets, "frontend")
+	if err != nil {
+		return assets
+	}
+	return frontend
+}
 
 // App is the Wails-facing wrapper around the backend package.
 type App struct {
@@ -286,7 +296,7 @@ func main() {
 		Width:  1280,
 		Height: 960,
 		AssetServer: &assetserver.Options{
-			Assets:  assets,
+			Assets:  embeddedFrontend(),
 			Handler: staticLibraryHandler(),
 		},
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 1},

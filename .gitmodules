@@ -1,3 +1,3 @@
-[submodule "frontend/dist/spa.js"]
-	path = frontend/dist/spa.js
+[submodule "frontend/spa.js"]
+	path = frontend/spa.js
 	url = https://github.com/byuwur/spa.js.git
