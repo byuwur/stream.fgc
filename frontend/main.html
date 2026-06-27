@@ -1,45 +1,45 @@
 <div class="app-container fgc-page">
-	<div class="container-fluid px-3 px-lg-4">
-		<header class="fgc-page-header row g-3 align-items-end my-3 p-3">
+	<div class="container-fluid px-3 px-lg-4 py-3">
+		<header class="fgc-page-header row g-3 align-items-end mb-3 p-3">
 			<div class="col-12 col-md">
 				<p class="fgc-kicker" data-i18n="event_kicker">Tournament Control</p>
 				<h1 class="fgc-title" data-i18n="event_title">Event</h1>
 			</div>
 		</header>
 
-		<form class="fgc-panel fgc-event-form border rounded p-3" data-event-form>
+		<form class="fgc-panel fgc-event-form border rounded mb-3 p-3" data-event-form>
 			<div class="row g-3">
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_name">Name</span>
 					<input class="form-control" type="text" name="name" autocomplete="off" />
 				</label>
 
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_phase">Phase</span>
 					<input class="form-control" type="text" name="phase" autocomplete="off" />
 				</label>
 
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_rule">Rule</span>
 					<select class="form-select" name="rule" data-enhance="select2"></select>
 				</label>
 
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_game">Game</span>
 					<select class="form-select" name="game" data-enhance="select2" data-select-template="game"></select>
 				</label>
 
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_format">Format</span>
 					<select class="form-select" name="format" data-enhance="select2"></select>
 				</label>
 
-				<label class="col-12 col-md-6 col-lg-4 pt-3 m-0">
+				<label class="col-12 col-md-6 col-lg-4 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="event_size">Size</span>
 					<select class="form-select" name="size" data-enhance="select2"></select>
 				</label>
 
-				<div class="col-12 col-lg-5 pt-3">
+				<div class="col-12 col-lg-5">
 					<div class="border rounded p-3 h-100" data-event-asset="logo">
 						<div class="row g-3 align-items-stretch">
 							<div class="col-12 col-sm-4">
@@ -67,7 +67,7 @@
 					</div>
 				</div>
 
-				<div class="col-12 col-lg-7 pt-3">
+				<div class="col-12 col-lg-7">
 					<div class="border rounded p-3 h-100" data-event-asset="background">
 						<div class="row g-3 align-items-stretch">
 							<div class="col-12 col-sm-5">
@@ -94,21 +94,21 @@
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
-				<button class="btn btn-danger" type="submit" data-manual-save>
-					<i class="fas fa-save" aria-hidden="true"></i>
-					<span data-i18n="event_save">Save now</span>
-				</button>
+				<div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
+					<button class="btn btn-danger" type="submit" data-manual-save>
+						<i class="fas fa-save" aria-hidden="true"></i>
+						<span data-i18n="event_save">Save now</span>
+					</button>
+				</div>
 			</div>
 		</form>
 
-		<section class="fgc-panel border rounded p-3 mt-3" data-current-match>
-			<div class="row g-3 align-items-center mb-3">
+		<section class="fgc-panel border rounded mb-3 p-3" data-current-match>
+			<div class="row g-3 align-items-center mb-3" data-section-heading>
 				<div class="col-12 col-md">
 					<p class="fgc-kicker" data-i18n="match_kicker">Playing now</p>
-					<h2 class="fgc-title fs-4 lh-sm m-0" data-current-match-title data-i18n="match_title">Current match</h2>
+					<h2 class="fgc-title fs-5 lh-sm m-0" data-current-match-title data-i18n="match_title">Current match</h2>
 				</div>
 			</div>
 			<div class="row g-3" data-current-match-body>

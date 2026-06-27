@@ -1436,7 +1436,7 @@
 			side === 1 ? matchMediaHTML(participant, side) : "",
 			`<div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}">`,
 			`<h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>`,
-			`<p class="m-0 mt-2 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
+			`<p class="mt-2 mb-0 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
 			country,
 			complete ? `<span class="fgc-title fs-4 mt-3">${score}</span>` : scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit }),
 			`</div>`,
@@ -1475,7 +1475,7 @@
 			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match_vs", "VS"))}</span>`,
 			`<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
 			`</div>`,
-			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-4" type="button" data-current-side-swap><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
+			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3" type="button" data-current-side-swap><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
 			`</div>`,
 			`</div>`,
 			matchPlayerCard(match, 2),
@@ -2634,7 +2634,7 @@
 			`<div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame><img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="" loading="lazy" /></div>`,
 			`</section>`,
 			`<section class="col-12 col-md-8 d-flex flex-column">`,
-			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3 pb-3"><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players_player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
+			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players_player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
 			`<div class="row g-3">`,
 			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" /></label>`,
 			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" /></label>`,
@@ -2863,7 +2863,7 @@
 			.join("");
 		const hiddenCount = Math.max(0, players.length - 64);
 		const hiddenNote = hiddenCount
-			? `<p class="m-0 mt-2 small" data-muted-text>${escapeHtml(t("import_players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
+			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import_players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
 			: "";
 		return [
 			`<div class="table-responsive border rounded">`,

@@ -57,6 +57,18 @@
 	--fgc-bracket-round-width: 10rem;
 	/* Stream.FGC bracket layout token */
 	--fgc-bracket-match-min-height: 10rem;
+	/* Stream.FGC layout token: mirrors Bootstrap .pt-2 for first panel rows */
+	--fgc-panel-content-offset: 0.5rem;
+	/* Stream.FGC layout token: small field offset below panel/section headings */
+	--fgc-field-row-label-offset: 0.25rem;
+	/* Stream.FGC form token: keeps Bootstrap inputs and Select2 selects aligned */
+	--fgc-field-control-height: 2.5rem;
+	/* Bootstrap */
+	--fgc-field-font-size: var(--bs-body-font-size, 1rem);
+	/* Bootstrap */
+	--fgc-field-line-height: var(--bs-body-line-height, 1.5);
+	/* Stream.FGC layout token: breathing room before every field label */
+	--fgc-field-label-top-offset: 0.5rem;
 	/* Bootstrap */
 	--fgc-bracket-connector: var(--fgc-border-strong);
 	/* Stream.FGC override: blue wash mixed over dynamic game backgrounds */
@@ -227,6 +239,23 @@
 	background: var(--fgc-surface-strong);
 	box-shadow: 0 18px 45px var(--fgc-shadow);
 }
+.fgc-panel > .row:first-child:not(.align-items-center),
+.fgc-panel > form.row:first-child {
+	/* Bootstrap rows cancel their top gutter; restore it only for first content/control rows. */
+	padding-top: var(--fgc-panel-content-offset);
+}
+[data-section-heading] + form.row,
+[data-section-heading] + .row {
+	/* Keep section headings from visually colliding with their first field row. */
+	padding-top: var(--fgc-panel-content-offset);
+}
+.fgc-panel > .row:first-child > label,
+.fgc-panel > form.row:first-child > label,
+[data-section-heading] + form.row > label,
+[data-section-heading] + .row > label {
+	/* Labels need a little top air when they start a panel or follow a title. */
+	padding-top: var(--fgc-field-row-label-offset);
+}
 [data-current-match] [data-match-card] {
 	border-color: var(--fgc-border-soft) !important;
 	background: rgba(var(--fgc-light-rgb), 0.045);
@@ -262,7 +291,22 @@
 }
 /* === FORMS === */
 [data-field-label] {
+	display: block;
+	margin-top: var(--fgc-field-label-top-offset);
+	margin-bottom: 0.5rem;
 	color: var(--fgc-text-muted);
+	line-height: 1.2;
+}
+.fgc-panel .form-control,
+.fgc-panel .form-select,
+.fgc-panel .select2-container--default .select2-selection--single {
+	min-height: var(--fgc-field-control-height);
+	font-size: var(--fgc-field-font-size);
+	line-height: var(--fgc-field-line-height);
+}
+.fgc-panel .form-control,
+.fgc-panel .form-select {
+	height: var(--fgc-field-control-height);
 }
 .fgc-event-form .form-control,
 .fgc-event-form .form-select,
@@ -572,20 +616,27 @@
 	color: var(--fgc-text-muted);
 }
 /* === SELECT2 === */
+.fgc-panel .select2-container {
+	font-size: var(--fgc-field-font-size);
+}
 .fgc-event-form .select2-container--default .select2-selection--single,
 [data-player-card] .select2-container--default .select2-selection--single {
-	height: 38px;
+	height: var(--fgc-field-control-height);
 	border-color: var(--fgc-border);
 	background-color: var(--fgc-surface-soft);
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__rendered,
 [data-player-card] .select2-container--default .select2-selection--single .select2-selection__rendered {
+	display: flex;
+	align-items: center;
 	color: var(--fgc-light);
-	line-height: 36px;
+	font-size: var(--fgc-field-font-size);
+	line-height: 1.2;
+	min-height: calc(var(--fgc-field-control-height) - 2px);
 }
 .fgc-event-form .select2-container--default .select2-selection--single .select2-selection__arrow,
 [data-player-card] .select2-container--default .select2-selection--single .select2-selection__arrow {
-	height: 36px;
+	height: calc(var(--fgc-field-control-height) - 2px);
 }
 .fgc-country-option {
 	max-width: 100%;

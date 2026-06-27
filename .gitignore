@@ -1,6 +1,7 @@
 # === WAILS ===
 frontend/wailsjs/
 build/bin/
+*.syso
 
 # === ENVIRONMENT ===
 *.env*
