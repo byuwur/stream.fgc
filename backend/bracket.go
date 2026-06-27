@@ -19,6 +19,7 @@ const (
 	bracketViewWinners = "winners"
 	bracketViewLosers  = "losers"
 	bracketViewFinals  = "finals"
+	bracketViewTop8    = "top8"
 
 	participantStatusPlayer  = "player"
 	participantStatusTBD     = "tbd"
@@ -42,6 +43,7 @@ type BracketProjection struct {
 	Size         int                 `json:"size"`
 	View         string              `json:"view"`
 	OverlayView  string              `json:"overlay_view"`
+	ManagerView  string              `json:"manager_view"`
 	Started      bool                `json:"started"`
 	CanRandomize bool                `json:"can_randomize"`
 	Views        []BracketViewOption `json:"views"`
@@ -120,6 +122,7 @@ func (a *App) GetBracketView(view string) BracketProjection {
 func buildBracketProjection(state TournamentState, template BracketTemplate, requestedView string) BracketProjection {
 	view := selectedBracketView(requestedView, state.Bracket.OverlayView, template.Type)
 	overlayView := selectedBracketView("", state.Bracket.OverlayView, template.Type)
+	managerView := selectedBracketView("", state.Bracket.ManagerView, template.Type)
 	started := hasBracketStarted(state, template)
 	options := bracketViewOptions(template.Type)
 	sectionsByKey := map[string]*BracketSection{}
@@ -131,8 +134,8 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 	for _, matchID := range sortedTemplateMatchIDs(template) {
 		templateMatch := template.Matches[matchID]
 		matchView := bracketMatchView(matchID, templateMatch, state)
-		// Admin can request a slice of the full graph without changing the overlay setting.
-		if !bracketViewAllows(view, matchView.Group) {
+		// Admin and overlays can request a slice of the full graph without changing bracket state.
+		if !bracketViewAllows(view, matchView, template) {
 			continue
 		}
 
@@ -182,6 +185,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 		Size:         template.Size,
 		View:         view,
 		OverlayView:  overlayView,
+		ManagerView:  managerView,
 		Started:      started,
 		CanRandomize: !started,
 		Views:        options,
@@ -388,6 +392,9 @@ func firstTemplateMatchID(template BracketTemplate) string {
 // selectedBracketView chooses the requested, stored, or default overlay/admin view.
 func selectedBracketView(requested string, stored string, format string) string {
 	for _, candidate := range []string{requested, stored, bracketViewAll} {
+		if strings.TrimSpace(candidate) == "" {
+			continue
+		}
 		key := normalizeBracketViewKey(candidate)
 		for _, option := range bracketViewOptions(format) {
 			if option.Key == key {
@@ -407,6 +414,8 @@ func normalizeBracketViewKey(view string) string {
 		return bracketViewLosers
 	case bracketViewFinals, "final", "grand_finals", "grand":
 		return bracketViewFinals
+	case bracketViewTop8, "top", "top_8", "top-8":
+		return bracketViewTop8
 	default:
 		return bracketViewAll
 	}
@@ -416,6 +425,7 @@ func normalizeBracketViewKey(view string) string {
 func bracketViewOptions(format string) []BracketViewOption {
 	normalized := strings.ToLower(strings.TrimSpace(format))
 	options := []BracketViewOption{{Key: bracketViewAll, Name: "Full bracket"}}
+	options = append(options, BracketViewOption{Key: bracketViewTop8, Name: "Top 8"})
 	if strings.Contains(normalized, "double") {
 		options = append(options,
 			BracketViewOption{Key: bracketViewWinners, Name: "Winners bracket"},
@@ -429,17 +439,73 @@ func bracketViewOptions(format string) []BracketViewOption {
 }
 
 // bracketViewAllows checks whether a bracket group belongs in a requested view.
-func bracketViewAllows(view string, group string) bool {
+func bracketViewAllows(view string, match BracketMatchView, template BracketTemplate) bool {
 	switch view {
 	case bracketViewWinners:
-		return group == bracketViewWinners
+		return match.Group == bracketViewWinners
 	case bracketViewLosers:
-		return group == bracketViewLosers
+		return match.Group == bracketViewLosers
 	case bracketViewFinals:
-		return group == bracketViewFinals
+		return match.Group == bracketViewFinals
+	case bracketViewTop8:
+		return bracketMatchInTop8(match, template)
 	default:
 		return true
 	}
+}
+
+// bracketMatchInTop8 keeps the final eight-player phase for common bracket templates.
+func bracketMatchInTop8(match BracketMatchView, template BracketTemplate) bool {
+	if template.Size <= 8 {
+		return true
+	}
+
+	round := strings.ToLower(match.Round)
+	switch match.Group {
+	case bracketViewFinals:
+		return true
+	case bracketViewWinners:
+		return strings.Contains(round, "quarter") || strings.Contains(round, "semi") || strings.Contains(round, "final")
+	case bracketViewLosers:
+		if strings.Contains(round, "final") {
+			return true
+		}
+		roundNumber, ok := bracketRoundNumber(match.Round)
+		return ok && roundNumber >= top8LosersRoundStart(template)
+	default:
+		// Swiss, round robin, and custom templates do not expose a universal top-8 cut.
+		return true
+	}
+}
+
+// top8LosersRoundStart infers where the double-elimination losers side reaches Top 8.
+func top8LosersRoundStart(template BracketTemplate) int {
+	maxRound := 0
+	for _, match := range template.Matches {
+		if bracketMatchGroup(match) != bracketViewLosers {
+			continue
+		}
+		roundNumber, ok := bracketRoundNumber(bracketMatchRound(match, bracketViewLosers))
+		if ok && roundNumber > maxRound {
+			maxRound = roundNumber
+		}
+	}
+	if maxRound <= 0 {
+		return 1
+	}
+	return max(1, maxRound-2)
+}
+
+// bracketRoundNumber extracts the numeric part from names like "Losers Round 5".
+func bracketRoundNumber(round string) (int, bool) {
+	fields := strings.Fields(round)
+	for index := len(fields) - 1; index >= 0; index-- {
+		value, err := strconv.Atoi(strings.Trim(fields[index], ":-#"))
+		if err == nil {
+			return value, true
+		}
+	}
+	return 0, false
 }
 
 // bracketGroupName converts internal group keys into operator-facing labels.

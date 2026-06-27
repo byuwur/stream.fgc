@@ -166,6 +166,7 @@
 	"bracket_kicker": "Tournament Control",
 	"bracket_title": "Bracket",
 	"bracket_overlay_view": "Overlay view",
+	"bracket_manager_view": "Manager view",
 	"bracket_open_overlay": "Open overlay",
 	"bracket_randomize": "Randomize",
 	"bracket_reset": "Reset",
@@ -199,6 +200,7 @@
 	"bracket_status_saving": "Saving bracket...",
 	"bracket_status_saved": "Bracket saved",
 	"bracket_status_overlay_saved": "Overlay view saved",
+	"bracket_status_manager_saved": "Manager view saved",
 	"bracket_status_failed": "Bracket save failed",
 	"bracket_status_swap_select": "Select another player to swap",
 	"bracket_status_swap_cleared": "Player swap cancelled"

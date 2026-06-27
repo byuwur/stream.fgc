@@ -166,6 +166,7 @@
 	"bracket_kicker": "Control de torneo",
 	"bracket_title": "Llaves",
 	"bracket_overlay_view": "Vista del overlay",
+	"bracket_manager_view": "Vista del manager",
 	"bracket_open_overlay": "Abrir overlay",
 	"bracket_randomize": "Aleatorizar",
 	"bracket_reset": "Reiniciar",
@@ -199,6 +200,7 @@
 	"bracket_status_saving": "Guardando llaves...",
 	"bracket_status_saved": "Llaves guardadas",
 	"bracket_status_overlay_saved": "Vista del overlay guardada",
+	"bracket_status_manager_saved": "Vista del manager guardada",
 	"bracket_status_failed": "No se pudieron guardar las llaves",
 	"bracket_status_swap_select": "Selecciona otro jugador para intercambiar",
 	"bracket_status_swap_cleared": "Intercambio cancelado"

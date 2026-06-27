@@ -623,7 +623,7 @@
 			});
 
 			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
-				if (page instanceof HTMLElement) tasks.push(loadBracket(page, page.matches(BRACKET_PAGE) ? BRACKET_ADMIN_VIEW : ""));
+				if (page instanceof HTMLElement) tasks.push(loadBracket(page, page.matches(BRACKET_PAGE) ? bracketManagerView(page) : ""));
 			});
 
 			if (tasks.length > 0) await Promise.all(tasks);
@@ -1730,6 +1730,7 @@
 		if (["winners", "winner", "upper"].includes(key)) return "winners";
 		if (["losers", "loser", "lower"].includes(key)) return "losers";
 		if (["finals", "final", "grand", "grand_finals"].includes(key)) return "finals";
+		if (["top8", "top", "top_8", "top-8"].includes(key)) return "top8";
 		return "all";
 	}
 
@@ -1740,6 +1741,23 @@
 			return option.key === key;
 		});
 		return view?.name || key || "";
+	}
+
+	/** Returns the active admin manager view from the Select2-backed control. */
+	function bracketManagerView(page) {
+		const select = page?.querySelector?.("[data-bracket-manager-view-select]");
+		if (select instanceof HTMLSelectElement && select.value) return normalizeBracketView(select.value);
+		return normalizeBracketView(currentState?.bracket?.manager_view || BRACKET_ADMIN_VIEW);
+	}
+
+	/** Loads the saved manager view before the bracket page has rendered its select. */
+	async function savedBracketManagerView(app) {
+		if (currentState?.bracket?.manager_view) return normalizeBracketView(currentState.bracket.manager_view);
+		if (typeof app?.LoadTournament === "function") {
+			currentState = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
+			return normalizeBracketView(currentState?.bracket?.manager_view || BRACKET_ADMIN_VIEW);
+		}
+		return BRACKET_ADMIN_VIEW;
 	}
 
 	/** Tries local static paths used by Apache/OBS overlays. */
@@ -1770,7 +1788,10 @@
 	/** Provides the same overlay view choices as the backend projection. */
 	function staticBracketViewOptions(format) {
 		const normalized = String(format || "").toLowerCase().trim();
-		const options = [{ key: "all", name: "Full bracket" }];
+		const options = [
+			{ key: "all", name: "Full bracket" },
+			{ key: "top8", name: "Top 8" },
+		];
 		if (normalized.includes("double")) {
 			options.push({ key: "winners", name: "Winners bracket" }, { key: "losers", name: "Losers bracket" });
 		}
@@ -1778,6 +1799,43 @@
 			options.push({ key: "finals", name: "Finals" });
 		}
 		return options;
+	}
+
+	/** Extracts a round number from labels like "Losers Round 5". */
+	function bracketRoundNumber(round) {
+		const match = String(round || "").match(/(\d+)(?!.*\d)/);
+		return match ? Number(match[1]) : 0;
+	}
+
+	/** Infers where the losers side reaches the Top 8 phase in static templates. */
+	function staticTop8LosersRoundStart(template) {
+		const maxRound = Object.values(template?.matches || {}).reduce(function (max, match) {
+			if (staticMatchGroup(match) !== "losers") return max;
+			return Math.max(max, bracketRoundNumber(staticMatchRound(match, "losers")));
+		}, 0);
+		return Math.max(1, maxRound - 2);
+	}
+
+	/** Checks whether a static match belongs in the Top 8 bracket slice. */
+	function staticMatchInTop8(group, roundName, template) {
+		if (Number(template?.size || 0) <= 8) return true;
+		const round = String(roundName || "").toLowerCase();
+		if (group === "finals") return true;
+		if (group === "winners") return round.includes("quarter") || round.includes("semi") || round.includes("final");
+		if (group === "losers") {
+			if (round.includes("final")) return true;
+			return bracketRoundNumber(roundName) >= staticTop8LosersRoundStart(template);
+		}
+		return true;
+	}
+
+	/** Checks whether a static template match belongs in the requested bracket view. */
+	function staticBracketViewAllows(view, group, roundName, template) {
+		if (view === "winners") return group === "winners";
+		if (view === "losers") return group === "losers";
+		if (view === "finals") return group === "finals";
+		if (view === "top8") return staticMatchInTop8(group, roundName, template);
+		return true;
 	}
 
 	/** Resolves one static bracket seed slot to the assigned player ID. */
@@ -1874,7 +1932,7 @@
 	}
 
 	/** Builds a read-only projection when Wails bindings are unavailable. */
-	async function loadStaticBracketProjection(requestedView = "") {
+	async function loadStaticBracketProjection(requestedView = "", admin = false) {
 		const state = await loadStaticJSON(["../../data/tournament.json", "./data/tournament.json", "/data/tournament.json"]);
 		const fileName = staticTemplateFileName(state?.event?.format, Number(state?.event?.size || 8));
 		let template = null;
@@ -1891,9 +1949,16 @@
 				error: templateError,
 			};
 		}
-		const overlayView = normalizeBracketView(state?.bracket?.overlay_view || "all");
-		const view = normalizeBracketView(requestedView || overlayView);
 		const options = staticBracketViewOptions(template?.type || state?.event?.format);
+		const optionKeys = options.map(function (option) {
+			return option.key;
+		});
+		const overlayCandidate = normalizeBracketView(state?.bracket?.overlay_view || "all");
+		const overlayView = optionKeys.includes(overlayCandidate) ? overlayCandidate : "all";
+		const managerCandidate = normalizeBracketView(state?.bracket?.manager_view || "all");
+		const managerView = optionKeys.includes(managerCandidate) ? managerCandidate : "all";
+		const viewCandidate = normalizeBracketView(requestedView || (admin ? managerView : overlayView));
+		const view = optionKeys.includes(viewCandidate) ? viewCandidate : "all";
 		const sections = [];
 		const sectionMap = new Map();
 		const started = Object.values(state?.matches || {}).some(function (match) {
@@ -1916,10 +1981,8 @@
 			})
 			.forEach(function ([matchID, match]) {
 				const group = staticMatchGroup(match);
-				if (view === "winners" && group !== "winners") return;
-				if (view === "losers" && group !== "losers") return;
-				if (view === "finals" && group !== "finals") return;
 				const roundName = staticMatchRound(match, group);
+				if (!staticBracketViewAllows(view, group, roundName, template)) return;
 				const order = staticMatchOrder(matchID, match);
 				const player1 = staticResolveParticipant(match?.p1, state);
 				const player2 = staticResolveParticipant(match?.p2, state);
@@ -1967,6 +2030,7 @@
 			size: Number(template?.size || state?.event?.size || 0),
 			view,
 			overlay_view: overlayView,
+			manager_view: managerView,
 			started,
 			can_randomize: !started,
 			views: options,
@@ -2008,7 +2072,21 @@
 		}
 	}
 
-	/** Writes projection metadata into the optional view selector and summary. */
+	/** Rebuilds one bracket view select while keeping Select2 synchronized. */
+	function renderBracketViewSelect(root, selector, options, selectedView) {
+		const select = root.querySelector(selector);
+		if (!(select instanceof HTMLSelectElement)) return;
+		destroySelect(select);
+		select.innerHTML = (options || [])
+			.map(function (option) {
+				const selected = option.key === selectedView ? " selected" : "";
+				return `<option value="${escapeHtml(option.key)}"${selected}>${escapeHtml(option.name)}</option>`;
+			})
+			.join("");
+		select.value = selectedView;
+	}
+
+	/** Writes projection metadata into the optional view selectors and summary. */
 	function renderBracketHeader(root, projection) {
 		const admin = root.matches(BRACKET_PAGE);
 		root.dataset.rule = String(parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3);
@@ -2027,15 +2105,10 @@
 			randomize.dataset.started = projection?.started ? "true" : "false";
 		}
 
-		const select = root.querySelector("[data-bracket-view-select]");
-		if (!(select instanceof HTMLSelectElement)) return;
-		const selectedView = projection?.overlay_view || projection?.view || BRACKET_ADMIN_VIEW;
-		select.innerHTML = (projection?.views || [])
-			.map(function (option) {
-				const selected = option.key === selectedView ? " selected" : "";
-				return `<option value="${escapeHtml(option.key)}"${selected}>${escapeHtml(option.name)}</option>`;
-			})
-			.join("");
+		const options = projection?.views || [];
+		renderBracketViewSelect(root, "[data-bracket-overlay-view-select]", options, projection?.overlay_view || BRACKET_ADMIN_VIEW);
+		renderBracketViewSelect(root, "[data-bracket-manager-view-select]", options, projection?.manager_view || projection?.view || BRACKET_ADMIN_VIEW);
+		enhanceSelects(root);
 	}
 
 	/** Returns one participant line for the bracket board. */
@@ -2167,7 +2240,7 @@
 	function bracketSectionHTML(section, admin, projection) {
 		const rounds = section?.rounds || [];
 		return [
-			`<section class="col-12" data-bracket-section="${escapeHtml(section?.key || "")}">`,
+			`<section class="col-12 mb-3" data-bracket-section="${escapeHtml(section?.key || "")}">`,
 			`<div class="d-flex flex-column gap-3">`,
 			`<div class="d-flex gap-2 align-items-baseline">`,
 			`<p class="fgc-kicker m-0">${escapeHtml(section?.name || "")}</p>`,
@@ -2232,13 +2305,14 @@
 		const scrollState = captureScrollState(root);
 		const ticket = nextBracketLoadTicket(root);
 		const app = await waitForBackend();
+		const admin = root.matches(BRACKET_PAGE);
 		try {
 			if (!app || typeof app.GetBracketView !== "function") {
 				try {
-					const projection = await withTimeout(loadStaticBracketProjection(requestedView), 5000, "Static bracket load timed out");
+					const projection = await withTimeout(loadStaticBracketProjection(requestedView, admin), 5000, "Static bracket load timed out");
 					if (!isCurrentBracketLoad(root, ticket)) return projection;
 					await ensureCharacterCatalog(null, projection?.event?.game || "");
-					renderBracketProjection(root, projection, false);
+					renderBracketProjection(root, projection, admin);
 					if (projection?.error) {
 						setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
 					} else {
@@ -2256,10 +2330,11 @@
 			}
 
 			setBracketStatus(root, "bracket_status_loading", "Loading bracket...", "neutral");
-			const projection = await withTimeout(app.GetBracketView(requestedView), 5000, "Bracket load timed out");
+			const view = admin ? requestedView || (await savedBracketManagerView(app)) : requestedView;
+			const projection = await withTimeout(app.GetBracketView(view), 5000, "Bracket load timed out");
 			if (!isCurrentBracketLoad(root, ticket)) return projection;
 			await ensureCharacterCatalog(app, projection?.event?.game || "");
-			renderBracketProjection(root, projection, root.matches(BRACKET_PAGE));
+			renderBracketProjection(root, projection, admin);
 			if (projection?.error) {
 				setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
 			} else {
@@ -2289,10 +2364,41 @@
 		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
 		try {
 			currentState = await withTimeout(app.SetBracketOverlayView(view), 5000, "Bracket overlay save timed out");
-			await loadBracket(page, BRACKET_ADMIN_VIEW);
+			await loadBracket(page, bracketManagerView(page));
 			setBracketStatus(page, "bracket_status_overlay_saved", "Overlay view saved", "success");
 		} catch (error) {
 			console.error("SetBracketOverlayView failed", error);
+			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+		} finally {
+			restoreScrollState(scrollState);
+		}
+	}
+
+	/** Saves the selected manager view and refreshes the admin bracket slice. */
+	async function saveBracketManagerView(page, view) {
+		const scrollState = captureScrollState(page);
+		const app = await waitForBackend();
+		if (!app || (typeof app.SetBracketManagerView !== "function" && (typeof app.LoadTournament !== "function" || typeof app.SaveTournament !== "function"))) {
+			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			restoreScrollState(scrollState);
+			return;
+		}
+
+		const normalizedView = normalizeBracketView(view);
+		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		try {
+			if (typeof app.SetBracketManagerView === "function") {
+				currentState = await withTimeout(app.SetBracketManagerView(normalizedView), 5000, "Bracket manager view save timed out");
+			} else {
+				const state = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
+				state.bracket = { ...(state.bracket || {}), manager_view: normalizedView };
+				await withTimeout(app.SaveTournament(state), 10000, "Bracket manager view save timed out");
+				currentState = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
+			}
+			await loadBracket(page, normalizedView);
+			setBracketStatus(page, "bracket_status_manager_saved", "Manager view saved", "success");
+		} catch (error) {
+			console.error("SetBracketManagerView failed", error);
 			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
 		} finally {
 			restoreScrollState(scrollState);
@@ -2312,7 +2418,7 @@
 		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
 		try {
 			currentState = await withTimeout(action(app), 5000, "Bracket action timed out");
-			await loadBracket(page, BRACKET_ADMIN_VIEW);
+			await loadBracket(page, bracketManagerView(page));
 			setBracketStatus(page, "bracket_status_saved", "Bracket saved", "success");
 		} catch (error) {
 			console.error("Bracket action failed", error);
@@ -2376,9 +2482,23 @@
 		});
 	}
 
+	/** Handles native and Select2-driven bracket view changes through one path. */
+	function handleBracketViewSelectChange(page, select) {
+		if (!(select instanceof HTMLSelectElement)) return false;
+		if (select.matches("[data-bracket-overlay-view-select]")) {
+			void saveBracketOverlayView(page, select.value);
+			return true;
+		}
+		if (select.matches("[data-bracket-manager-view-select]")) {
+			void saveBracketManagerView(page, select.value);
+			return true;
+		}
+		return false;
+	}
+
 	/** Binds admin bracket controls. */
 	function bindBracketPage(page) {
-		const bindingVersion = "score-swap-v4";
+		const bindingVersion = "view-select2-v2";
 		if (page.dataset.bound === bindingVersion) return;
 		page.dataset.bound = bindingVersion;
 
@@ -2395,12 +2515,20 @@
 			true,
 		);
 
-		const select = page.querySelector("[data-bracket-view-select]");
-		if (select instanceof HTMLSelectElement) {
-			select.addEventListener("change", function () {
-				void saveBracketOverlayView(page, select.value);
-			});
+		page.addEventListener("change", function (event) {
+			const target = event.target instanceof Element ? event.target : null;
+			if (handleBracketViewSelectChange(page, target)) event.preventDefault();
+		});
+
+		const jquery = global.jQuery;
+		if (jquery?.fn?.on) {
+			jquery(page)
+				.off("change.streamFgcBracketViews")
+				.on("change.streamFgcBracketViews", "[data-bracket-overlay-view-select], [data-bracket-manager-view-select]", function () {
+					handleBracketViewSelectChange(page, this);
+				});
 		}
+
 		const reset = page.querySelector("[data-bracket-reset]");
 		if (reset) {
 			reset.addEventListener("click", function () {
@@ -2492,7 +2620,7 @@
 			selectBracketSeedForSwap(page, seed);
 		});
 
-		void loadBracket(page, BRACKET_ADMIN_VIEW);
+		void loadBracket(page, bracketManagerView(page));
 	}
 
 	/** Binds the standalone overlay bracket page with a light refresh loop. */
@@ -3425,7 +3553,7 @@
 			const matchPanel = document.querySelector(CURRENT_MATCH);
 			if (matchPanel instanceof HTMLElement && currentState) await loadCurrentMatch(matchPanel);
 			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
-				if (page instanceof HTMLElement) void loadBracket(page, page.matches(BRACKET_PAGE) ? BRACKET_ADMIN_VIEW : "");
+				if (page instanceof HTMLElement) void loadBracket(page, page.matches(BRACKET_PAGE) ? bracketManagerView(page) : "");
 			});
 			await refreshCountrySelects(document);
 			refreshStatusIcons(document);

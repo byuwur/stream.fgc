@@ -37,6 +37,7 @@
   },
   "matches": {},
   "bracket": {
-    "overlay_view": "losers"
+    "overlay_view": "top8",
+    "manager_view": "all"
   }
 }

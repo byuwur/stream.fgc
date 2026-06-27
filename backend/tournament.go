@@ -103,6 +103,7 @@ type BracketTemplate struct {
 // BracketSettings stores admin choices that affect bracket overlays.
 type BracketSettings struct {
 	OverlayView     string                 `json:"overlay_view,omitempty"`
+	ManagerView     string                 `json:"manager_view,omitempty"`
 	Seeds           map[string]string      `json:"seeds,omitempty"`
 	Byes            map[string]bool        `json:"byes,omitempty"`
 	Matches         map[string]MatchState  `json:"matches,omitempty"` // Legacy location; migrated to TournamentState.Matches.
@@ -417,6 +418,22 @@ func (a *App) SetBracketOverlayView(view string) (TournamentState, error) {
 
 	state := a.loadTournamentLocked()
 	state.Bracket.OverlayView = normalizeBracketViewKey(view)
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return cloneTournamentState(a.state), err
+	}
+
+	a.state = normalized
+	return cloneTournamentState(a.state), nil
+}
+
+// SetBracketManagerView persists which bracket slice the admin page renders.
+func (a *App) SetBracketManagerView(view string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state := a.loadTournamentLocked()
+	state.Bracket.ManagerView = normalizeBracketViewKey(view)
 	normalized := normalizeTournamentState(state)
 	if err := writeTournamentState(normalized); err != nil {
 		return cloneTournamentState(a.state), err
@@ -757,6 +774,7 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	}
 	clampMatchScores(state.Matches, state.Event.Rule)
 	state.Bracket.OverlayView = normalizeBracketViewKey(state.Bracket.OverlayView)
+	state.Bracket.ManagerView = normalizeBracketViewKey(state.Bracket.ManagerView)
 	return state
 }
 
