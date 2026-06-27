@@ -643,12 +643,8 @@ func (a *App) ListCountryCodes() ([]string, error) {
 	return []string{}, nil
 }
 
-// loadTournamentLocked returns cached state or initializes it from disk.
+// loadTournamentLocked reads tournament.json from disk and initializes it when missing.
 func (a *App) loadTournamentLocked() TournamentState {
-	if a.state.Version != 0 {
-		return normalizeTournamentState(a.state)
-	}
-
 	state, err := readTournamentState()
 	if err != nil {
 		state = defaultTournamentState()

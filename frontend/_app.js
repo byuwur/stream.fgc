@@ -16,6 +16,7 @@
  * @param {Object} global The global object, usually `window` in Wails or a browser.
  */
 (function (global) {
+	const GLOBAL_RELOAD = "[data-global-reload]";
 	const EVENT_FORM = "[data-event-form]";
 	const CURRENT_MATCH = "[data-current-match]";
 	const IMPORT_PAGE = "[data-import-page]";
@@ -216,6 +217,13 @@
 		if (scoped instanceof HTMLElement) return scoped;
 		const fallback = document.querySelector(selector);
 		return fallback instanceof HTMLElement ? fallback : null;
+	}
+
+	/** Sets the fixed top-right status badge used across every SPA page. */
+	function setGlobalStatus(key, fallback, tone = "neutral") {
+		const status = document.querySelector("[data-global-status]");
+		if (!(status instanceof HTMLElement)) return;
+		setStatusElement(status, key, fallback, tone);
 	}
 
 	/** Sets the event page status badge. */
@@ -565,6 +573,72 @@
 				setAutosaveEnabled(toggle.checked);
 				applyAutosavePreference(toggle.checked);
 				refreshAutosaveModeStatuses();
+			});
+		});
+	}
+
+	/** Reloads tournament.json from disk and refreshes whichever SPA page is mounted. */
+	async function reloadDataFromDisk() {
+		const scrollState = captureScrollState(document);
+		const app = await waitForBackend();
+		const button = document.querySelector(GLOBAL_RELOAD);
+		if (button instanceof HTMLButtonElement) button.disabled = true;
+
+		if (!app || typeof app.LoadTournament !== "function") {
+			setGlobalStatus("global_status_backend_missing", "Open in Wails to reload tournament JSON.", "warning");
+			if (button instanceof HTMLButtonElement) button.disabled = false;
+			restoreScrollState(scrollState);
+			return;
+		}
+
+		setGlobalStatus("global_status_reloading", "Reloading data...", "neutral");
+		clearAutosaveTimers();
+
+		try {
+			currentState = await withTimeout(app.LoadTournament(), 5000, "Reload data timed out");
+			const tasks = [];
+			const eventForms = Array.from(document.querySelectorAll(EVENT_FORM)).filter(function (form) {
+				return form instanceof HTMLFormElement;
+			});
+
+			eventForms.forEach(function (form) {
+				tasks.push(loadEvent(form));
+			});
+
+			if (eventForms.length === 0) {
+				document.querySelectorAll(CURRENT_MATCH).forEach(function (panel) {
+					if (panel instanceof HTMLElement) tasks.push(loadCurrentMatch(panel));
+				});
+			}
+
+			document.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
+				if (page instanceof HTMLElement) tasks.push(loadPlayers(page));
+			});
+
+			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
+				if (page instanceof HTMLElement) tasks.push(loadBracket(page, page.matches(BRACKET_PAGE) ? BRACKET_ADMIN_VIEW : ""));
+			});
+
+			if (tasks.length > 0) await Promise.all(tasks);
+			await syncSpaBackground();
+			setGlobalStatus("global_status_reloaded", "Data reloaded", "success");
+		} catch (error) {
+			console.error("Reload data failed", error);
+			setGlobalStatus("global_status_reload_failed", "Data reload failed", "error");
+		} finally {
+			if (button instanceof HTMLButtonElement) button.disabled = false;
+			restoreScrollState(scrollState);
+		}
+	}
+
+	/** Binds the fixed top-right reload button once. */
+	function bindGlobalReload(root = document) {
+		root.querySelectorAll(GLOBAL_RELOAD).forEach(function (button) {
+			if (!(button instanceof HTMLButtonElement) || button.dataset.bound === "true") return;
+			button.dataset.bound = "true";
+			button.addEventListener("click", function (event) {
+				event.preventDefault();
+				void reloadDataFromDisk();
 			});
 		});
 	}
@@ -971,7 +1045,7 @@
 				setEventReadyStatus(form);
 			}
 			const matchPanel = currentMatchPanel(form);
-			if (matchPanel) void loadCurrentMatch(matchPanel);
+			if (matchPanel) await loadCurrentMatch(matchPanel);
 		} catch (error) {
 			console.error("LoadTournament failed", error);
 			setStatus(form, "event_status_load_failed", "Event load failed", "error");
@@ -1117,7 +1191,7 @@
 		});
 	}
 
-	/** Binds event form submit, reload, and autosave behavior once. */
+	/** Binds event form submit, asset controls, and autosave behavior once. */
 	function bindEventForm(form) {
 		if (form.dataset.bound === "true") return;
 		form.dataset.bound = "true";
@@ -1164,13 +1238,6 @@
 			});
 		}
 
-		const reload = pageRoot(form).querySelector("[data-event-reload]");
-		if (reload) {
-			reload.addEventListener("click", function () {
-				void loadEvent(form);
-			});
-		}
-
 		void loadEvent(form);
 	}
 
@@ -1191,7 +1258,7 @@
 
 	/** Locks score controls while a score write is in flight. */
 	function setMatchControlsEnabled(panel, enabled) {
-		panel.querySelectorAll("[data-score-action], [data-score-input], [data-current-match-reload], [data-current-side-swap], [data-current-seed-swap]").forEach(function (control) {
+		panel.querySelectorAll("[data-score-action], [data-score-input], [data-current-side-swap], [data-current-seed-swap]").forEach(function (control) {
 			control.disabled = !enabled;
 		});
 	}
@@ -1557,7 +1624,7 @@
 		void swapCurrentMatchSeeds(panel, selectedSeed, seed);
 	}
 
-	/** Binds delegated score and reload controls for the current-match panel. */
+	/** Binds delegated score and swap controls for the current-match panel. */
 	function bindCurrentMatch(panel) {
 		const bindingVersion = "score-swap-v1";
 		if (panel.dataset.bound === bindingVersion) return;
@@ -1565,13 +1632,6 @@
 
 		panel.addEventListener("click", function (event) {
 			const target = event.target instanceof Element ? event.target : null;
-			const reload = target?.closest("[data-current-match-reload]");
-			if (reload) {
-				event.preventDefault();
-				void loadCurrentMatch(panel);
-				return;
-			}
-
 			const sideSwap = target?.closest("[data-current-side-swap]");
 			if (sideSwap instanceof HTMLButtonElement) {
 				event.preventDefault();
@@ -2299,12 +2359,6 @@
 		if (select instanceof HTMLSelectElement) {
 			select.addEventListener("change", function () {
 				void saveBracketOverlayView(page, select.value);
-			});
-		}
-		const reload = page.querySelector("[data-bracket-reload]");
-		if (reload) {
-			reload.addEventListener("click", function () {
-				void loadBracket(page, BRACKET_ADMIN_VIEW);
 			});
 		}
 		const reset = page.querySelector("[data-bracket-reset]");
@@ -3165,12 +3219,6 @@
 	function bindPlayerPage(page) {
 		if (page.dataset.bound === "true") return;
 		page.dataset.bound = "true";
-		const reload = page.querySelector("[data-players-reload]");
-		if (reload) {
-			reload.addEventListener("click", function () {
-				void loadPlayers(page);
-			});
-		}
 		void loadPlayers(page);
 	}
 
@@ -3180,6 +3228,7 @@
 	function init(root = document) {
 		bindSidebarActions(root);
 		bindAutosaveToggles(root);
+		bindGlobalReload(root);
 		applyAutosavePreference();
 		refreshStatusIcons(root);
 		void syncSpaBackground();

@@ -1,6 +1,6 @@
 <div class="app-container fgc-page">
 	<div class="container-fluid px-3 px-lg-4">
-		<header class="fgc-page-header sticky-top row g-3 align-items-end mb-3 p-3">
+		<header class="fgc-page-header row g-3 align-items-end my-3 p-3">
 			<div class="col-12 col-md">
 				<p class="fgc-kicker" data-i18n="event_kicker">Tournament Control</p>
 				<h1 class="fgc-title" data-i18n="event_title">Event</h1>
@@ -96,14 +96,10 @@
 				</div>
 			</div>
 
-			<div class="d-flex flex-wrap gap-2 justify-content-end mt-3 pt-3">
+			<div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
 				<button class="btn btn-danger" type="submit" data-manual-save>
 					<i class="fas fa-save" aria-hidden="true"></i>
 					<span data-i18n="event_save">Save now</span>
-				</button>
-				<button class="btn btn-outline-light" type="button" data-event-reload>
-					<i class="fas fa-rotate-right" aria-hidden="true"></i>
-					<span data-i18n="event_reload">Reload</span>
 				</button>
 			</div>
 		</form>
@@ -113,12 +109,6 @@
 				<div class="col-12 col-md">
 					<p class="fgc-kicker" data-i18n="match_kicker">Playing now</p>
 					<h2 class="fgc-title fs-4 lh-sm m-0" data-current-match-title data-i18n="match_title">Current match</h2>
-				</div>
-				<div class="col-12 col-sm-auto ms-md-auto">
-					<button class="btn btn-outline-light w-100" type="button" data-current-match-reload>
-						<i class="fas fa-rotate-right" aria-hidden="true"></i>
-						<span data-i18n="match_reload">Reload match</span>
-					</button>
 				</div>
 			</div>
 			<div class="row g-3" data-current-match-body>

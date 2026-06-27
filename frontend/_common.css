@@ -66,16 +66,16 @@
 }
 /* === SELECTION === */
 ::selection {
-	background-color: var(--fgc-light);
-	color: var(--secondary-color);
+	background-color: var(--fgc-brand-soft);
+	color: var(--light-color);
 }
 ::-webkit-selection {
-	background-color: var(--fgc-light);
-	color: var(--secondary-color);
+	background-color: var(--fgc-brand-soft);
+	color: var(--light-color);
 }
 ::-moz-selection {
-	background-color: var(--fgc-light);
-	color: var(--secondary-color);
+	background-color: var(--fgc-brand-soft);
+	color: var(--light-color);
 }
 /* #bywr-accessibility {
 	top: 2.5% !important;
@@ -100,7 +100,7 @@
 	top: 0;
 	right: 0;
 	z-index: 1040;
-	max-width: min(44rem, calc(100vw - 6rem));
+	max-width: min(48rem, calc(100vw - 6rem));
 	pointer-events: none;
 }
 #fgc-global-controls > * {
