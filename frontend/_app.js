@@ -2943,7 +2943,6 @@
 			const key = element.getAttribute("data-i18n-title") || "";
 			const value = t(key, element.getAttribute("title") || "");
 			element.setAttribute("title", value);
-			if (element.hasAttribute("data-bs-toggle")) element.setAttribute("data-bs-title", value);
 		});
 		matchingElements(root, "[data-i18n-label]").forEach(function (element) {
 			const key = element.getAttribute("data-i18n-label") || "";
@@ -2966,6 +2965,15 @@
 				const label = select.getAttribute("aria-label") || select.getAttribute("title") || "";
 				if (label) jquery(select).next(".select2").find(".select2-selection").attr({ "aria-label": label, title: label });
 			});
+		}
+	}
+
+	/** Re-runs SPA.js common Bootstrap wiring after this app changes translated attributes. */
+	function refreshCommonWidgets() {
+		const common = global.byCommon;
+		if (typeof common?.init === "function") {
+			common.init();
+			return;
 		}
 	}
 
@@ -3560,6 +3568,7 @@
 	/** Initializes controls in the current document or newly loaded SPA content. */
 	function init(root = document) {
 		applyLanguage(root);
+		refreshCommonWidgets();
 		bindSidebarActions(root);
 		bindAutosaveToggles(root);
 		bindGlobalReload(root);
@@ -3598,6 +3607,7 @@
 	// Language changes require dynamic Select2 labels and status icons to be rebuilt.
 	document.addEventListener("bycommon:language", function () {
 		applyLanguage(document);
+		refreshCommonWidgets();
 		const form = document.querySelector(EVENT_FORM);
 		if (form instanceof HTMLFormElement && currentState?.event) {
 			fillEventForm(form, currentState.event);
