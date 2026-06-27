@@ -500,19 +500,19 @@
 	/** Shows the correct ready status for the event page. */
 	function setEventReadyStatus(form) {
 		if (isAutosaveEnabled()) {
-			setStatus(form, "event_status_ready", "Autosave ready", "success");
+			setStatus(form, "event.status.ready", "Autosave ready", "success");
 			return;
 		}
-		setStatus(form, "event_status_manual_ready", "Manual save ready", "neutral");
+		setStatus(form, "event.status.manual_ready", "Manual save ready", "neutral");
 	}
 
 	/** Shows the correct ready status for the players page. */
 	function setPlayerReadyStatus(page) {
 		if (isAutosaveEnabled()) {
-			setPlayerStatus(page, "players_status_ready", "Autosave ready", "success");
+			setPlayerStatus(page, "players.status.ready", "Autosave ready", "success");
 			return;
 		}
-		setPlayerStatus(page, "players_status_manual_ready", "Manual save ready", "neutral");
+		setPlayerStatus(page, "players.status.manual_ready", "Manual save ready", "neutral");
 	}
 
 	/** Checks whether one form has edits not reflected in its last saved signature. */
@@ -534,7 +534,7 @@
 		const form = document.querySelector(EVENT_FORM);
 		if (form instanceof HTMLFormElement && currentState?.event) {
 			if (!enabled && formIsDirty(form)) {
-				setStatus(form, "event_status_unsaved", "Unsaved event changes", "warning");
+				setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
 			} else if (!formIsDirty(form)) {
 				setEventReadyStatus(form);
 			}
@@ -543,7 +543,7 @@
 		document.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
 			if (!(page instanceof HTMLElement) || !currentState) return;
 			if (!enabled && pageHasDirtyForms(page)) {
-				setPlayerStatus(page, "players_status_unsaved", "Unsaved player changes", "warning");
+				setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
 			} else if (!pageHasDirtyForms(page)) {
 				setPlayerReadyStatus(page);
 			}
@@ -605,13 +605,13 @@
 		if (button instanceof HTMLButtonElement) button.disabled = true;
 
 		if (!app || typeof app.LoadTournament !== "function") {
-			setGlobalStatus("global_status_backend_missing", "Open in Wails to reload tournament JSON.", "warning");
+			setGlobalStatus("global.status.backend_missing", "Open in Wails to reload tournament JSON.", "warning");
 			if (button instanceof HTMLButtonElement) button.disabled = false;
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setGlobalStatus("global_status_reloading", "Reloading data...", "neutral");
+		setGlobalStatus("global.status.reloading", "Reloading data...", "neutral");
 		clearAutosaveTimers();
 
 		try {
@@ -641,10 +641,10 @@
 
 			if (tasks.length > 0) await Promise.all(tasks);
 			await syncSpaBackground();
-			setGlobalStatus("global_status_reloaded", "Data reloaded", "success");
+			setGlobalStatus("global.status.reloaded", "Data reloaded", "success");
 		} catch (error) {
 			console.error("Reload data failed", error);
-			setGlobalStatus("global_status_reload_failed", "Data reload failed", "error");
+			setGlobalStatus("global.status.reload_failed", "Data reload failed", "error");
 		} finally {
 			if (button instanceof HTMLButtonElement) button.disabled = false;
 			restoreScrollState(scrollState);
@@ -1058,12 +1058,12 @@
 		const app = await waitForBackend();
 		if (!app) {
 			setFormEnabled(form, true);
-			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(form, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setStatus(form, "event_status_loading", "Loading event...", "neutral");
+		setStatus(form, "event.status.loading", "Loading event...", "neutral");
 		setFormEnabled(form, false);
 		try {
 			const state = await app.LoadTournament();
@@ -1101,7 +1101,7 @@
 			if (matchPanel) await loadCurrentMatch(matchPanel);
 		} catch (error) {
 			console.error("LoadTournament failed", error);
-			setStatus(form, "event_status_load_failed", "Event load failed", "error");
+			setStatus(form, "event.status.load_failed", "Event load failed", "error");
 		} finally {
 			setFormEnabled(form, true);
 			restoreScrollState(scrollState);
@@ -1113,7 +1113,7 @@
 		const scrollState = captureScrollState(pageRoot(form));
 		const app = await waitForBackend();
 		if (!app) {
-			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(form, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return "";
 		}
@@ -1121,7 +1121,7 @@
 		const eventPayload = readEventForm(form);
 		const submittedSignature = JSON.stringify(eventPayload);
 		const autosave = isAutosaveEnabled();
-		setStatus(form, autosave ? "event_status_saving" : "event_status_saving_manual", autosave ? "Autosaving event..." : "Saving event...", "neutral");
+		setStatus(form, autosave ? "event.status.saving" : "event.status.saving_manual", autosave ? "Autosaving event..." : "Saving event...", "neutral");
 		try {
 			currentState = await app.UpdateEvent(eventPayload);
 			await ensureCharacterCatalog(app, currentState.event?.game || "");
@@ -1130,11 +1130,11 @@
 			}
 			const matchPanel = currentMatchPanel(form);
 			if (matchPanel) void loadCurrentMatch(matchPanel);
-			setStatus(form, autosave ? "event_status_saved" : "event_status_saved_manual", autosave ? "Event autosaved" : "Event saved", "success");
+			setStatus(form, autosave ? "event.status.saved" : "event.status.saved_manual", autosave ? "Event autosaved" : "Event saved", "success");
 			return submittedSignature;
 		} catch (error) {
 			console.error("UpdateEvent failed", error);
-			setStatus(form, "event_status_failed", "Event save failed", "error");
+			setStatus(form, "event.status.failed", "Event save failed", "error");
 			return "";
 		} finally {
 			restoreScrollState(scrollState);
@@ -1160,19 +1160,19 @@
 		const app = await waitForBackend();
 		const methodName = kind === "background" ? "SaveEventBackground" : "SaveEventLogo";
 		if (!app || typeof app[methodName] !== "function") {
-			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(form, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			return;
 		}
 
-		setStatus(form, "event_status_asset_uploading", "Uploading tournament asset...", "neutral");
+		setStatus(form, "event.status.asset_uploading", "Uploading tournament asset...", "neutral");
 		try {
 			const imageData = await fileAsDataURL(file);
 			const url = await app[methodName](imageData);
 			refreshEventAssetPreview(form, kind, cacheBustURL(url));
-			setStatus(form, "event_status_asset_saved", "Tournament asset uploaded", "success");
+			setStatus(form, "event.status.asset_saved", "Tournament asset uploaded", "success");
 		} catch (error) {
 			console.error(`${methodName} failed`, error);
-			setStatus(form, "event_status_asset_failed", "Tournament asset upload failed", "error");
+			setStatus(form, "event.status.asset_failed", "Tournament asset upload failed", "error");
 		}
 	}
 
@@ -1181,18 +1181,18 @@
 		const app = await waitForBackend();
 		const methodName = kind === "background" ? "RemoveEventBackground" : "RemoveEventLogo";
 		if (!app || typeof app[methodName] !== "function") {
-			setStatus(form, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(form, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			return;
 		}
 
-		setStatus(form, "event_status_asset_removing", "Removing tournament asset...", "neutral");
+		setStatus(form, "event.status.asset_removing", "Removing tournament asset...", "neutral");
 		try {
 			const url = await app[methodName]();
 			refreshEventAssetPreview(form, kind, cacheBustURL(url));
-			setStatus(form, "event_status_asset_removed", "Tournament asset removed", "success");
+			setStatus(form, "event.status.asset_removed", "Tournament asset removed", "success");
 		} catch (error) {
 			console.error(`${methodName} failed`, error);
-			setStatus(form, "event_status_asset_remove_failed", "Tournament asset remove failed", "error");
+			setStatus(form, "event.status.asset_remove_failed", "Tournament asset remove failed", "error");
 		}
 	}
 
@@ -1256,10 +1256,10 @@
 			event.preventDefault();
 			void flushAutosave(form, {
 				manualPending: function () {
-					setStatus(form, "event_status_unsaved", "Unsaved event changes", "warning");
+					setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
 				},
 				pending: function () {
-					setStatus(form, "event_status_pending", "Event changes pending...", "neutral");
+					setStatus(form, "event.status.pending", "Event changes pending...", "neutral");
 				},
 				save: function () {
 					return saveEvent(form);
@@ -1272,10 +1272,10 @@
 
 		bindAutosave(form, {
 			manualPending: function () {
-				setStatus(form, "event_status_unsaved", "Unsaved event changes", "warning");
+				setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
 			},
 			pending: function () {
-				setStatus(form, "event_status_pending", "Event changes pending...", "neutral");
+				setStatus(form, "event.status.pending", "Event changes pending...", "neutral");
 			},
 			save: function () {
 				return saveEvent(form);
@@ -1320,15 +1320,15 @@
 	/** Returns a participant display name, falling back to the bracket source. */
 	function participantName(participant) {
 		if (participant?.status === "bye") return "BYE";
-		if (participant?.status === "tbd" || participant?.status === "pending") return participant?.pending_label || t("match_tbd", "TBD");
-		if (participant?.resolved) return participant.player?.name || t("match_tbd", "TBD");
-		return participant?.pending_label || t("match_tbd", "TBD");
+		if (participant?.status === "tbd" || participant?.status === "pending") return participant?.pending_label || t("match.tbd", "TBD");
+		if (participant?.resolved) return participant.player?.name || t("match.tbd", "TBD");
+		return participant?.pending_label || t("match.tbd", "TBD");
 	}
 
 	/** Returns the optional team/country line for a resolved participant. */
 	function participantMeta(participant) {
 		if (!participant?.resolved || participant?.status === "bye") return participant?.pending_label || "";
-		return participant.player?.team || t("match_no_team", "");
+		return participant.player?.team || t("match.no_team", "");
 	}
 
 	/** Builds the country flag and localized label for a match participant. */
@@ -1347,7 +1347,7 @@
 		const entry = characterCatalogEntry(key);
 		if (!participant?.resolved || !key) {
 			return {
-				name: t("match_no_character", "No character"),
+				name: t("match.no_character", "No character"),
 				portrait: FALLBACK_ASSET,
 			};
 		}
@@ -1361,8 +1361,8 @@
 	function matchMediaHTML(participant, side) {
 		const character = participantCharacter(participant);
 		const name = participantName(participant);
-		const playerAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", name);
-		const characterAlt = t("character_portrait_alt", "{name} character portrait").replace("{name}", character.name);
+		const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
+		const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
 		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
 		return [
 			`<div class="d-flex gap-2 col-12 col-sm-6">`,
@@ -1431,9 +1431,9 @@
 				: `data-score-action="inc" data-score-player="${side}"`;
 		const stepperAttr = prefix === "bracket" ? "data-bracket-score-stepper" : "";
 		const spacing = options?.compact ? "m-0" : "mt-3";
-		const downLabel = t("match_score_down", "Decrease score");
-		const scoreLabel = t("match_score_label", "Score");
-		const upLabel = t("match_score_up", "Increase score");
+		const downLabel = t("match.score.down", "Decrease score");
+		const scoreLabel = t("match.score.label", "Score");
+		const upLabel = t("match.score.up", "Increase score");
 		return [
 			`<div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>`,
 			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} title="${escapeHtml(downLabel)}" aria-label="${escapeHtml(downLabel)}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
@@ -1447,8 +1447,8 @@
 	function bracketParticipantMediaHTML(participant) {
 		const character = participantCharacter(participant);
 		const name = participantName(participant);
-		const playerAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", name);
-		const characterAlt = t("character_portrait_alt", "{name} character portrait").replace("{name}", character.name);
+		const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
+		const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
 		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
 		return [
 			`<div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media>`,
@@ -1479,7 +1479,7 @@
 		const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
 		const seed = swappableParticipantSeed(participant);
 		const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}"` : "";
-		const swapLabel = t("match_swap_player", "Select player to swap");
+		const swapLabel = t("match.swap_player", "Select player to swap");
 		const swapButton = seed
 			? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-current-seed-swap="${seed}" title="${escapeHtml(swapLabel)}" aria-label="${escapeHtml(swapLabel)}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
 			: "";
@@ -1490,12 +1490,12 @@
 			`<div class="row g-3 align-items-stretch">`,
 			`<div class="col-12 d-flex flex-wrap gap-2 align-items-center justify-content-between">`,
 			side === 1
-				? `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`
+				? `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p>`
 				: `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`,
 			swapButton,
 			side === 1
 				? `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
-				: `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match_player_one", "Player 1") : t("match_player_two", "Player 2"))}</p>`,
+				: `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p>`,
 			`</div>`,
 			side === 1 ? matchMediaHTML(participant, side) : "",
 			`<div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}">`,
@@ -1518,7 +1518,7 @@
 		if (!body) return;
 
 		const matchID = match?.id || currentState?.current || "";
-		const matchName = match?.name || t("match_title", "Current match");
+		const matchName = match?.name || t("match.title", "Current match");
 		const complete = Boolean(match?.state?.winner);
 		panel.dataset.matchId = matchID;
 		panel.dataset.matchComplete = complete ? "true" : "false";
@@ -1536,10 +1536,10 @@
 			`<div class="w-100 border rounded d-flex flex-column gap-2 align-items-center justify-content-center text-center p-3" data-match-card>`,
 			`<div class="d-flex gap-2 align-items-center justify-content-center">`,
 			`<strong class="fgc-title fs-1 lh-1">${player1Score}</strong>`,
-			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match_vs", "VS"))}</span>`,
+			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match.vs", "VS"))}</span>`,
 			`<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
 			`</div>`,
-			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3" type="button" data-current-side-swap title="${escapeHtml(t("match_swap_sides", "Swap sides"))}" aria-label="${escapeHtml(t("match_swap_sides", "Swap sides"))}"><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
+			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3" type="button" data-current-side-swap title="${escapeHtml(t("match.swap_sides", "Swap sides"))}" aria-label="${escapeHtml(t("match.swap_sides", "Swap sides"))}"><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match.swap_sides", "Swap sides"))}</span></button>`,
 			`</div>`,
 			`</div>`,
 			matchPlayerCard(match, 2),
@@ -1562,12 +1562,12 @@
 		const app = await waitForBackend();
 		const body = panel.querySelector("[data-current-match-body]");
 		if (!app) {
-			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("event_status_backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
+			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("event.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match_loading", "Loading current match..."))}</div></div>`;
+		if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match.loading", "Loading current match..."))}</div></div>`;
 		try {
 			if (!currentState) currentState = await app.LoadTournament();
 			await ensureCharacterCatalog(app, currentState?.event?.game || "");
@@ -1576,8 +1576,8 @@
 			renderCurrentMatch(panel, match);
 		} catch (error) {
 			console.error("ResolveMatch failed", error);
-			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match_load_failed", "Current match load failed"))}</div></div>`;
-			setStatus(panel, "match_status_load_failed", "Current match load failed", "error");
+			if (body) body.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match.load_failed", "Current match load failed"))}</div></div>`;
+			setStatus(panel, "match.status.load_failed", "Current match load failed", "error");
 		} finally {
 			restoreScrollState(scrollState);
 		}
@@ -1588,29 +1588,29 @@
 		const scrollState = captureScrollState(pageRoot(panel));
 		const app = await waitForBackend();
 		if (!app) {
-			setStatus(panel, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(panel, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
 		const matchID = panel.dataset.matchId || currentState?.current || "";
 		if (panel.dataset.matchComplete === "true") {
-			setStatus(panel, "match_status_complete_locked", "Clear winner before editing scores", "warning");
+			setStatus(panel, "match.status.complete_locked", "Clear winner before editing scores", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 		const player1Score = readMatchScore(panel, 1);
 		const player2Score = readMatchScore(panel, 2);
-		setStatus(panel, "match_status_saving", "Saving match score...", "neutral");
+		setStatus(panel, "match.status.saving", "Saving match score...", "neutral");
 		setMatchControlsEnabled(panel, false);
 		try {
 			currentState = await app.UpdateMatchScore(matchID, player1Score, player2Score);
 			const match = await app.ResolveMatch(matchID);
 			renderCurrentMatch(panel, match);
-			setStatus(panel, "match_status_saved", "Match score saved", "success");
+			setStatus(panel, "match.status.saved", "Match score saved", "success");
 		} catch (error) {
 			console.error("UpdateMatchScore failed", error);
-			setStatus(panel, "match_status_failed", "Match score save failed", "error");
+			setStatus(panel, "match.status.failed", "Match score save failed", "error");
 		} finally {
 			setMatchControlsEnabled(panel, true);
 			restoreScrollState(scrollState);
@@ -1622,21 +1622,21 @@
 		const scrollState = captureScrollState(pageRoot(panel));
 		const app = await waitForBackend();
 		if (!app || typeof app.SwapMatchSides !== "function") {
-			setStatus(panel, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(panel, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
 		const matchID = panel.dataset.matchId || currentState?.current || "";
-		setStatus(panel, "match_status_swapping", "Swapping players...", "neutral");
+		setStatus(panel, "match.status.swapping", "Swapping players...", "neutral");
 		setMatchControlsEnabled(panel, false);
 		try {
 			currentState = await withTimeout(app.SwapMatchSides(matchID), 5000, "Current match side swap timed out");
 			await loadCurrentMatch(panel);
-			setStatus(panel, "match_status_sides_swapped", "Sides swapped", "success");
+			setStatus(panel, "match.status.sides_swapped", "Sides swapped", "success");
 		} catch (error) {
 			console.error("SwapMatchSides failed", error);
-			setStatus(panel, "match_status_swap_failed", "Player swap failed", "error");
+			setStatus(panel, "match.status.swap_failed", "Player swap failed", "error");
 		} finally {
 			setMatchControlsEnabled(panel, true);
 			restoreScrollState(scrollState);
@@ -1648,21 +1648,21 @@
 		const scrollState = captureScrollState(pageRoot(panel));
 		const app = await waitForBackend();
 		if (!app || typeof app.SwapBracketSeeds !== "function") {
-			setStatus(panel, "event_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setStatus(panel, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setStatus(panel, "match_status_swapping", "Swapping players...", "neutral");
+		setStatus(panel, "match.status.swapping", "Swapping players...", "neutral");
 		setMatchControlsEnabled(panel, false);
 		try {
 			currentState = await withTimeout(app.SwapBracketSeeds(seed, targetSeed), 5000, "Current match swap timed out");
 			currentSeedSelections.delete(panel);
 			await loadCurrentMatch(panel);
-			setStatus(panel, "match_status_swapped", "Players swapped", "success");
+			setStatus(panel, "match.status.swapped", "Players swapped", "success");
 		} catch (error) {
 			console.error("SwapBracketSeeds failed", error);
-			setStatus(panel, "match_status_swap_failed", "Player swap failed", "error");
+			setStatus(panel, "match.status.swap_failed", "Player swap failed", "error");
 		} finally {
 			setMatchControlsEnabled(panel, true);
 			restoreScrollState(scrollState);
@@ -1676,13 +1676,13 @@
 		if (!selectedSeed) {
 			currentSeedSelections.set(panel, seed);
 			setSeedSelection(panel, "[data-current-seed-player]", seed);
-			setStatus(panel, "match_status_swap_select", "Select another player to swap", "neutral");
+			setStatus(panel, "match.status.swap_select", "Select another player to swap", "neutral");
 			return;
 		}
 		currentSeedSelections.delete(panel);
 		setSeedSelection(panel, "[data-current-seed-player]", 0);
 		if (selectedSeed === seed) {
-			setStatus(panel, "match_status_swap_cleared", "Player swap cancelled", "neutral");
+			setStatus(panel, "match.status.swap_cleared", "Player swap cancelled", "neutral");
 			return;
 		}
 		void swapCurrentMatchSeeds(panel, selectedSeed, seed);
@@ -1707,7 +1707,7 @@
 			if (button instanceof HTMLButtonElement) {
 				event.preventDefault();
 				if (panel.dataset.matchComplete === "true") {
-					setStatus(panel, "match_status_complete_locked", "Clear winner before editing scores", "warning");
+					setStatus(panel, "match.status.complete_locked", "Clear winner before editing scores", "warning");
 					return;
 				}
 				const playerNumber = button.getAttribute("data-score-player") || "";
@@ -1740,12 +1740,12 @@
 	/** Returns the localized label for a bracket match status. */
 	function bracketStatusLabel(status) {
 		const labels = {
-			bye: t("bracket_status_bye", "BYE"),
-			complete: t("bracket_status_complete", "Complete"),
-			pending: t("bracket_status_pending", "Pending"),
-			ready: t("bracket_status_ready_match", "Ready"),
+			bye: t("bracket.status.bye", "BYE"),
+			complete: t("bracket.status.complete", "Complete"),
+			pending: t("bracket.status.pending", "Pending"),
+			ready: t("bracket.status.ready_match", "Ready"),
 		};
-		return labels[status] || status || t("bracket_status_pending", "Pending");
+		return labels[status] || status || t("bracket.status.pending", "Pending");
 	}
 
 	/** Normalizes bracket view keys for backend and static overlay rendering. */
@@ -2027,7 +2027,7 @@
 				}
 				round.matches.push({
 					id: matchID,
-					name: match?.name || `${t("bracket_match", "Match")} ${matchID}`,
+					name: match?.name || `${t("bracket.match", "Match")} ${matchID}`,
 					group,
 					round: roundName,
 					order,
@@ -2074,8 +2074,8 @@
 	function bracketSummary(projection, admin = false) {
 		if (projection?.error) return projection.error;
 		const template = admin
-			? t("bracket_admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}")
-			: t("bracket_summary", "{players}/{size} players - {matches} matches - {view}");
+			? t("bracket.admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}")
+			: t("bracket.summary", "{players}/{size} players - {matches} matches - {view}");
 		return template
 			.replace("{players}", String(projection?.player_count ?? 0))
 			.replace("{size}", String(projection?.size ?? 0))
@@ -2088,9 +2088,9 @@
 	function bracketResultReasonLabel(reason) {
 		switch (String(reason || "").toLowerCase()) {
 		case "bye":
-			return t("bracket_result_bye", "BYE");
+			return t("bracket.result.bye", "BYE");
 		case "dq":
-			return t("bracket_result_dq", "DQ");
+			return t("bracket.result.dq", "DQ");
 		default:
 			return "";
 		}
@@ -2121,7 +2121,7 @@
 		if (eventLabel) eventLabel.textContent = [projection?.event?.name, projection?.event?.phase].filter(Boolean).join(" · ") || "Stream.FGC";
 
 		const title = root.querySelector("[data-bracket-overlay-title]");
-		if (title) title.textContent = bracketViewName(projection) || t("bracket_title", "Bracket");
+		if (title) title.textContent = bracketViewName(projection) || t("bracket.title", "Bracket");
 
 		const randomize = root.querySelector("[data-bracket-randomize]");
 		if (randomize instanceof HTMLButtonElement) {
@@ -2165,7 +2165,7 @@
 			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true, limit: parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3 })
 			: `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
 		const actionControls = controlsLocked ? "" : bracketParticipantActionsHTML(match, side, admin);
-		const swapLabel = t("bracket_swap_player", "Select player to swap");
+		const swapLabel = t("bracket.swap_player", "Select player to swap");
 		return [
 			`<div class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}" data-bracket-participant data-status="${escapeHtml(status)}" data-outcome="${winner ? "winner" : loser ? "loser" : ""}"${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>`,
 			`<div class="d-flex flex-nowrap gap-2 align-items-center">`,
@@ -2200,18 +2200,18 @@
 		const opponentID = side === 1 ? p2 : p1;
 		const seedParticipant = (side === 1 ? match?.player1 : match?.player2)?.source?.type === "seed";
 		const bye = (side === 1 ? match?.player1 : match?.player2)?.status === "bye";
-		const winLabel = t("bracket_win_title", "Mark this player as the winner");
-		const dqLabel = t("bracket_dq_title", "Disqualify this player");
-		const byeLabel = bye ? t("bracket_live_title", "Remove BYE from this player") : t("bracket_bye_title", "Give this player a BYE");
+		const winLabel = t("bracket.win.title", "Mark this player as the winner");
+		const dqLabel = t("bracket.dq.title", "Disqualify this player");
+		const byeLabel = bye ? t("bracket.live.title", "Remove BYE from this player") : t("bracket.bye.title", "Give this player a BYE");
 		return [
 			canDecide
-				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}" title="${escapeHtml(winLabel)}" aria-label="${escapeHtml(winLabel)}">${escapeHtml(t("bracket_win", "Win"))}</button>`
+				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}" title="${escapeHtml(winLabel)}" aria-label="${escapeHtml(winLabel)}">${escapeHtml(t("bracket.win", "Win"))}</button>`
 				: "",
 			canDecide
-				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq" title="${escapeHtml(dqLabel)}" aria-label="${escapeHtml(dqLabel)}">${escapeHtml(t("bracket_dq", "DQ"))}</button>`
+				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq" title="${escapeHtml(dqLabel)}" aria-label="${escapeHtml(dqLabel)}">${escapeHtml(t("bracket.dq", "DQ"))}</button>`
 				: "",
 			seedParticipant
-				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}" title="${escapeHtml(byeLabel)}" aria-label="${escapeHtml(byeLabel)}">${escapeHtml(bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
+				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}" title="${escapeHtml(byeLabel)}" aria-label="${escapeHtml(byeLabel)}">${escapeHtml(bye ? t("bracket.live", "Live") : t("bracket.bye", "BYE"))}</button>`
 				: "",
 		].join("");
 	}
@@ -2220,23 +2220,23 @@
 	function bracketMatchActionsHTML(match, admin) {
 		if (!admin) return "";
 		const current = match?.current ? " disabled" : "";
-		const currentLabel = match?.current ? t("bracket_current", "Current") : t("bracket_set_current", "Current");
-		const currentTitle = match?.current ? t("bracket_current", "Current") : t("bracket_set_current_title", "Set this match as the current match");
-		const clearTitle = t("bracket_clear_winner", "Clear winner");
+		const currentLabel = match?.current ? t("bracket.current", "Current") : t("bracket.set_current", "Current");
+		const currentTitle = match?.current ? t("bracket.current", "Current") : t("bracket.set_current.title", "Set this match as the current match");
+		const clearTitle = t("bracket.clear_winner", "Clear winner");
 		const currentButton = `<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}" title="${escapeHtml(currentTitle)}" aria-label="${escapeHtml(currentTitle)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`;
 		const complete = match?.status === "complete" || Boolean(match?.winner_id || match?.state?.winner);
 		if (complete) {
 			return [
 				`<div class="d-flex flex-wrap gap-2 mt-2">`,
 				currentButton,
-				match?.winner_id || match?.state?.winner ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
+				match?.winner_id || match?.state?.winner ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket.clear", "Clear"))}</button>` : "",
 				`</div>`,
 			].join("");
 		}
 		return [
 			`<div class="d-flex flex-wrap gap-2 mt-2">`,
 			currentButton,
-			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
+			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket.clear", "Clear"))}</button>` : "",
 			`</div>`,
 		].join("");
 	}
@@ -2252,7 +2252,7 @@
 			`<div class="d-flex gap-2 align-items-start justify-content-between mb-2">`,
 			`<div class="min-w-0">`,
 			`<p class="fgc-kicker m-0">${escapeHtml(match?.id || "")}</p>`,
-			`<h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket_match", "Match"))}</h4>`,
+			`<h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket.match", "Match"))}</h4>`,
 			`</div>`,
 			`<span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>`,
 			`</div>`,
@@ -2317,7 +2317,7 @@
 						return bracketSectionHTML(section, admin, projection);
 					})
 					.join("")
-			: `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket_empty", "No bracket matches found."))}</div></div>`;
+			: `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.empty", "No bracket matches found."))}</div></div>`;
 		board.querySelectorAll("[data-flag-image]").forEach(function (image) {
 			if (!(image instanceof HTMLImageElement)) return;
 			image.addEventListener("error", function () {
@@ -2346,20 +2346,20 @@
 					if (projection?.error) {
 						setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
 					} else {
-						setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+						setBracketStatus(root, "bracket.status.ready", "Bracket ready", "success");
 					}
 					return projection;
 				} catch (error) {
 					if (!isCurrentBracketLoad(root, ticket)) return null;
 					console.error("Static bracket load failed", error);
 					const board = root.querySelector("[data-bracket-board]");
-					if (board) board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket_status_backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
-					setBracketStatus(root, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+					if (board) board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
+					setBracketStatus(root, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 					return null;
 				}
 			}
 
-			setBracketStatus(root, "bracket_status_loading", "Loading bracket...", "neutral");
+			setBracketStatus(root, "bracket.status.loading", "Loading bracket...", "neutral");
 			const view = admin ? requestedView || (await savedBracketManagerView(app)) : requestedView;
 			const projection = await withTimeout(app.GetBracketView(view), 5000, "Bracket load timed out");
 			if (!isCurrentBracketLoad(root, ticket)) return projection;
@@ -2368,13 +2368,13 @@
 			if (projection?.error) {
 				setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
 			} else {
-				setBracketStatus(root, "bracket_status_ready", "Bracket ready", "success");
+				setBracketStatus(root, "bracket.status.ready", "Bracket ready", "success");
 			}
 			return projection;
 		} catch (error) {
 			if (!isCurrentBracketLoad(root, ticket)) return null;
 			console.error("GetBracketView failed", error);
-			setBracketStatus(root, "bracket_status_load_failed", "Bracket load failed", "error");
+			setBracketStatus(root, "bracket.status.load_failed", "Bracket load failed", "error");
 			return null;
 		} finally {
 			restoreScrollState(scrollState);
@@ -2386,19 +2386,19 @@
 		const scrollState = captureScrollState(page);
 		const app = await waitForBackend();
 		if (!app || typeof app.SetBracketOverlayView !== "function") {
-			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
 		try {
 			currentState = await withTimeout(app.SetBracketOverlayView(view), 5000, "Bracket overlay save timed out");
 			await loadBracket(page, bracketManagerView(page));
-			setBracketStatus(page, "bracket_status_overlay_saved", "Overlay view saved", "success");
+			setBracketStatus(page, "bracket.status.overlay_saved", "Overlay view saved", "success");
 		} catch (error) {
 			console.error("SetBracketOverlayView failed", error);
-			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
 		} finally {
 			restoreScrollState(scrollState);
 		}
@@ -2409,13 +2409,13 @@
 		const scrollState = captureScrollState(page);
 		const app = await waitForBackend();
 		if (!app || (typeof app.SetBracketManagerView !== "function" && (typeof app.LoadTournament !== "function" || typeof app.SaveTournament !== "function"))) {
-			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
 		const normalizedView = normalizeBracketView(view);
-		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
 		try {
 			if (typeof app.SetBracketManagerView === "function") {
 				currentState = await withTimeout(app.SetBracketManagerView(normalizedView), 5000, "Bracket manager view save timed out");
@@ -2426,10 +2426,10 @@
 				currentState = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
 			}
 			await loadBracket(page, normalizedView);
-			setBracketStatus(page, "bracket_status_manager_saved", "Manager view saved", "success");
+			setBracketStatus(page, "bracket.status.manager_saved", "Manager view saved", "success");
 		} catch (error) {
 			console.error("SetBracketManagerView failed", error);
-			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
 		} finally {
 			restoreScrollState(scrollState);
 		}
@@ -2440,19 +2440,19 @@
 		const scrollState = captureScrollState(page);
 		const app = await waitForBackend();
 		if (!app) {
-			setBracketStatus(page, "bracket_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setBracketStatus(page, "bracket_status_saving", "Saving bracket...", "neutral");
+		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
 		try {
 			currentState = await withTimeout(action(app), 5000, "Bracket action timed out");
 			await loadBracket(page, bracketManagerView(page));
-			setBracketStatus(page, "bracket_status_saved", "Bracket saved", "success");
+			setBracketStatus(page, "bracket.status.saved", "Bracket saved", "success");
 		} catch (error) {
 			console.error("Bracket action failed", error);
-			setBracketStatus(page, "bracket_status_failed", "Bracket save failed", "error");
+			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
 		} finally {
 			restoreScrollState(scrollState);
 		}
@@ -2497,13 +2497,13 @@
 		if (!selectedSeed) {
 			bracketSeedSelections.set(page, seed);
 			setSeedSelection(page, "[data-bracket-seed-player]", seed);
-			setBracketStatus(page, "bracket_status_swap_select", "Select another player to swap", "neutral");
+			setBracketStatus(page, "bracket.status.swap_select", "Select another player to swap", "neutral");
 			return;
 		}
 		bracketSeedSelections.delete(page);
 		setSeedSelection(page, "[data-bracket-seed-player]", 0);
 		if (selectedSeed === seed) {
-			setBracketStatus(page, "bracket_status_swap_cleared", "Player swap cancelled", "neutral");
+			setBracketStatus(page, "bracket.status.swap_cleared", "Player swap cancelled", "neutral");
 			return;
 		}
 		void runBracketAction(page, function (app) {
@@ -2824,8 +2824,8 @@
 
 	/** Builds the complete Bootstrap player card markup for one player slot. */
 	function playerCard(playerID, player) {
-		const playerName = player?.name || `${t("players_player", "Player")} ${playerID}`;
-		const portraitAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", playerName);
+		const playerName = player?.name || `${t("players.player", "Player")} ${playerID}`;
+		const portraitAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", playerName);
 		return [
 			`<div class="col-12 col-md-6">`,
 			`<form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}">`,
@@ -2834,17 +2834,17 @@
 			`<div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame><img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="${escapeHtml(portraitAlt)}" loading="lazy" /></div>`,
 			`</section>`,
 			`<section class="col-12 col-md-8 d-flex flex-column">`,
-			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players_player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
+			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players.player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
 			`<div class="row g-3">`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" title="${escapeHtml(t("player_name_title", "Edit player name"))}" aria-label="${escapeHtml(t("player_name_title", "Edit player name"))}" /></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" title="${escapeHtml(t("player_team_title", "Edit player team"))}" aria-label="${escapeHtml(t("player_team_title", "Edit player team"))}" /></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country" title="${escapeHtml(t("player_country_title", "Choose player country"))}" aria-label="${escapeHtml(t("player_country_title", "Choose player country"))}">${countryOptions(player?.country)}</select></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character" title="${escapeHtml(t("player_character_title", "Choose player character"))}" aria-label="${escapeHtml(t("player_character_title", "Choose player character"))}">${characterOptions(player?.character)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" title="${escapeHtml(t("player.name.title", "Edit player name"))}" aria-label="${escapeHtml(t("player.name.title", "Edit player name"))}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" title="${escapeHtml(t("player.team.title", "Edit player team"))}" aria-label="${escapeHtml(t("player.team.title", "Edit player team"))}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country" title="${escapeHtml(t("player.country.title", "Choose player country"))}" aria-label="${escapeHtml(t("player.country.title", "Choose player country"))}">${countryOptions(player?.country)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character" title="${escapeHtml(t("player.character.title", "Choose player character"))}" aria-label="${escapeHtml(t("player.character.title", "Choose player character"))}">${characterOptions(player?.character)}</select></label>`,
 			`</div>`,
 			`<div class="row g-2 align-items-stretch mt-auto pt-3">`,
-			`<div class="col-12 col-sm-auto"><div class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2" data-player-dropzone role="button" tabindex="0" title="${escapeHtml(t("player_portrait_drop_title", "Upload player portrait"))}" aria-label="${escapeHtml(t("player_portrait_drop_title", "Upload player portrait"))}"><div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player_portrait_drop">Drop or click image</span></div></div></div>`,
-			`<div class="col-12 col-sm-auto"><button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="button" data-player-portrait-remove title="${escapeHtml(t("player_portrait_remove_title", "Remove player portrait"))}" aria-label="${escapeHtml(t("player_portrait_remove_title", "Remove player portrait"))}"><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player_portrait_remove">Remove picture</span></button></div>`,
-			`<div class="col-12 col-sm-auto"><button class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="submit" data-manual-save title="${escapeHtml(t("players_save_title", "Save this player now"))}" aria-label="${escapeHtml(t("players_save_title", "Save this player now"))}"><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players_save">Save now</span></button></div>`,
+			`<div class="col-12 col-sm-auto"><div class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2" data-player-dropzone role="button" tabindex="0" title="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}" aria-label="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}"><div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player.portrait.drop">Drop or click image</span></div></div></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="button" data-player-portrait-remove title="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}" aria-label="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}"><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player.portrait.remove">Remove picture</span></button></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="submit" data-manual-save title="${escapeHtml(t("players.save.title", "Save this player now"))}" aria-label="${escapeHtml(t("players.save.title", "Save this player now"))}"><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players.save">Save now</span></button></div>`,
 			`</div>`,
 			`</section>`,
 			`</div>`,
@@ -2994,17 +2994,17 @@
 	async function loadImportIntegrations(page) {
 		const app = await waitForBackend();
 		if (!app || typeof app.LoadImportIntegrations !== "function") {
-			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
 			return;
 		}
 
 		try {
 			const settings = await withTimeout(app.LoadImportIntegrations(), 5000, "Integration settings load timed out");
 			fillImportIntegrationsForm(page, settings);
-			setImportStatus(page, "import_status_idle", "Paste a tournament link to preview imported data.", "neutral");
+			setImportStatus(page, "import.status.idle", "Paste a tournament link to preview imported data.", "neutral");
 		} catch (error) {
 			console.error("LoadImportIntegrations failed", error);
-			setImportStatus(page, "import_status_integrations_load_failed", error?.message || "API key load failed", "error");
+			setImportStatus(page, "import.status.integrations_load_failed", error?.message || "API key load failed", "error");
 		}
 	}
 
@@ -3023,19 +3023,19 @@
 	async function saveImportIntegrations(page) {
 		const app = await waitForBackend();
 		if (!app || typeof app.SaveImportIntegrations !== "function") {
-			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
 			return;
 		}
 
-		setImportStatus(page, "import_status_integrations_saving", "Saving API keys...", "neutral");
+		setImportStatus(page, "import.status.integrations.saving", "Saving API keys...", "neutral");
 		setPageEnabled(page, false);
 		try {
 			const settings = await withTimeout(app.SaveImportIntegrations(readImportIntegrationsForm(page)), 5000, "Integration settings save timed out");
 			fillImportIntegrationsForm(page, settings);
-			setImportStatus(page, "import_status_integrations_saved", "API keys saved", "success");
+			setImportStatus(page, "import.status.integrations.saved", "API keys saved", "success");
 		} catch (error) {
 			console.error("SaveImportIntegrations failed", error);
-			setImportStatus(page, "import_status_integrations_failed", error?.message || "API key save failed", "error");
+			setImportStatus(page, "import.status.integrations.failed", error?.message || "API key save failed", "error");
 		} finally {
 			setPageEnabled(page, true);
 			syncImportActionButtons(page);
@@ -3080,7 +3080,7 @@
 
 	/** Formats a provider name from an import preview. */
 	function importProviderName(preview) {
-		return preview?.provider_name || preview?.provider || t("import_unknown_provider", "Unknown provider");
+		return preview?.provider_name || preview?.provider || t("import.unknown_provider", "Unknown provider");
 	}
 
 	/** Renders one small import summary tile. */
@@ -3101,9 +3101,9 @@
 		const rawGame = String(game?.key || game?.name || game || "").trim();
 		const entry = gameCatalogEntry(rawGame);
 		const supported = Boolean(entry);
-		const name = supported ? entry.name : rawGame || t("import_unknown_game", "Unknown");
+		const name = supported ? entry.name : rawGame || t("import.unknown_game", "Unknown");
 		const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
-		const suffix = supported ? "" : ` ${t("import_not_supported", "(not supported)")}`;
+		const suffix = supported ? "" : ` ${t("import.not_supported", "(not supported)")}`;
 		return [
 			`<span class="d-inline-flex gap-2 align-items-center mw-100">`,
 			`<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
@@ -3128,7 +3128,7 @@
 	/** Builds the imported player preview table. */
 	function importPlayersTable(players) {
 		if (!players.length) {
-			return `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import_no_players", "No players found in this import."))}</div>`;
+			return `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div>`;
 		}
 		const rows = players
 			.slice(0, 64)
@@ -3145,16 +3145,16 @@
 			.join("");
 		const hiddenCount = Math.max(0, players.length - 64);
 		const hiddenNote = hiddenCount
-			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import_players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
+			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
 			: "";
 		return [
 			`<div class="table-responsive border rounded p-2" data-import-preview-table>`,
 			`<table class="table table-dark align-middle m-0">`,
 			`<thead><tr>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import_seed", "Seed"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import_player", "Player"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import_team", "Team"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import_country", "Country"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>`,
 			`</tr></thead>`,
 			`<tbody>${rows}</tbody>`,
 			`</table>`,
@@ -3172,11 +3172,11 @@
 		const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
 		const event = preview?.event || {};
 		body.innerHTML = [
-			importSummaryTile(t("import_provider", "Provider"), importProviderName(preview)),
-			importSummaryTile(t("import_event", "Event"), event.name || t("import_unknown_event", "Unknown event")),
-			importSummaryTile(t("import_phase", "Phase"), event.phase || ""),
-			importSummaryTile(t("import_game", "Game"), importGameHTML(event.game), { html: true }),
-			importSummaryTile(t("import_counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket_match", "Match")}`),
+			importSummaryTile(t("import.provider", "Provider"), importProviderName(preview)),
+			importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event")),
+			importSummaryTile(t("import.phase", "Phase"), event.phase || ""),
+			importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true }),
+			importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
 			warnings.length
 				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
 						.map(function (warning) {
@@ -3185,7 +3185,7 @@
 						.join("")}</div></div>`
 				: "",
 			`<div class="col-12">`,
-			`<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import_players_title", "Players"))}</h3>`,
+			`<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>`,
 			importPlayersTable(players),
 			`</div>`,
 		].join("");
@@ -3196,26 +3196,26 @@
 	async function previewTournamentImport(page) {
 		const app = await waitForBackend();
 		if (!app || typeof app.PreviewTournamentImport !== "function") {
-			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
 			return;
 		}
 
 		const url = readImportURL(page);
 		const provider = readImportProvider(page);
 		setImportReady(page, false);
-		setImportStatus(page, "import_status_loading", "Loading import preview...", "neutral");
+		setImportStatus(page, "import.status.loading", "Loading import preview...", "neutral");
 		setPageEnabled(page, false);
 		try {
-			if (!provider) throw new Error(t("import_status_provider_required", "Select an import provider."));
+			if (!provider) throw new Error(t("import.status.provider_required", "Select an import provider."));
 			const preview = await withTimeout(app.PreviewTournamentImport(url), 30000, "Import preview timed out");
 			await ensureGameCatalog(app);
 			if (!Object.keys(countryNames).length) countryNames = (await loadCountryNames()) || {};
 			renderImportPreview(page, preview);
 			setImportReady(page, true, url);
-			setImportStatus(page, "import_status_ready", "Import preview ready", "success");
+			setImportStatus(page, "import.status.ready", "Import preview ready", "success");
 		} catch (error) {
 			console.error("PreviewTournamentImport failed", error);
-			setImportStatus(page, "import_status_failed", error?.message || "Import preview failed", "error");
+			setImportStatus(page, "import.status.failed", error?.message || "Import preview failed", "error");
 		} finally {
 			setPageEnabled(page, true);
 			syncImportActionButtons(page);
@@ -3226,28 +3226,28 @@
 	async function importTournamentLink(page) {
 		const app = await waitForBackend();
 		if (!app || typeof app.ImportTournamentLink !== "function") {
-			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
 			return;
 		}
 
 		const url = page.dataset.previewUrl || "";
 		if (!url || url !== readImportURL(page)) {
 			setImportReady(page, false);
-			setImportStatus(page, "import_status_preview_required", "Preview this link before importing.", "warning");
+			setImportStatus(page, "import.status.preview_required", "Preview this link before importing.", "warning");
 			return;
 		}
 
-		setImportStatus(page, "import_status_importing", "Importing tournament...", "neutral");
+		setImportStatus(page, "import.status.importing", "Importing tournament...", "neutral");
 		setPageEnabled(page, false);
 		try {
 			const previousState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : currentState;
 			currentState = await withTimeout(app.ImportTournamentLink(url), 30000, "Tournament import timed out");
 			importUndoStates.set(page, cloneJSON(previousState || currentState));
-			setImportStatus(page, "import_status_imported", "Tournament imported", "success");
+			setImportStatus(page, "import.status.imported", "Tournament imported", "success");
 			setImportReady(page, false);
 		} catch (error) {
 			console.error("ImportTournamentLink failed", error);
-			setImportStatus(page, "import_status_import_failed", error?.message || "Tournament import failed", "error");
+			setImportStatus(page, "import.status.import_failed", error?.message || "Tournament import failed", "error");
 		} finally {
 			setPageEnabled(page, true);
 			syncImportActionButtons(page);
@@ -3259,26 +3259,26 @@
 		const app = await waitForBackend();
 		const state = importUndoStates.get(page);
 		if (!state) {
-			setImportStatus(page, "import_status_undo_unavailable", "No import to undo", "warning");
+			setImportStatus(page, "import.status.undo_unavailable", "No import to undo", "warning");
 			setImportUndoReady(page, false);
 			return;
 		}
 		if (!app || typeof app.SaveTournament !== "function") {
-			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
 			return;
 		}
 
-		setImportStatus(page, "import_status_undoing", "Undoing import...", "neutral");
+		setImportStatus(page, "import.status.undoing", "Undoing import...", "neutral");
 		setPageEnabled(page, false);
 		try {
 			await withTimeout(app.SaveTournament(state), 10000, "Import undo timed out");
 			currentState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : cloneJSON(state);
 			importUndoStates.delete(page);
 			setImportReady(page, false);
-			setImportStatus(page, "import_status_undone", "Import undone", "success");
+			setImportStatus(page, "import.status.undone", "Import undone", "success");
 		} catch (error) {
 			console.error("UndoTournamentImport failed", error);
-			setImportStatus(page, "import_status_undo_failed", error?.message || "Import undo failed", "error");
+			setImportStatus(page, "import.status.undo_failed", error?.message || "Import undo failed", "error");
 		} finally {
 			setPageEnabled(page, true);
 			syncImportActionButtons(page);
@@ -3323,7 +3323,7 @@
 		}
 		setImportReady(page, false);
 		setImportUndoReady(page, false);
-		setImportStatus(page, "import_status_idle", "Paste a tournament link to preview imported data.", "neutral");
+		setImportStatus(page, "import.status.idle", "Paste a tournament link to preview imported data.", "neutral");
 		void loadImportProviderSelect(page);
 		void loadImportIntegrations(page);
 	}
@@ -3336,7 +3336,7 @@
 		const rows = playerEntriesForEvent(currentState).map(function ([playerID, player]) {
 			return playerCard(playerID, player);
 		});
-		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players_empty">No players found.</div></div>`;
+		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players.empty">No players found.</div></div>`;
 		list.querySelectorAll("[data-player-form]").forEach(function (form) {
 			if (!(form instanceof HTMLFormElement)) return;
 			bindPlayerForm(form, page);
@@ -3359,12 +3359,12 @@
 		const app = await waitForBackend();
 		if (!app) {
 			setPageEnabled(page, true);
-			setPlayerStatus(page, "players_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			restoreScrollState(scrollState);
 			return;
 		}
 
-		setPlayerStatus(page, "players_status_loading", "Loading players...", "neutral");
+		setPlayerStatus(page, "players.status.loading", "Loading players...", "neutral");
 		setPageEnabled(page, false);
 		try {
 			const [state, codes, names] = await Promise.all([app.LoadTournament(), app.ListCountryCodes(), loadCountryNames()]);
@@ -3378,7 +3378,7 @@
 			setPlayerReadyStatus(page);
 		} catch (error) {
 			console.error("Load players failed", error);
-			setPlayerStatus(page, "players_status_load_failed", "Player load failed", "error");
+			setPlayerStatus(page, "players.status.load_failed", "Player load failed", "error");
 		} finally {
 			setPageEnabled(page, true);
 			restoreScrollState(scrollState);
@@ -3399,7 +3399,7 @@
 	async function savePlayer(form, page) {
 		const app = await waitForBackend();
 		if (!app) {
-			setPlayerStatus(page, "players_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			return "";
 		}
 
@@ -3407,14 +3407,14 @@
 		const playerPayload = readPlayerForm(form);
 		const submittedSignature = JSON.stringify(playerPayload);
 		const autosave = isAutosaveEnabled();
-		setPlayerStatus(page, autosave ? "players_status_saving" : "players_status_saving_manual", autosave ? "Autosaving player..." : "Saving player...", "neutral");
+		setPlayerStatus(page, autosave ? "players.status.saving" : "players.status.saving_manual", autosave ? "Autosaving player..." : "Saving player...", "neutral");
 		try {
 			currentState = await app.UpdatePlayer(playerID, playerPayload);
-			setPlayerStatus(page, autosave ? "players_status_saved" : "players_status_saved_manual", autosave ? "Player autosaved" : "Player saved", "success");
+			setPlayerStatus(page, autosave ? "players.status.saved" : "players.status.saved_manual", autosave ? "Player autosaved" : "Player saved", "success");
 			return submittedSignature;
 		} catch (error) {
 			console.error("UpdatePlayer failed", error);
-			setPlayerStatus(page, "players_status_failed", "Player save failed", "error");
+			setPlayerStatus(page, "players.status.failed", "Player save failed", "error");
 			return "";
 		}
 	}
@@ -3423,20 +3423,20 @@
 	async function uploadPlayerPortrait(form, page, file) {
 		const app = await waitForBackend();
 		if (!app || typeof app.SavePlayerPortrait !== "function") {
-			setPlayerStatus(page, "players_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			return;
 		}
 
 		const playerID = form.getAttribute("data-player-form") || "";
-		setPlayerStatus(page, "players_status_portrait_uploading", "Uploading portrait...", "neutral");
+		setPlayerStatus(page, "players.status.portrait_uploading", "Uploading portrait...", "neutral");
 		try {
 			const imageData = await fileAsDataURL(file);
 			const url = await app.SavePlayerPortrait(playerID, imageData);
 			refreshPlayerPortrait(form, `${url}?v=${Date.now()}`);
-			setPlayerStatus(page, "players_status_portrait_saved", "Portrait uploaded", "success");
+			setPlayerStatus(page, "players.status.portrait_saved", "Portrait uploaded", "success");
 		} catch (error) {
 			console.error("SavePlayerPortrait failed", error);
-			setPlayerStatus(page, "players_status_portrait_failed", "Portrait upload failed", "error");
+			setPlayerStatus(page, "players.status.portrait_failed", "Portrait upload failed", "error");
 		}
 	}
 
@@ -3444,19 +3444,19 @@
 	async function removePlayerPortrait(form, page) {
 		const app = await waitForBackend();
 		if (!app || typeof app.RemovePlayerPortrait !== "function") {
-			setPlayerStatus(page, "players_status_backend_missing", "Open in Wails to edit tournament JSON.", "warning");
+			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
 			return;
 		}
 
 		const playerID = form.getAttribute("data-player-form") || "";
-		setPlayerStatus(page, "players_status_portrait_removing", "Removing portrait...", "neutral");
+		setPlayerStatus(page, "players.status.portrait_removing", "Removing portrait...", "neutral");
 		try {
 			const url = await app.RemovePlayerPortrait(playerID);
 			refreshPlayerPortrait(form, `${url}?v=${Date.now()}`);
-			setPlayerStatus(page, "players_status_portrait_removed", "Portrait removed", "success");
+			setPlayerStatus(page, "players.status.portrait_removed", "Portrait removed", "success");
 		} catch (error) {
 			console.error("RemovePlayerPortrait failed", error);
-			setPlayerStatus(page, "players_status_portrait_remove_failed", "Portrait remove failed", "error");
+			setPlayerStatus(page, "players.status.portrait_remove_failed", "Portrait remove failed", "error");
 		}
 	}
 
@@ -3518,10 +3518,10 @@
 			event.preventDefault();
 			void flushAutosave(form, {
 				manualPending: function () {
-					setPlayerStatus(page, "players_status_unsaved", "Unsaved player changes", "warning");
+					setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
 				},
 				pending: function () {
-					setPlayerStatus(page, "players_status_pending", "Player changes pending...", "neutral");
+					setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
 				},
 				save: function () {
 					return savePlayer(form, page);
@@ -3534,10 +3534,10 @@
 
 		bindAutosave(form, {
 			manualPending: function () {
-				setPlayerStatus(page, "players_status_unsaved", "Unsaved player changes", "warning");
+				setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
 			},
 			pending: function () {
-				setPlayerStatus(page, "players_status_pending", "Player changes pending...", "neutral");
+				setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
 			},
 			save: function () {
 				return savePlayer(form, page);
