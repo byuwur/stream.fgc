@@ -619,14 +619,12 @@
 .fgc-panel .select2-container {
 	font-size: var(--fgc-field-font-size);
 }
-.fgc-event-form .select2-container--default .select2-selection--single,
-[data-player-card] .select2-container--default .select2-selection--single {
+.fgc-panel .select2-container--default .select2-selection--single {
 	height: var(--fgc-field-control-height);
 	border-color: var(--fgc-border);
 	background-color: var(--fgc-surface-soft);
 }
-.fgc-event-form .select2-container--default .select2-selection--single .select2-selection__rendered,
-[data-player-card] .select2-container--default .select2-selection--single .select2-selection__rendered {
+.fgc-panel .select2-container--default .select2-selection--single .select2-selection__rendered {
 	display: flex;
 	align-items: center;
 	color: var(--fgc-light);
@@ -634,8 +632,7 @@
 	line-height: 1.2;
 	min-height: calc(var(--fgc-field-control-height) - 2px);
 }
-.fgc-event-form .select2-container--default .select2-selection--single .select2-selection__arrow,
-[data-player-card] .select2-container--default .select2-selection--single .select2-selection__arrow {
+.fgc-panel .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: calc(var(--fgc-field-control-height) - 2px);
 }
 .fgc-country-option {

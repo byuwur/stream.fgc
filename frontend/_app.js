@@ -39,6 +39,7 @@
 	let formats = [];
 	let sizes = [];
 	let games = [];
+	let providers = [];
 	let characters = [];
 	let charactersGame = null;
 	let countryCodes = [];
@@ -51,6 +52,7 @@
 	const bracketLoadTickets = new WeakMap();
 	const bracketSeedSelections = new WeakMap();
 	const currentSeedSelections = new WeakMap();
+	const importUndoStates = new WeakMap();
 
 	// --- Backend and status helpers ---
 
@@ -410,6 +412,11 @@
 		});
 	}
 
+	/** Clones JSON-shaped backend payloads before storing them for undo actions. */
+	function cloneJSON(value) {
+		return JSON.parse(JSON.stringify(value || null));
+	}
+
 	/** Enables or disables every editable control in a form. */
 	function setFormEnabled(form, enabled) {
 		form.querySelectorAll("input, select, button").forEach(function (control) {
@@ -658,6 +665,17 @@
 		});
 	}
 
+	/** Normalizes a local key/value JSON object into catalog rows. */
+	function normalizeLocalCatalogRows(data) {
+		if (Array.isArray(data)) return normalizeAssetRows(data);
+		return Object.entries(data || {}).map(function ([key, name]) {
+			return {
+				key: String(key || ""),
+				name: String(name || key || ""),
+			};
+		});
+	}
+
 	/** Returns the active SPA language limited to supported app languages. */
 	function currentLanguage() {
 		const lang = String(global.byCommon?.getLanguage?.() || global.bySPA?.APP_LANG || global.localStorage?.getItem("APP_LANG") || document.documentElement.getAttribute("lang") || "es")
@@ -793,6 +811,21 @@
 		return games;
 	}
 
+	/** Ensures the import provider catalog is loaded from assets/providers.json. */
+	async function ensureProviderCatalog() {
+		if (providers.length) return providers;
+		try {
+			providers = normalizeLocalCatalogRows(await loadJSON("/assets/providers.json"));
+		} catch (error) {
+			console.warn("Could not load import providers catalog", error);
+			providers = [];
+		}
+		if (!providers.length) {
+			providers = [{ key: "startgg", name: "start.gg" }];
+		}
+		return providers;
+	}
+
 	/** Finds a game catalog row by stored key or legacy display name. */
 	function gameCatalogEntry(game) {
 		return games.find(function (entry) {
@@ -926,6 +959,13 @@
 		if (!(select instanceof HTMLSelectElement)) return;
 		destroySelect(select);
 		select.innerHTML = catalogOptions(rows, selectedValue, valueField);
+	}
+
+	/** Replaces the Import page provider select before Select2 is initialized. */
+	function renderImportProviderSelect(page, selectedProvider = "startgg") {
+		const form = page.querySelector("[data-import-form]");
+		if (!(form instanceof HTMLFormElement)) return;
+		renderCatalogSelect(form, "provider", providers, selectedProvider, "key");
 	}
 
 	/** Saves immediately and repeats if edits arrived while the save was running. */
@@ -2789,6 +2829,17 @@
 		}
 	}
 
+	/** Loads provider options into the Import form's provider select. */
+	async function loadImportProviderSelect(page) {
+		try {
+			await ensureProviderCatalog();
+			renderImportProviderSelect(page, readImportProvider(page) || "startgg");
+			enhanceSelects(page);
+		} catch (error) {
+			console.warn("Could not initialize import providers", error);
+		}
+	}
+
 	/** Saves provider API keys through Go so the frontend never writes files directly. */
 	async function saveImportIntegrations(page) {
 		const app = await waitForBackend();
@@ -2808,8 +2859,16 @@
 			setImportStatus(page, "import_status_integrations_failed", error?.message || "API key save failed", "error");
 		} finally {
 			setPageEnabled(page, true);
+			syncImportActionButtons(page);
 			if (!page.dataset.previewUrl) setImportReady(page, false);
 		}
+	}
+
+	/** Reads the selected provider key from the import form. */
+	function readImportProvider(page) {
+		const form = page.querySelector("[data-import-form]");
+		if (!(form instanceof HTMLFormElement)) return "";
+		return formControl(form, "provider")?.value.trim() || "";
 	}
 
 	/** Reads the tournament URL from the import form. */
@@ -2819,11 +2878,25 @@
 		return formControl(form, "url")?.value.trim() || "";
 	}
 
+	/** Enables undo only when the page has a saved pre-import tournament snapshot. */
+	function setImportUndoReady(page, ready) {
+		const button = page.querySelector("[data-import-undo]");
+		if (button instanceof HTMLButtonElement) button.disabled = !ready;
+	}
+
 	/** Enables import only after a successful preview of the current URL. */
 	function setImportReady(page, ready, url = "") {
 		page.dataset.previewUrl = ready ? url : "";
 		const button = page.querySelector("[data-import-apply]");
 		if (button instanceof HTMLButtonElement) button.disabled = !ready;
+	}
+
+	/** Reapplies Import/Undo disabled state after temporary page-wide locks. */
+	function syncImportActionButtons(page) {
+		const readyURL = page.dataset.previewUrl || "";
+		const importButton = page.querySelector("[data-import-apply]");
+		if (importButton instanceof HTMLButtonElement) importButton.disabled = !readyURL;
+		setImportUndoReady(page, importUndoStates.has(page));
 	}
 
 	/** Formats a provider name from an import preview. */
@@ -2918,10 +2991,12 @@
 		}
 
 		const url = readImportURL(page);
+		const provider = readImportProvider(page);
 		setImportReady(page, false);
 		setImportStatus(page, "import_status_loading", "Loading import preview...", "neutral");
 		setPageEnabled(page, false);
 		try {
+			if (!provider) throw new Error(t("import_status_provider_required", "Select an import provider."));
 			const preview = await withTimeout(app.PreviewTournamentImport(url), 30000, "Import preview timed out");
 			renderImportPreview(page, preview);
 			setImportReady(page, true, url);
@@ -2931,7 +3006,7 @@
 			setImportStatus(page, "import_status_failed", error?.message || "Import preview failed", "error");
 		} finally {
 			setPageEnabled(page, true);
-			if (!page.dataset.previewUrl) setImportReady(page, false);
+			syncImportActionButtons(page);
 		}
 	}
 
@@ -2953,7 +3028,9 @@
 		setImportStatus(page, "import_status_importing", "Importing tournament...", "neutral");
 		setPageEnabled(page, false);
 		try {
+			const previousState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : currentState;
 			currentState = await withTimeout(app.ImportTournamentLink(url), 30000, "Tournament import timed out");
+			importUndoStates.set(page, cloneJSON(previousState || currentState));
 			setImportStatus(page, "import_status_imported", "Tournament imported", "success");
 			setImportReady(page, false);
 		} catch (error) {
@@ -2961,6 +3038,38 @@
 			setImportStatus(page, "import_status_import_failed", error?.message || "Tournament import failed", "error");
 		} finally {
 			setPageEnabled(page, true);
+			syncImportActionButtons(page);
+		}
+	}
+
+	/** Restores the tournament JSON captured immediately before the last import. */
+	async function undoTournamentImport(page) {
+		const app = await waitForBackend();
+		const state = importUndoStates.get(page);
+		if (!state) {
+			setImportStatus(page, "import_status_undo_unavailable", "No import to undo", "warning");
+			setImportUndoReady(page, false);
+			return;
+		}
+		if (!app || typeof app.SaveTournament !== "function") {
+			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			return;
+		}
+
+		setImportStatus(page, "import_status_undoing", "Undoing import...", "neutral");
+		setPageEnabled(page, false);
+		try {
+			await withTimeout(app.SaveTournament(state), 10000, "Import undo timed out");
+			currentState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : cloneJSON(state);
+			importUndoStates.delete(page);
+			setImportReady(page, false);
+			setImportStatus(page, "import_status_undone", "Import undone", "success");
+		} catch (error) {
+			console.error("UndoTournamentImport failed", error);
+			setImportStatus(page, "import_status_undo_failed", error?.message || "Import undo failed", "error");
+		} finally {
+			setPageEnabled(page, true);
+			syncImportActionButtons(page);
 		}
 	}
 
@@ -2984,6 +3093,9 @@
 			form.addEventListener("input", function () {
 				setImportReady(page, false);
 			});
+			form.addEventListener("change", function () {
+				setImportReady(page, false);
+			});
 		}
 		const importButton = page.querySelector("[data-import-apply]");
 		if (importButton instanceof HTMLButtonElement) {
@@ -2991,8 +3103,16 @@
 				void importTournamentLink(page);
 			});
 		}
+		const undoButton = page.querySelector("[data-import-undo]");
+		if (undoButton instanceof HTMLButtonElement) {
+			undoButton.addEventListener("click", function () {
+				void undoTournamentImport(page);
+			});
+		}
 		setImportReady(page, false);
+		setImportUndoReady(page, false);
 		setImportStatus(page, "import_status_idle", "Paste a tournament link to preview imported data.", "neutral");
+		void loadImportProviderSelect(page);
 		void loadImportIntegrations(page);
 	}
 

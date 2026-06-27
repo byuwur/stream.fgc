@@ -19,7 +19,7 @@
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_startgg_key">start.gg API key</span>
 					<input class="form-control" type="password" name="startgg_api_key" autocomplete="off" spellcheck="false" />
 				</label>
-				<div class="col-12 col-sm-auto d-flex flex-column flex-sm-row gap-2">
+				<div class="col-12 d-flex flex-column flex-sm-row gap-2 justify-content-end">
 					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="submit" data-import-integrations-save>
 						<i class="fas fa-key" aria-hidden="true"></i>
 						<span data-i18n="import_save_integrations">Save API keys</span>
@@ -30,7 +30,11 @@
 
 		<section class="fgc-panel border rounded mb-3 p-3">
 			<form class="row g-3 align-items-end" data-import-form>
-				<label class="col-12 col-xl m-0">
+				<label class="col-12 col-md-3 col-xl-2 m-0">
+					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_provider">Provider</span>
+					<select class="form-select" name="provider" data-enhance="select2"></select>
+				</label>
+				<label class="col-12 col-md m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_url">Tournament link</span>
 					<input class="form-control" type="url" name="url" autocomplete="off" placeholder="https://www.start.gg/tournament/.../event/..." />
 				</label>
@@ -41,7 +45,11 @@
 					</button>
 					<button class="btn btn-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-apply disabled>
 						<i class="fas fa-file-import" aria-hidden="true"></i>
-						<span data-i18n="import_apply">Import event and players</span>
+						<span data-i18n="import_apply">Import</span>
+					</button>
+					<button class="btn btn-outline-warning d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-undo disabled>
+						<i class="fas fa-rotate-left" aria-hidden="true"></i>
+						<span data-i18n="import_undo">Undo</span>
 					</button>
 				</div>
 			</form>
