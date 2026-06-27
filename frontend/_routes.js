@@ -13,6 +13,8 @@
 	// URIs
 	const ROUTE_ROOT = "/";
 
+	const ROUTE_IMPORT_ES = "importar";
+	const ROUTE_IMPORT_EN = "import";
 	const ROUTE_HOME_ES = "inicio";
 	const ROUTE_HOME_EN = "home";
 	const ROUTE_PLAYERS_ES = "jugadores";
@@ -34,6 +36,8 @@
 		[`${ROUTE_ROOT}`]: { URI: `/main.html`, ...ROOT_COMPONENTS },
 		[`/${ROUTE_ES}`]: { URI: ``, GET: { lang: "es" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_EN}`]: { URI: ``, GET: { lang: "en" }, ...ROOT_COMPONENTS },
+		[`/${ROUTE_IMPORT_ES}`]: { URI: `/import.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },
+		[`/${ROUTE_IMPORT_EN}`]: { URI: `/import.html`, GET: { lang: "en" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_HOME_ES}`]: { URI: `/main.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_HOME_EN}`]: { URI: `/main.html`, GET: { lang: "en" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_PLAYERS_ES}`]: { URI: `/players.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },

@@ -55,6 +55,26 @@ func (a *App) LoadTournament() backend.TournamentState {
 	return a.backend.LoadTournament()
 }
 
+// PreviewTournamentImport exposes external tournament link previews to the frontend.
+func (a *App) PreviewTournamentImport(rawURL string) (backend.ExternalTournament, error) {
+	return a.backend.PreviewTournamentImport(rawURL)
+}
+
+// ImportTournamentLink imports external tournament event and player data.
+func (a *App) ImportTournamentLink(rawURL string) (backend.TournamentState, error) {
+	return a.backend.ImportTournamentLink(rawURL)
+}
+
+// LoadImportIntegrations exposes saved provider API keys to the import page.
+func (a *App) LoadImportIntegrations() backend.ImportIntegrations {
+	return a.backend.LoadImportIntegrations()
+}
+
+// SaveImportIntegrations persists provider API keys from the import page.
+func (a *App) SaveImportIntegrations(settings backend.ImportIntegrations) (backend.ImportIntegrations, error) {
+	return a.backend.SaveImportIntegrations(settings)
+}
+
 // SaveTournament exposes full-state persistence to the frontend.
 func (a *App) SaveTournament(state backend.TournamentState) error {
 	return a.backend.SaveTournament(state)

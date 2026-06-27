@@ -20,6 +20,7 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **Live Tournament JSON:** Saves the current state into `data/tournament.json`.
 - **Event Editor:** Edits name, phase, first-to rule, game, format, size, logo, and overlay background.
 - **Player Editor:** Edits every player slot, country flags, characters, portraits, and responsive player cards.
+- **Import Page:** Previews supported external tournament links and imports event/player data into the local JSON.
 - **Current Match Control:** Resolves the current match from the bracket template, edits scores, swaps display sides, and prevents score edits after a winner is locked.
 - **Bracket Admin:** Shows a resolved bracket, sets current match, records wins/DQs/BYEs, swaps bracket seed assignments, randomizes before play starts, and resets bracket state.
 - **Overlay View Setting:** Stores which bracket slice OBS should show without changing the admin bracket view.
@@ -34,12 +35,14 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **backend/paths.go:** Resolves external folders for dev mode and portable release builds.
 - **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections.
 - **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
+- **backend/imports.go:** Detects external tournament links, previews provider data, and imports supported providers into local state.
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
 - **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
 - **backend/overlays.go:** Opens the local `overlays/` folder from the sidebar through the OS file explorer.
 - **frontend/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
 - **frontend/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
 - **frontend/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
+- **frontend/import.html:** External tournament import page fragment.
 - **frontend/main.html:** Event editor and Playing Now page fragment.
 - **frontend/players.html:** Player editor page fragment.
 - **frontend/brackets.html:** Admin bracket page fragment.
@@ -68,6 +71,15 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **players/_logo.png:** Custom tournament logo for overlays.
 - **players/_bg.jpg:** Custom tournament background for overlays only.
 - **overlays/**: Local OBS overlay workspace opened from the controller sidebar.
+
+### External Imports
+
+The Import page accepts tournament links and keeps Stream.FGC as the local source of truth after import.
+
+- **start.gg:** Supported through the official GraphQL API. Save the API key from the Import page. The backend writes `data/integrations.json` with `{ "startgg": { "api_key": "..." } }`, and that real token file is ignored by Git. `STARTGG_TOKEN`, `START_GG_TOKEN`, and `STARTGG_API_TOKEN` still work as local overrides.
+- **Challonge, Tonamel, and Parry.gg:** Links are detected and return a clear "not implemented yet" message until provider adapters are added.
+
+Imports currently bring event metadata and player slots into `data/tournament.json`. Provider matches are previewed only; bracket control remains local and template-driven.
 
 ## Data Model
 
@@ -110,11 +122,12 @@ Match results can be normal, `bye`, or `dq`. BYE results are generated during se
 ## Usage
 
 1. Run the app with Wails during development.
-2. Open the Event page to set event info, selected game, format, size, rule, logo, and overlay background.
-3. Open the Players page to fill player slots, countries, characters, and portraits.
-4. Open the Bracket page to randomize/swap bracket seeds, set the current match, and record wins, DQs, or BYEs.
-5. Let autosave write changes through Go into `data/tournament.json`.
-6. Point OBS overlays at the local JSON/assets when those overlay pages are added.
+2. Use the Import page when an external tournament link should seed the event and player list.
+3. Open the Event page to set event info, selected game, format, size, rule, logo, and overlay background.
+4. Open the Players page to fill player slots, countries, characters, and portraits.
+5. Open the Bracket page to randomize/swap bracket seeds, set the current match, and record wins, DQs, or BYEs.
+6. Let autosave write changes through Go into `data/tournament.json`.
+7. Point OBS overlays at the local JSON/assets when those overlay pages are added.
 
 > The frontend does not write files directly. Any save, upload, remove, reset, randomize, or swap operation goes through a Wails-bound Go method.
 

@@ -18,6 +18,7 @@
 (function (global) {
 	const EVENT_FORM = "[data-event-form]";
 	const CURRENT_MATCH = "[data-current-match]";
+	const IMPORT_PAGE = "[data-import-page]";
 	const PLAYER_PAGE = "[data-player-page]";
 	const BRACKET_PAGE = "[data-bracket-page]";
 	const BRACKET_OVERLAY = "[data-bracket-overlay]";
@@ -234,6 +235,13 @@
 	/** Sets the bracket page status badge. */
 	function setBracketStatus(page, key, fallback, tone = "neutral") {
 		const status = statusTarget(page, "[data-bracket-status]");
+		if (!status) return;
+		setStatusElement(status, key, fallback, tone);
+	}
+
+	/** Sets the import page status badge. */
+	function setImportStatus(page, key, fallback, tone = "neutral") {
+		const status = statusTarget(page, "[data-import-status]");
 		if (!status) return;
 		setStatusElement(status, key, fallback, tone);
 	}
@@ -2688,6 +2696,252 @@
 		});
 	}
 
+	// --- Import page ---
+
+	/** Reads provider API keys from the import integrations form. */
+	function readImportIntegrationsForm(page) {
+		const form = page.querySelector("[data-import-integrations-form]");
+		if (!(form instanceof HTMLFormElement)) return { startgg: { api_key: "" } };
+		return {
+			startgg: {
+				api_key: formControl(form, "startgg_api_key")?.value.trim() || "",
+			},
+		};
+	}
+
+	/** Fills provider API key fields from saved integration settings. */
+	function fillImportIntegrationsForm(page, settings) {
+		const form = page.querySelector("[data-import-integrations-form]");
+		if (!(form instanceof HTMLFormElement)) return;
+		const startGGInput = formControl(form, "startgg_api_key");
+		if (startGGInput) startGGInput.value = settings?.startgg?.api_key || "";
+	}
+
+	/** Loads provider API keys from the backend into the Import page. */
+	async function loadImportIntegrations(page) {
+		const app = await waitForBackend();
+		if (!app || typeof app.LoadImportIntegrations !== "function") {
+			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			return;
+		}
+
+		try {
+			const settings = await withTimeout(app.LoadImportIntegrations(), 5000, "Integration settings load timed out");
+			fillImportIntegrationsForm(page, settings);
+			setImportStatus(page, "import_status_idle", "Paste a tournament link to preview imported data.", "neutral");
+		} catch (error) {
+			console.error("LoadImportIntegrations failed", error);
+			setImportStatus(page, "import_status_integrations_load_failed", error?.message || "API key load failed", "error");
+		}
+	}
+
+	/** Saves provider API keys through Go so the frontend never writes files directly. */
+	async function saveImportIntegrations(page) {
+		const app = await waitForBackend();
+		if (!app || typeof app.SaveImportIntegrations !== "function") {
+			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			return;
+		}
+
+		setImportStatus(page, "import_status_integrations_saving", "Saving API keys...", "neutral");
+		setPageEnabled(page, false);
+		try {
+			const settings = await withTimeout(app.SaveImportIntegrations(readImportIntegrationsForm(page)), 5000, "Integration settings save timed out");
+			fillImportIntegrationsForm(page, settings);
+			setImportStatus(page, "import_status_integrations_saved", "API keys saved", "success");
+		} catch (error) {
+			console.error("SaveImportIntegrations failed", error);
+			setImportStatus(page, "import_status_integrations_failed", error?.message || "API key save failed", "error");
+		} finally {
+			setPageEnabled(page, true);
+			if (!page.dataset.previewUrl) setImportReady(page, false);
+		}
+	}
+
+	/** Reads the tournament URL from the import form. */
+	function readImportURL(page) {
+		const form = page.querySelector("[data-import-form]");
+		if (!(form instanceof HTMLFormElement)) return "";
+		return formControl(form, "url")?.value.trim() || "";
+	}
+
+	/** Enables import only after a successful preview of the current URL. */
+	function setImportReady(page, ready, url = "") {
+		page.dataset.previewUrl = ready ? url : "";
+		const button = page.querySelector("[data-import-apply]");
+		if (button instanceof HTMLButtonElement) button.disabled = !ready;
+	}
+
+	/** Formats a provider name from an import preview. */
+	function importProviderName(preview) {
+		return preview?.provider_name || preview?.provider || t("import_unknown_provider", "Unknown provider");
+	}
+
+	/** Renders one small import summary tile. */
+	function importSummaryTile(label, value) {
+		return [
+			`<div class="col-12 col-sm-6 col-lg-3">`,
+			`<div class="border rounded p-3 h-100">`,
+			`<span class="d-block small fw-bold" data-muted-text>${escapeHtml(label)}</span>`,
+			`<strong>${escapeHtml(value)}</strong>`,
+			`</div>`,
+			`</div>`,
+		].join("");
+	}
+
+	/** Builds the imported player preview table. */
+	function importPlayersTable(players) {
+		if (!players.length) {
+			return `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import_no_players", "No players found in this import."))}</div>`;
+		}
+		const rows = players
+			.slice(0, 64)
+			.map(function (player, index) {
+				return [
+					`<tr>`,
+					`<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
+					`<td>${escapeHtml(player.name || "")}</td>`,
+					`<td>${escapeHtml(player.team || "")}</td>`,
+					`<td>${escapeHtml(player.country || "")}</td>`,
+					`</tr>`,
+				].join("");
+			})
+			.join("");
+		const hiddenCount = Math.max(0, players.length - 64);
+		const hiddenNote = hiddenCount
+			? `<p class="m-0 mt-2 small" data-muted-text>${escapeHtml(t("import_players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
+			: "";
+		return [
+			`<div class="table-responsive border rounded">`,
+			`<table class="table table-dark table-sm align-middle m-0">`,
+			`<thead><tr>`,
+			`<th>${escapeHtml(t("import_seed", "Seed"))}</th>`,
+			`<th>${escapeHtml(t("import_player", "Player"))}</th>`,
+			`<th>${escapeHtml(t("import_team", "Team"))}</th>`,
+			`<th>${escapeHtml(t("import_country", "Country"))}</th>`,
+			`</tr></thead>`,
+			`<tbody>${rows}</tbody>`,
+			`</table>`,
+			`</div>`,
+			hiddenNote,
+		].join("");
+	}
+
+	/** Draws an import preview returned by the backend provider layer. */
+	function renderImportPreview(page, preview) {
+		const body = page.querySelector("[data-import-preview-body]");
+		if (!(body instanceof HTMLElement)) return;
+		const players = Array.isArray(preview?.players) ? preview.players : [];
+		const matches = Array.isArray(preview?.matches) ? preview.matches : [];
+		const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
+		const event = preview?.event || {};
+		body.innerHTML = [
+			importSummaryTile(t("import_provider", "Provider"), importProviderName(preview)),
+			importSummaryTile(t("import_event", "Event"), event.name || t("import_unknown_event", "Unknown event")),
+			importSummaryTile(t("import_phase", "Phase"), event.phase || ""),
+			importSummaryTile(t("import_counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket_match", "Match")}`),
+			warnings.length
+				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
+						.map(function (warning) {
+							return `<p class="m-0 small">${escapeHtml(warning)}</p>`;
+						})
+						.join("")}</div></div>`
+				: "",
+			`<div class="col-12">`,
+			`<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import_players_title", "Players"))}</h3>`,
+			importPlayersTable(players),
+			`</div>`,
+		].join("");
+		applyLanguage(body);
+	}
+
+	/** Loads an external tournament preview through the backend. */
+	async function previewTournamentImport(page) {
+		const app = await waitForBackend();
+		if (!app || typeof app.PreviewTournamentImport !== "function") {
+			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			return;
+		}
+
+		const url = readImportURL(page);
+		setImportReady(page, false);
+		setImportStatus(page, "import_status_loading", "Loading import preview...", "neutral");
+		setPageEnabled(page, false);
+		try {
+			const preview = await withTimeout(app.PreviewTournamentImport(url), 30000, "Import preview timed out");
+			renderImportPreview(page, preview);
+			setImportReady(page, true, url);
+			setImportStatus(page, "import_status_ready", "Import preview ready", "success");
+		} catch (error) {
+			console.error("PreviewTournamentImport failed", error);
+			setImportStatus(page, "import_status_failed", error?.message || "Import preview failed", "error");
+		} finally {
+			setPageEnabled(page, true);
+			if (!page.dataset.previewUrl) setImportReady(page, false);
+		}
+	}
+
+	/** Imports the previously previewed tournament into local JSON through Go. */
+	async function importTournamentLink(page) {
+		const app = await waitForBackend();
+		if (!app || typeof app.ImportTournamentLink !== "function") {
+			setImportStatus(page, "import_status_backend_missing", "Open in Wails to import tournament links.", "warning");
+			return;
+		}
+
+		const url = page.dataset.previewUrl || "";
+		if (!url || url !== readImportURL(page)) {
+			setImportReady(page, false);
+			setImportStatus(page, "import_status_preview_required", "Preview this link before importing.", "warning");
+			return;
+		}
+
+		setImportStatus(page, "import_status_importing", "Importing tournament...", "neutral");
+		setPageEnabled(page, false);
+		try {
+			currentState = await withTimeout(app.ImportTournamentLink(url), 30000, "Tournament import timed out");
+			setImportStatus(page, "import_status_imported", "Tournament imported", "success");
+			setImportReady(page, false);
+		} catch (error) {
+			console.error("ImportTournamentLink failed", error);
+			setImportStatus(page, "import_status_import_failed", error?.message || "Tournament import failed", "error");
+		} finally {
+			setPageEnabled(page, true);
+		}
+	}
+
+	/** Binds the import page form and action buttons. */
+	function bindImportPage(page) {
+		if (page.dataset.bound === "true") return;
+		page.dataset.bound = "true";
+		const integrationsForm = page.querySelector("[data-import-integrations-form]");
+		if (integrationsForm instanceof HTMLFormElement) {
+			integrationsForm.addEventListener("submit", function (event) {
+				event.preventDefault();
+				void saveImportIntegrations(page);
+			});
+		}
+		const form = page.querySelector("[data-import-form]");
+		if (form instanceof HTMLFormElement) {
+			form.addEventListener("submit", function (event) {
+				event.preventDefault();
+				void previewTournamentImport(page);
+			});
+			form.addEventListener("input", function () {
+				setImportReady(page, false);
+			});
+		}
+		const importButton = page.querySelector("[data-import-apply]");
+		if (importButton instanceof HTMLButtonElement) {
+			importButton.addEventListener("click", function () {
+				void importTournamentLink(page);
+			});
+		}
+		setImportReady(page, false);
+		setImportStatus(page, "import_status_idle", "Paste a tournament link to preview imported data.", "neutral");
+		void loadImportIntegrations(page);
+	}
+
 	/** Renders player cards and binds each generated form. */
 	function renderPlayers(page) {
 		const list = page.querySelector("[data-player-list]");
@@ -2934,6 +3188,9 @@
 		});
 		root.querySelectorAll(CURRENT_MATCH).forEach(function (panel) {
 			if (panel instanceof HTMLElement) bindCurrentMatch(panel);
+		});
+		root.querySelectorAll(IMPORT_PAGE).forEach(function (page) {
+			if (page instanceof HTMLElement) bindImportPage(page);
 		});
 		root.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
 			if (page instanceof HTMLElement) bindPlayerPage(page);
