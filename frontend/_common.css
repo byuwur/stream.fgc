@@ -377,6 +377,22 @@
 [data-muted-text] {
 	color: var(--fgc-text-muted);
 }
+[data-import-preview-table] {
+	background: rgba(var(--fgc-light-rgb), 0.045);
+}
+[data-import-preview-table] .table {
+	border-collapse: separate;
+	border-spacing: 0;
+	background: transparent;
+}
+[data-import-preview-table] th,
+[data-import-preview-table] td {
+	padding: 0.65rem 0.85rem;
+}
+[data-import-preview-table] thead th {
+	color: var(--fgc-text-soft);
+	letter-spacing: 0;
+}
 [data-player-card] {
 	border-color: var(--fgc-border-soft) !important;
 	background: rgba(var(--fgc-light-rgb), 0.045);

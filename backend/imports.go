@@ -105,6 +105,66 @@ type unsupportedImportProvider struct {
 
 type startGGImportProvider struct{}
 
+var importedCountryAliasCodes = map[string]string{
+	"argentina":                "AR",
+	"australia":                "AU",
+	"austria":                  "AT",
+	"belgium":                  "BE",
+	"brazil":                   "BR",
+	"canada":                   "CA",
+	"chile":                    "CL",
+	"china":                    "CN",
+	"colombia":                 "CO",
+	"costarica":                "CR",
+	"denmark":                  "DK",
+	"dominicanrepublic":        "DO",
+	"ecuador":                  "EC",
+	"elsalvador":               "SV",
+	"england":                  "GB",
+	"finland":                  "FI",
+	"france":                   "FR",
+	"germany":                  "DE",
+	"greatbritain":             "GB",
+	"guatemala":                "GT",
+	"hongkong":                 "HK",
+	"honduras":                 "HN",
+	"indonesia":                "ID",
+	"ireland":                  "IE",
+	"italy":                    "IT",
+	"japan":                    "JP",
+	"korea":                    "KR",
+	"malaysia":                 "MY",
+	"mexico":                   "MX",
+	"netherlands":              "NL",
+	"newzealand":               "NZ",
+	"nicaragua":                "NI",
+	"norway":                   "NO",
+	"panama":                   "PA",
+	"peru":                     "PE",
+	"philippines":              "PH",
+	"poland":                   "PL",
+	"portugal":                 "PT",
+	"puertorico":               "PR",
+	"scotland":                 "GB",
+	"singapore":                "SG",
+	"southkorea":               "KR",
+	"spain":                    "ES",
+	"sweden":                   "SE",
+	"switzerland":              "CH",
+	"taiwan":                   "TW",
+	"thailand":                 "TH",
+	"trinidadandtobago":        "TT",
+	"uk":                       "GB",
+	"unitedkingdom":            "GB",
+	"unitedstates":             "US",
+	"unitedstatesofamerica":    "US",
+	"us":                       "US",
+	"usa":                      "US",
+	"venezuela":                "VE",
+	"vietnam":                  "VN",
+	"vietnamsocialistrepublic": "VN",
+}
+
 type startGGGraphQLRequest struct {
 	Query     string                 `json:"query"`
 	Variables map[string]interface{} `json:"variables"`
@@ -818,13 +878,31 @@ func defaultEventRuleForImport() int {
 	return normalizeEventRule(0)
 }
 
-// normalizeImportedCountry keeps only ISO2 country codes in imported players.
+// normalizeImportedCountry converts provider country values into Stream.FGC ISO2 codes.
 func normalizeImportedCountry(country string) string {
-	country = strings.ToUpper(strings.TrimSpace(country))
-	if len(country) == 2 && isISO2Code(strings.ToLower(country)) {
-		return country
+	rawCountry := strings.TrimSpace(country)
+	isoCountry := strings.ToUpper(rawCountry)
+	if len(isoCountry) == 2 && isISO2Code(strings.ToLower(isoCountry)) {
+		return isoCountry
 	}
+
+	if code, ok := importedCountryAliasCodes[normalizeImportedCountryName(rawCountry)]; ok {
+		return code
+	}
+
 	return ""
+}
+
+// normalizeImportedCountryName makes provider country names comparable across spellings.
+func normalizeImportedCountryName(country string) string {
+	country = strings.NewReplacer("&", "and", ".", "", ",", "", "'", "").Replace(strings.ToLower(strings.TrimSpace(country)))
+	var builder strings.Builder
+	for _, character := range country {
+		if character >= 'a' && character <= 'z' || character >= '0' && character <= '9' {
+			builder.WriteRune(character)
+		}
+	}
+	return builder.String()
 }
 
 // firstNonEmpty returns the first non-empty string from values.

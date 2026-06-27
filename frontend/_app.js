@@ -2905,14 +2905,44 @@
 	}
 
 	/** Renders one small import summary tile. */
-	function importSummaryTile(label, value) {
+	function importSummaryTile(label, value, options) {
+		const body = options?.html ? String(value || "") : escapeHtml(value);
 		return [
-			`<div class="col-12 col-sm-6 col-lg-3">`,
+			`<div class="col-12 col-sm-6 col-lg-4 col-xl">`,
 			`<div class="border rounded p-3 h-100">`,
-			`<span class="d-block small fw-bold" data-muted-text>${escapeHtml(label)}</span>`,
-			`<strong>${escapeHtml(value)}</strong>`,
+			`<span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>`,
+			`<strong>${body}</strong>`,
 			`</div>`,
 			`</div>`,
+		].join("");
+	}
+
+	/** Renders the imported game as full catalog name and logo when supported. */
+	function importGameHTML(game) {
+		const rawGame = String(game?.key || game?.name || game || "").trim();
+		const entry = gameCatalogEntry(rawGame);
+		const supported = Boolean(entry);
+		const name = supported ? entry.name : rawGame || t("import_unknown_game", "Unknown");
+		const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
+		const suffix = supported ? "" : ` ${t("import_not_supported", "(not supported)")}`;
+		return [
+			`<span class="d-inline-flex gap-2 align-items-center mw-100">`,
+			`<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
+			`<span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>`,
+			`</span>`,
+		].join("");
+	}
+
+	/** Renders an imported ISO2 country with its flag and localized label. */
+	function importCountryHTML(country) {
+		const code = String(country || "").toUpperCase();
+		if (!code) return "";
+		if (!isISO2Code(code)) return escapeHtml(code);
+		return [
+			`<span class="d-inline-flex gap-2 align-items-center">`,
+			`<img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />`,
+			`<span>${escapeHtml(countryLabel(code))}</span>`,
+			`</span>`,
 		].join("");
 	}
 
@@ -2929,7 +2959,7 @@
 					`<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
 					`<td>${escapeHtml(player.name || "")}</td>`,
 					`<td>${escapeHtml(player.team || "")}</td>`,
-					`<td>${escapeHtml(player.country || "")}</td>`,
+					`<td>${importCountryHTML(player.country)}</td>`,
 					`</tr>`,
 				].join("");
 			})
@@ -2939,13 +2969,13 @@
 			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import_players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
 			: "";
 		return [
-			`<div class="table-responsive border rounded">`,
-			`<table class="table table-dark table-sm align-middle m-0">`,
+			`<div class="table-responsive border rounded p-2" data-import-preview-table>`,
+			`<table class="table table-dark align-middle m-0">`,
 			`<thead><tr>`,
-			`<th>${escapeHtml(t("import_seed", "Seed"))}</th>`,
-			`<th>${escapeHtml(t("import_player", "Player"))}</th>`,
-			`<th>${escapeHtml(t("import_team", "Team"))}</th>`,
-			`<th>${escapeHtml(t("import_country", "Country"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import_seed", "Seed"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import_player", "Player"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import_team", "Team"))}</th>`,
+			`<th class="small text-uppercase">${escapeHtml(t("import_country", "Country"))}</th>`,
 			`</tr></thead>`,
 			`<tbody>${rows}</tbody>`,
 			`</table>`,
@@ -2966,6 +2996,7 @@
 			importSummaryTile(t("import_provider", "Provider"), importProviderName(preview)),
 			importSummaryTile(t("import_event", "Event"), event.name || t("import_unknown_event", "Unknown event")),
 			importSummaryTile(t("import_phase", "Phase"), event.phase || ""),
+			importSummaryTile(t("import_game", "Game"), importGameHTML(event.game), { html: true }),
 			importSummaryTile(t("import_counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket_match", "Match")}`),
 			warnings.length
 				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
@@ -2998,6 +3029,8 @@
 		try {
 			if (!provider) throw new Error(t("import_status_provider_required", "Select an import provider."));
 			const preview = await withTimeout(app.PreviewTournamentImport(url), 30000, "Import preview timed out");
+			await ensureGameCatalog(app);
+			if (!Object.keys(countryNames).length) countryNames = (await loadCountryNames()) || {};
 			renderImportPreview(page, preview);
 			setImportReady(page, true, url);
 			setImportStatus(page, "import_status_ready", "Import preview ready", "success");
