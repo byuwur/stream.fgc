@@ -17,10 +17,10 @@
 			<form class="row g-3 align-items-end" data-import-integrations-form>
 				<label class="col-12 col-xl m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_startgg_key">start.gg API key</span>
-					<input class="form-control" type="password" name="startgg_api_key" autocomplete="off" spellcheck="false" />
+					<input class="form-control" type="password" name="startgg_api_key" autocomplete="off" spellcheck="false" title="Edit start.gg API key" data-i18n-title="import_startgg_key_title" data-i18n-label="import_startgg_key_title" />
 				</label>
 				<div class="col-12 d-flex flex-column flex-sm-row gap-2 justify-content-end">
-					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="submit" data-import-integrations-save>
+					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="submit" data-import-integrations-save title="Save provider API keys" data-i18n-title="import_save_integrations_title" data-i18n-label="import_save_integrations_title">
 						<i class="fas fa-key" aria-hidden="true"></i>
 						<span data-i18n="import_save_integrations">Save API keys</span>
 					</button>
@@ -32,22 +32,22 @@
 			<form class="row g-3 align-items-end" data-import-form>
 				<label class="col-12 col-md-3 col-xl-2 m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_provider">Provider</span>
-					<select class="form-select" name="provider" data-enhance="select2"></select>
+					<select class="form-select" name="provider" data-enhance="select2" title="Choose import provider" data-i18n-title="import_provider_title" data-i18n-label="import_provider_title"></select>
 				</label>
 				<label class="col-12 col-md m-0">
 					<span class="d-block mb-2 fw-bold" data-field-label data-i18n="import_url">Tournament link</span>
-					<input class="form-control" type="url" name="url" autocomplete="off" placeholder="https://www.start.gg/tournament/.../event/..." />
+					<input class="form-control" type="url" name="url" autocomplete="off" placeholder="https://www.start.gg/tournament/.../event/..." title="Paste tournament link" data-i18n-title="import_url_title" data-i18n-label="import_url_title" />
 				</label>
 				<div class="col-12 col-sm-auto d-flex flex-column flex-sm-row gap-2">
-					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="submit" data-import-preview>
+					<button class="btn btn-outline-light d-inline-flex gap-2 align-items-center justify-content-center" type="submit" data-import-preview title="Preview tournament import" data-i18n-title="import_preview_button_title" data-i18n-label="import_preview_button_title">
 						<i class="fas fa-magnifying-glass" aria-hidden="true"></i>
 						<span data-i18n="import_preview">Preview</span>
 					</button>
-					<button class="btn btn-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-apply disabled>
+					<button class="btn btn-danger d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-apply disabled title="Import previewed event and players" data-i18n-title="import_apply_title" data-i18n-label="import_apply_title">
 						<i class="fas fa-file-import" aria-hidden="true"></i>
 						<span data-i18n="import_apply">Import</span>
 					</button>
-					<button class="btn btn-outline-warning d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-undo disabled>
+					<button class="btn btn-outline-warning d-inline-flex gap-2 align-items-center justify-content-center" type="button" data-import-undo disabled title="Undo the last import" data-i18n-title="import_undo_title" data-i18n-label="import_undo_title">
 						<i class="fas fa-rotate-left" aria-hidden="true"></i>
 						<span data-i18n="import_undo">Undo</span>
 					</button>

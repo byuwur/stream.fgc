@@ -124,6 +124,17 @@
 		return element.closest(".fgc-page") || document;
 	}
 
+	/** Makes non-button controls, such as Dropzone targets, usable from the keyboard. */
+	function bindKeyboardClick(element) {
+		if (!(element instanceof HTMLElement) || element.dataset.keyboardClickBound === "true") return;
+		element.dataset.keyboardClickBound = "true";
+		element.addEventListener("keydown", function (event) {
+			if (event.key !== "Enter" && event.key !== " ") return;
+			event.preventDefault();
+			element.click();
+		});
+	}
+
 	/** Captures window and bracket lane scroll so async rerenders do not jump the operator around. */
 	function captureScrollState(root = document) {
 		const scrollElement = document.scrollingElement || document.documentElement;
@@ -186,6 +197,8 @@
 	/** Rebuilds a status badge with its i18n key, tone, icon, and text. */
 	function setStatusElement(status, key, fallback, tone) {
 		status.setAttribute("data-i18n", key);
+		status.setAttribute("role", "status");
+		status.setAttribute("aria-live", tone === "error" ? "assertive" : "polite");
 		status.dataset.tone = tone;
 		status.replaceChildren();
 
@@ -1188,6 +1201,7 @@
 		form.querySelectorAll("[data-event-asset-dropzone]").forEach(function (dropzoneElement) {
 			if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
 			dropzoneElement.dataset.bound = "true";
+			bindKeyboardClick(dropzoneElement);
 
 			const kind = dropzoneElement.getAttribute("data-event-asset-dropzone") || "logo";
 			const image = form.querySelector(`[data-event-asset-preview="${kind}"]`);
@@ -1346,22 +1360,25 @@
 	/** Creates the player and character image cluster for one match side. */
 	function matchMediaHTML(participant, side) {
 		const character = participantCharacter(participant);
+		const name = participantName(participant);
+		const playerAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", name);
+		const characterAlt = t("character_portrait_alt", "{name} character portrait").replace("{name}", character.name);
 		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
 		return [
 			`<div class="d-flex gap-2 col-12 col-sm-6">`,
 			`<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>`,
 			...(side === 1
 				? [
-						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image />`,
 						`<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`,
 					]
-				: [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`]),
+				: [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image />`]),
 			`</div>`,
 			`<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>`,
 			...(side === 1
-				? [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`]
+				? [`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image />`]
 				: [
-						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+						`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image />`,
 						`<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`,
 					]),
 			`</div>`,
@@ -1414,11 +1431,14 @@
 				: `data-score-action="inc" data-score-player="${side}"`;
 		const stepperAttr = prefix === "bracket" ? "data-bracket-score-stepper" : "";
 		const spacing = options?.compact ? "m-0" : "mt-3";
+		const downLabel = t("match_score_down", "Decrease score");
+		const scoreLabel = t("match_score_label", "Score");
+		const upLabel = t("match_score_up", "Increase score");
 		return [
 			`<div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>`,
-			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} aria-label="${escapeHtml(t("match_score_down", "Decrease score"))}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
-			`<input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${scoreValue}" ${inputAttr} aria-label="${escapeHtml(t("match_score_label", "Score"))}" />`,
-			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${incAttrs} aria-label="${escapeHtml(t("match_score_up", "Increase score"))}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
+			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} title="${escapeHtml(downLabel)}" aria-label="${escapeHtml(downLabel)}"><i class="fas fa-minus" aria-hidden="true"></i></button>`,
+			`<input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${scoreValue}" ${inputAttr} title="${escapeHtml(scoreLabel)}" aria-label="${escapeHtml(scoreLabel)}" />`,
+			`<button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${incAttrs} title="${escapeHtml(upLabel)}" aria-label="${escapeHtml(upLabel)}"><i class="fas fa-plus" aria-hidden="true"></i></button>`,
 			`</div>`,
 		].join("");
 	}
@@ -1426,15 +1446,18 @@
 	/** Creates compact player and character media for bracket participant rows. */
 	function bracketParticipantMediaHTML(participant) {
 		const character = participantCharacter(participant);
+		const name = participantName(participant);
+		const playerAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", name);
+		const characterAlt = t("character_portrait_alt", "{name} character portrait").replace("{name}", character.name);
 		const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
 		return [
 			`<div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media>`,
 			`<div class="d-flex gap-2 align-items-center">`,
 			`<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-player-image>`,
-			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="" loading="lazy" data-fallback-image />`,
+			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image />`,
 			`</div>`,
 			`<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-character-image>`,
-			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="" loading="lazy" data-fallback-image />`,
+			`<img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image />`,
 			`</div>`,
 			`</div>`,
 			//`<span class="small fw-bold text-truncate d-inline-block text-center" data-bracket-character-label>${escapeHtml(character.name)}</span>`,
@@ -1456,8 +1479,9 @@
 		const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
 		const seed = swappableParticipantSeed(participant);
 		const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}"` : "";
+		const swapLabel = t("match_swap_player", "Select player to swap");
 		const swapButton = seed
-			? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-current-seed-swap="${seed}" aria-label="${escapeHtml(t("match_swap_player", "Select player to swap"))}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
+			? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-current-seed-swap="${seed}" title="${escapeHtml(swapLabel)}" aria-label="${escapeHtml(swapLabel)}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
 			: "";
 
 		return [
@@ -1515,7 +1539,7 @@
 			`<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match_vs", "VS"))}</span>`,
 			`<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
 			`</div>`,
-			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3" type="button" data-current-side-swap><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
+			`<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3" type="button" data-current-side-swap title="${escapeHtml(t("match_swap_sides", "Swap sides"))}" aria-label="${escapeHtml(t("match_swap_sides", "Swap sides"))}"><i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match_swap_sides", "Swap sides"))}</span></button>`,
 			`</div>`,
 			`</div>`,
 			matchPlayerCard(match, 2),
@@ -2141,6 +2165,7 @@
 			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true, limit: parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3 })
 			: `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
 		const actionControls = controlsLocked ? "" : bracketParticipantActionsHTML(match, side, admin);
+		const swapLabel = t("bracket_swap_player", "Select player to swap");
 		return [
 			`<div class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}" data-bracket-participant data-status="${escapeHtml(status)}" data-outcome="${winner ? "winner" : loser ? "loser" : ""}"${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>`,
 			`<div class="d-flex flex-nowrap gap-2 align-items-center">`,
@@ -2156,7 +2181,7 @@
 			scoreControl,
 			actionControls,
 			swapAttrs && !controlsLocked
-				? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bracket-seed-swap="${seed}" aria-label="${escapeHtml(t("bracket_swap_player", "Select player to swap"))}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
+				? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bracket-seed-swap="${seed}" title="${escapeHtml(swapLabel)}" aria-label="${escapeHtml(swapLabel)}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
 				: "",
 			`</div>`,
 			`</div>`,
@@ -2175,15 +2200,18 @@
 		const opponentID = side === 1 ? p2 : p1;
 		const seedParticipant = (side === 1 ? match?.player1 : match?.player2)?.source?.type === "seed";
 		const bye = (side === 1 ? match?.player1 : match?.player2)?.status === "bye";
+		const winLabel = t("bracket_win_title", "Mark this player as the winner");
+		const dqLabel = t("bracket_dq_title", "Disqualify this player");
+		const byeLabel = bye ? t("bracket_live_title", "Remove BYE from this player") : t("bracket_bye_title", "Give this player a BYE");
 		return [
 			canDecide
-				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}">${escapeHtml(t("bracket_win", "Win"))}</button>`
+				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}" title="${escapeHtml(winLabel)}" aria-label="${escapeHtml(winLabel)}">${escapeHtml(t("bracket_win", "Win"))}</button>`
 				: "",
 			canDecide
-				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq">${escapeHtml(t("bracket_dq", "DQ"))}</button>`
+				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq" title="${escapeHtml(dqLabel)}" aria-label="${escapeHtml(dqLabel)}">${escapeHtml(t("bracket_dq", "DQ"))}</button>`
 				: "",
 			seedParticipant
-				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}">${escapeHtml(bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
+				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}" title="${escapeHtml(byeLabel)}" aria-label="${escapeHtml(byeLabel)}">${escapeHtml(bye ? t("bracket_live", "Live") : t("bracket_bye", "BYE"))}</button>`
 				: "",
 		].join("");
 	}
@@ -2193,20 +2221,22 @@
 		if (!admin) return "";
 		const current = match?.current ? " disabled" : "";
 		const currentLabel = match?.current ? t("bracket_current", "Current") : t("bracket_set_current", "Current");
-		const currentButton = `<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`;
+		const currentTitle = match?.current ? t("bracket_current", "Current") : t("bracket_set_current_title", "Set this match as the current match");
+		const clearTitle = t("bracket_clear_winner", "Clear winner");
+		const currentButton = `<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}" title="${escapeHtml(currentTitle)}" aria-label="${escapeHtml(currentTitle)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`;
 		const complete = match?.status === "complete" || Boolean(match?.winner_id || match?.state?.winner);
 		if (complete) {
 			return [
 				`<div class="d-flex flex-wrap gap-2 mt-2">`,
 				currentButton,
-				match?.winner_id || match?.state?.winner ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
+				match?.winner_id || match?.state?.winner ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
 				`</div>`,
 			].join("");
 		}
 		return [
 			`<div class="d-flex flex-wrap gap-2 mt-2">`,
 			currentButton,
-			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
+			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket_clear", "Clear"))}</button>` : "",
 			`</div>`,
 		].join("");
 	}
@@ -2794,25 +2824,27 @@
 
 	/** Builds the complete Bootstrap player card markup for one player slot. */
 	function playerCard(playerID, player) {
+		const playerName = player?.name || `${t("players_player", "Player")} ${playerID}`;
+		const portraitAlt = t("player_portrait_alt", "{name} player portrait").replace("{name}", playerName);
 		return [
 			`<div class="col-12 col-md-6">`,
 			`<form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}">`,
 			`<div class="row g-3 align-items-stretch">`,
 			`<section class="col-12 col-md-4 d-flex">`,
-			`<div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame><img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="" loading="lazy" /></div>`,
+			`<div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame><img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="${escapeHtml(portraitAlt)}" loading="lazy" /></div>`,
 			`</section>`,
 			`<section class="col-12 col-md-8 d-flex flex-column">`,
 			`<div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading><span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players_player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong></div>`,
 			`<div class="row g-3">`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" /></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" /></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country">${countryOptions(player?.country)}</select></label>`,
-			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character">${characterOptions(player?.character)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_name">Name</span><input class="form-control" type="text" name="name" autocomplete="off" value="${escapeHtml(player?.name || "")}" title="${escapeHtml(t("player_name_title", "Edit player name"))}" aria-label="${escapeHtml(t("player_name_title", "Edit player name"))}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_team">Team</span><input class="form-control" type="text" name="team" autocomplete="off" value="${escapeHtml(player?.team || "")}" title="${escapeHtml(t("player_team_title", "Edit player team"))}" aria-label="${escapeHtml(t("player_team_title", "Edit player team"))}" /></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_country">Country</span><select class="form-select" name="country" data-enhance="select2" data-select-template="country" title="${escapeHtml(t("player_country_title", "Choose player country"))}" aria-label="${escapeHtml(t("player_country_title", "Choose player country"))}">${countryOptions(player?.country)}</select></label>`,
+			`<label class="col-12 col-xl-6 m-0"><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player_character">Character</span><select class="form-select" name="character" data-enhance="select2" data-select-template="character" title="${escapeHtml(t("player_character_title", "Choose player character"))}" aria-label="${escapeHtml(t("player_character_title", "Choose player character"))}">${characterOptions(player?.character)}</select></label>`,
 			`</div>`,
 			`<div class="row g-2 align-items-stretch mt-auto pt-3">`,
-			`<div class="col-12 col-sm-auto"><div class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2" data-player-dropzone><div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player_portrait_drop">Drop or click image</span></div></div></div>`,
-			`<div class="col-12 col-sm-auto"><button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="button" data-player-portrait-remove><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player_portrait_remove">Remove picture</span></button></div>`,
-			`<div class="col-12 col-sm-auto"><button class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="submit" data-manual-save><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players_save">Save now</span></button></div>`,
+			`<div class="col-12 col-sm-auto"><div class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2" data-player-dropzone role="button" tabindex="0" title="${escapeHtml(t("player_portrait_drop_title", "Upload player portrait"))}" aria-label="${escapeHtml(t("player_portrait_drop_title", "Upload player portrait"))}"><div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player_portrait_drop">Drop or click image</span></div></div></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="button" data-player-portrait-remove title="${escapeHtml(t("player_portrait_remove_title", "Remove player portrait"))}" aria-label="${escapeHtml(t("player_portrait_remove_title", "Remove player portrait"))}"><i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player_portrait_remove">Remove picture</span></button></div>`,
+			`<div class="col-12 col-sm-auto"><button class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2" type="submit" data-manual-save title="${escapeHtml(t("players_save_title", "Save this player now"))}" aria-label="${escapeHtml(t("players_save_title", "Save this player now"))}"><i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players_save">Save now</span></button></div>`,
 			`</div>`,
 			`</section>`,
 			`</div>`,
@@ -2847,6 +2879,8 @@
 				width: "100%",
 				...templateOptions,
 			});
+			const label = select.getAttribute("aria-label") || select.getAttribute("title") || "";
+			if (label) jquery(select).next(".select2").find(".select2-selection").attr({ "aria-label": label, title: label });
 		});
 	}
 
@@ -2911,11 +2945,28 @@
 			element.setAttribute("title", value);
 			if (element.hasAttribute("data-bs-toggle")) element.setAttribute("data-bs-title", value);
 		});
+		matchingElements(root, "[data-i18n-label]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n-label") || "";
+			const value = t(key, element.getAttribute("aria-label") || element.getAttribute("title") || "");
+			element.setAttribute("aria-label", value);
+		});
+		matchingElements(root, "[data-i18n-alt]").forEach(function (element) {
+			const key = element.getAttribute("data-i18n-alt") || "";
+			const value = t(key, element.getAttribute("alt") || "");
+			element.setAttribute("alt", value);
+		});
 		matchingElements(root, "[data-i18n-route]").forEach(function (element) {
 			const key = element.getAttribute("data-i18n-route") || "";
 			const route = t(key, "").replace(/^\/+/, "");
 			if (route) element.setAttribute("href", `#/${route}`);
 		});
+		const jquery = global.jQuery;
+		if (jquery?.fn?.select2) {
+			matchingElements(root, "select.select2-hidden-accessible").forEach(function (select) {
+				const label = select.getAttribute("aria-label") || select.getAttribute("title") || "";
+				if (label) jquery(select).next(".select2").find(".select2-selection").attr({ "aria-label": label, title: label });
+			});
+		}
 	}
 
 	// --- Import page ---
@@ -3414,6 +3465,7 @@
 		const dropzoneElement = form.querySelector("[data-player-dropzone]");
 		if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
 		dropzoneElement.dataset.bound = "true";
+		bindKeyboardClick(dropzoneElement);
 
 		const image = form.querySelector("[data-player-portrait]");
 		setImageFallback(image);
@@ -3507,6 +3559,7 @@
 
 	/** Initializes controls in the current document or newly loaded SPA content. */
 	function init(root = document) {
+		applyLanguage(root);
 		bindSidebarActions(root);
 		bindAutosaveToggles(root);
 		bindGlobalReload(root);
@@ -3544,6 +3597,7 @@
 
 	// Language changes require dynamic Select2 labels and status icons to be rebuilt.
 	document.addEventListener("bycommon:language", function () {
+		applyLanguage(document);
 		const form = document.querySelector(EVENT_FORM);
 		if (form instanceof HTMLFormElement && currentState?.event) {
 			fillEventForm(form, currentState.event);
