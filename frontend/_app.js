@@ -681,7 +681,7 @@
 		const lang = String(global.byCommon?.getLanguage?.() || global.bySPA?.APP_LANG || global.localStorage?.getItem("APP_LANG") || document.documentElement.getAttribute("lang") || "es")
 			.slice(0, 2)
 			.toLowerCase();
-		return lang === "en" ? "en" : "es";
+		return ["en", "es", "ja"].includes(lang) ? lang : "es";
 	}
 
 	/** Builds a local asset URL compatible with SPA.js and direct file serving. */
@@ -713,7 +713,7 @@
 
 	/** Loads localized country names used by the flag Select2 template. */
 	async function loadCountryNames(lang = currentLanguage()) {
-		const normalized = lang === "en" ? "en" : "es";
+		const normalized = ["en", "es", "ja"].includes(lang) ? lang : "es";
 		if (countryNameCache[normalized]) return countryNameCache[normalized];
 
 		try {

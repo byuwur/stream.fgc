@@ -53,6 +53,9 @@
 
 	bySPA.APP_ENV = localStorage.getItem("APP_ENV") || NOTENV_APP_ENV;
 	bySPA.ROUTER_MODE = ROUTER_MODE === "path" ? "path" : "hash";
+	// Stream.FGC dictionaries are loaded by spa.js/_lang.js, so expose the app allowlist before that file boots.
+	bySPA.APP_LANGS = ["es", "en", "ja"];
+	bySPA.DEFAULT_APP_LANG = "es";
 	// Determine the protocol (HTTP or HTTPS)
 	bySPA.PROTOCOL = global.location.protocol === "https:" ? "https://" : "http://";
 	// Get this script's file and directory path
