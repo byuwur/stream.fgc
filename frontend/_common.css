@@ -78,16 +78,16 @@
 }
 /* === SELECTION === */
 ::selection {
-	background-color: var(--fgc-brand-soft);
-	color: var(--light-color);
+	background-color: var(--light-color);
+	color: var(--dark-color);
 }
 ::-webkit-selection {
-	background-color: var(--fgc-brand-soft);
-	color: var(--light-color);
+	background-color: var(--light-color);
+	color: var(--dark-color);
 }
 ::-moz-selection {
-	background-color: var(--fgc-brand-soft);
-	color: var(--light-color);
+	background-color: var(--light-color);
+	color: var(--dark-color);
 }
 /* #bywr-accessibility {
 	top: 2.5% !important;
@@ -308,22 +308,18 @@
 .fgc-panel .form-select {
 	height: var(--fgc-field-control-height);
 }
-.fgc-event-form .form-control,
-.fgc-event-form .form-select,
-[data-current-match] .form-control,
-[data-bracket-match] .form-control,
-[data-player-card] .form-control,
-[data-player-card] .form-select {
+.fgc-panel .form-control,
+.fgc-panel .form-select {
 	border-color: var(--fgc-border);
 	background-color: var(--fgc-surface-soft);
 	color: var(--fgc-light);
 }
-.fgc-event-form .form-control:focus,
-.fgc-event-form .form-select:focus,
-[data-current-match] .form-control:focus,
-[data-bracket-match] .form-control:focus,
-[data-player-card] .form-control:focus,
-[data-player-card] .form-select:focus {
+.fgc-panel .form-control::placeholder {
+	color: var(--fgc-text-muted);
+	opacity: 0.85;
+}
+.fgc-panel .form-control:focus,
+.fgc-panel .form-select:focus {
 	border-color: var(--fgc-control-active);
 	box-shadow: 0 0 0 0.18rem rgba(var(--fgc-control-active-rgb), 0.25);
 }
