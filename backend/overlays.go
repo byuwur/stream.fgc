@@ -23,6 +23,7 @@ func (a *App) ShowOverlaysFolder() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// Creating the folder here makes the sidebar action useful even in a fresh portable build.
 	if err := os.MkdirAll(folderPath, 0755); err != nil {
 		return "", err
 	}
@@ -39,6 +40,7 @@ func overlaysFolderPath() (string, error) {
 
 // openFolder launches the platform file manager without going through a shell.
 func openFolder(folderPath string) error {
+	// Use direct process execution instead of shelling out with a composed command string.
 	switch runtime.GOOS {
 	case "windows":
 		return exec.Command("explorer.exe", folderPath).Start()

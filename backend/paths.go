@@ -23,6 +23,7 @@ var externalPathMode = defaultExternalPathMode()
 // configureExternalPaths chooses repo-local folders for Wails dev and exe-local folders for builds.
 func configureExternalPaths(ctx context.Context) {
 	buildType, _ := ctx.Value("buildtype").(string)
+	// Wails sets buildtype; direct Go runs fall back to auto-detection.
 	switch buildType {
 	case "production", "debug":
 		externalPathMode = externalPathModePortable
@@ -36,6 +37,7 @@ func configureExternalPaths(ctx context.Context) {
 // ensureRuntimeFolders creates writable folders required by the controller and overlays.
 func ensureRuntimeFolders() {
 	for _, dirPath := range []string{dataDirPath, playerPortraitDirPath, assetDirPath, templatesDirPath, overlaysDirPath} {
+		// Folder creation is best-effort; individual reads/writes surface actionable errors later.
 		_ = os.MkdirAll(externalWriteDirPath(dirPath), 0755)
 	}
 }
@@ -50,6 +52,7 @@ func externalDirPaths(rootDir string) []string {
 	paths := []string{}
 	for _, basePath := range externalBaseDirs() {
 		dirPath := filepath.Clean(filepath.Join(basePath, rootDir))
+		// Keep paths unique so delete loops and lookup loops cannot double-hit the same folder.
 		if !stringInSlice(paths, dirPath) {
 			paths = append(paths, dirPath)
 		}
@@ -74,6 +77,7 @@ func externalFilePaths(rootDir string, filePath string) []string {
 func externalWriteDirPath(rootDir string) string {
 	for _, dirPath := range externalDirPaths(rootDir) {
 		if info, err := os.Stat(dirPath); err == nil && info.IsDir() {
+			// Prefer an existing folder so dev/release data keeps living where the operator expects.
 			return dirPath
 		}
 	}
@@ -101,6 +105,7 @@ func usePortableExternalPaths() bool {
 	case externalPathModeDev:
 		return false
 	default:
+		// Auto mode protects packaged exes from writing back into a source checkout.
 		return !projectRootAvailable()
 	}
 }
@@ -146,6 +151,7 @@ func findProjectRoot(startPath string) (string, bool) {
 	}
 
 	for {
+		// go.mod + wails.json is a strong enough signature for this project root.
 		if fileExists(filepath.Join(currentPath, "go.mod")) && fileExists(filepath.Join(currentPath, "wails.json")) {
 			return currentPath, true
 		}

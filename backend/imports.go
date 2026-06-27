@@ -280,6 +280,7 @@ func (a *App) PreviewTournamentImport(rawURL string) (ExternalTournament, error)
 		return ExternalTournament{}, err
 	}
 
+	// Providers are selected by URL shape so the frontend only needs one import form.
 	provider, ok := detectTournamentImportProvider(parsedURL)
 	if !ok {
 		return ExternalTournament{}, fmt.Errorf("unsupported tournament link")
@@ -292,6 +293,7 @@ func (a *App) PreviewTournamentImport(rawURL string) (ExternalTournament, error)
 	preview.URL = normalizedURL
 	preview.Provider = provider.key()
 	preview.ProviderName = provider.name()
+	// Normalize after provider mapping so every preview returns a safe event shape.
 	normalizeExternalTournamentPreview(&preview)
 	return preview, nil
 }
@@ -309,6 +311,7 @@ func (a *App) ImportTournamentLink(rawURL string) (TournamentState, error) {
 	defer a.mu.Unlock()
 
 	current := a.loadTournamentLocked()
+	// Import currently replaces event/player setup while preserving reusable app settings.
 	imported := tournamentStateFromExternal(current, preview)
 	if err := writeTournamentState(imported); err != nil {
 		return cloneTournamentState(a.state), err
@@ -351,6 +354,7 @@ func normalizeImportURL(rawURL string) (string, *url.URL, error) {
 		return "", nil, err
 	}
 	if parsedURL.Scheme == "" {
+		// Operators often paste "start.gg/..." without a scheme; make it explicit.
 		rawURL = "https://" + rawURL
 		parsedURL, err = url.Parse(rawURL)
 		if err != nil {
@@ -360,6 +364,7 @@ func normalizeImportURL(rawURL string) (string, *url.URL, error) {
 	if parsedURL.Host == "" {
 		return "", nil, fmt.Errorf("tournament link must include a host")
 	}
+	// Fragments are browser-only state and should not affect provider detection/cache keys.
 	parsedURL.Fragment = ""
 	return parsedURL.String(), parsedURL, nil
 }
@@ -368,6 +373,7 @@ func normalizeImportURL(rawURL string) (string, *url.URL, error) {
 func detectTournamentImportProvider(parsedURL *url.URL) (tournamentImportProvider, bool) {
 	providers := []tournamentImportProvider{
 		startGGImportProvider{},
+		// Keep planned providers detectable so the UI can return useful "not implemented" errors.
 		unsupportedImportProvider{providerKey: "challonge", providerName: "Challonge"},
 		unsupportedImportProvider{providerKey: "tonamel", providerName: "Tonamel"},
 		unsupportedImportProvider{providerKey: "parry", providerName: "Parry.gg"},
@@ -439,6 +445,7 @@ func (provider startGGImportProvider) preview(app *App, rawURL string, parsedURL
 		return ExternalTournament{Provider: provider.key(), ProviderName: provider.name(), URL: rawURL}, err
 	}
 
+	// start.gg GraphQL requires a user token; we store it locally, never in tournament.json.
 	token := startGGAPIToken(app)
 	if token == "" {
 		return ExternalTournament{Provider: provider.key(), ProviderName: provider.name(), URL: rawURL}, fmt.Errorf("start.gg API key missing; save it on the Import page")
@@ -482,6 +489,7 @@ func startGGPathSegments(parsedURL *url.URL) []string {
 		if rawPart == "" {
 			continue
 		}
+		// start.gg slugs may include escaped punctuation; decode before matching path labels.
 		part, err := url.PathUnescape(rawPart)
 		if err != nil {
 			part = rawPart
@@ -497,11 +505,13 @@ func startGGPathSegments(parsedURL *url.URL) []string {
 func startGGAPIToken(app *App) string {
 	for _, key := range []string{"STARTGG_TOKEN", "START_GG_TOKEN", "STARTGG_API_TOKEN"} {
 		if token := strings.TrimSpace(os.Getenv(key)); token != "" {
+			// Environment variables are convenient for CI/manual smoke tests.
 			return token
 		}
 	}
 
 	if app != nil {
+		// App path goes through the same external folder resolver as production builds.
 		settings := app.LoadImportIntegrations()
 		return strings.TrimSpace(settings.StartGG.APIKey)
 	}
@@ -533,6 +543,7 @@ func decodeImportIntegrations(data []byte) (ImportIntegrations, error) {
 		return ImportIntegrations{}, err
 	}
 
+	// Support the early single-token draft so local installs do not lose saved keys.
 	var legacySettings struct {
 		StartGGToken string `json:"startgg_token"`
 	}
@@ -550,6 +561,7 @@ func writeImportIntegrations(settings ImportIntegrations) error {
 		return err
 	}
 
+	// API keys stay local beside data/tournament.json and are intentionally Git-ignored.
 	if err := os.MkdirAll(externalWriteDirPath(dataDirPath), 0755); err != nil {
 		return err
 	}
@@ -576,6 +588,7 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), importHTTPTimeout)
 	defer cancel()
 
+	// Use GraphQL by event slug so pasted overview links and completed events resolve the same way.
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, startGGGraphQLEndpoint, bytes.NewReader(body))
 	if err != nil {
 		return startGGEvent{}, err
@@ -598,6 +611,7 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 		return startGGEvent{}, fmt.Errorf("start.gg returned HTTP %d", response.StatusCode)
 	}
 	if len(graphResponse.Errors) > 0 {
+		// Surface the first provider error; start.gg usually returns the useful message there.
 		return startGGEvent{}, fmt.Errorf("start.gg: %s", graphResponse.Errors[0].Message)
 	}
 	if graphResponse.Data.Event == nil {
@@ -612,6 +626,7 @@ func startGGExternalTournament(app *App, rawURL string, slug string, event start
 	for index, entrant := range event.Entrants.Nodes {
 		player := startGGExternalPlayer(entrant)
 		if player.Seed <= 0 {
+			// Entrants query does not expose seed directly, so order is the stable fallback.
 			player.Seed = index + 1
 		}
 		players = append(players, player)
@@ -628,6 +643,7 @@ func startGGExternalTournament(app *App, rawURL string, slug string, event start
 	}
 	if app != nil && game != "" {
 		if key, err := app.resolveGameKey(game); err == nil && key != "" {
+			// Save the local game key when the provider display name matches our catalog.
 			game = key
 		}
 	}
@@ -705,6 +721,7 @@ func startGGImportWarnings(event startGGEvent, playerCount int) []string {
 
 // normalizeExternalTournamentPreview sorts players and clamps preview size.
 func normalizeExternalTournamentPreview(preview *ExternalTournament) {
+	// Stable ordering makes previews deterministic and imports predictable.
 	sort.SliceStable(preview.Players, func(i int, j int) bool {
 		left := preview.Players[i]
 		right := preview.Players[j]
@@ -737,6 +754,7 @@ func tournamentStateFromExternal(current TournamentState, preview ExternalTourna
 		state.Event.Phase = preview.Event.Phase
 	}
 	if preview.Event.Game != "" && normalizeAssetName(preview.Event.Game) != normalizeAssetName(state.Event.Game) {
+		// Imported game changes invalidate character keys just like manual event edits.
 		state.Event.Game = preview.Event.Game
 		clearPlayerCharacters(state.Players)
 	}
@@ -749,6 +767,7 @@ func tournamentStateFromExternal(current TournamentState, preview ExternalTourna
 
 	state.Players = map[string]Player{}
 	limit := min(len(preview.Players), state.Event.Size)
+	// Player IDs remain local seed slots; provider IDs are preview metadata for now.
 	for index := 0; index < limit; index++ {
 		player := preview.Players[index]
 		state.Players[strconv.Itoa(index+1)] = Player{
@@ -758,6 +777,7 @@ func tournamentStateFromExternal(current TournamentState, preview ExternalTourna
 		}
 	}
 	state.Matches = map[string]MatchState{}
+	// Imported players start from clean natural seeding until the operator randomizes or edits.
 	state.Bracket.Seeds = nil
 	state.Bracket.Byes = nil
 	state.Bracket.Matches = nil

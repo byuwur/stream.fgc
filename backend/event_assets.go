@@ -47,6 +47,7 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 		return "", err
 	}
 
+	// Reuse the browser data-URL decoder used by player portraits; validation follows here.
 	rawImage, err := decodePlayerPortraitData(imageData)
 	if err != nil {
 		return "", err
@@ -62,8 +63,10 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 
 	var output bytes.Buffer
 	if key == "background" {
+		// Backgrounds are JPEG so overlays get predictable file names and smaller files.
 		err = jpeg.Encode(&output, imageValue, &jpeg.Options{Quality: 92})
 	} else {
+		// Logos stay PNG to preserve transparency for OBS overlays.
 		err = png.Encode(&output, imageValue)
 	}
 	if err != nil {
@@ -88,6 +91,7 @@ func removeTournamentAsset(key string) (string, error) {
 		return "", err
 	}
 
+	// Delete across all lookup folders so stale dev/release copies cannot shadow the fallback.
 	for _, dirPath := range playerPortraitDirs() {
 		targetPath := filepath.Join(dirPath, fileName)
 		if err := os.Remove(targetPath); err != nil && !os.IsNotExist(err) {

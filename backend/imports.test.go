@@ -118,6 +118,7 @@ func main() {
 		fail("start.gg returned no players")
 	}
 
+	// Keep output short so this can run as a manual smoke test during provider changes.
 	fmt.Printf("start.gg import smoke test ok: event=%q tournament=%q players=%d numEntrants=%d\n", event.Name, event.Tournament.Name, len(event.Entrants.Nodes), event.NumEntrants)
 }
 
@@ -125,11 +126,13 @@ func main() {
 func startGGAPIToken() string {
 	for _, key := range []string{"STARTGG_TOKEN", "START_GG_TOKEN", "STARTGG_API_TOKEN"} {
 		if token := strings.TrimSpace(os.Getenv(key)); token != "" {
+			// Environment variables let CI or one-off local runs avoid touching data files.
 			return token
 		}
 	}
 
 	for _, filePath := range []string{"data/integrations.json", "../data/integrations.json"} {
+		// This standalone file intentionally avoids importing backend path helpers.
 		data, err := os.ReadFile(filePath)
 		if err != nil {
 			continue
@@ -191,6 +194,7 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "Stream.FGC smoke test")
 
+	// Keep the smoke test honest by hitting the same provider endpoint as the app.
 	response, err := client.Do(request)
 	if err != nil {
 		return startGGEvent{}, err

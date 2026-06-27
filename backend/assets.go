@@ -51,6 +51,7 @@ type assetTextEntry struct {
 func (a *App) ListRules() ([]CatalogOption, error) {
 	options, err := a.readCatalogOptions("rules.json")
 	if err != nil {
+		// Missing catalogs are not fatal; the frontend can render an empty select.
 		return []CatalogOption{}, nil
 	}
 	return normalizeRuleOptions(options), nil
@@ -83,6 +84,7 @@ func (a *App) ListGames() ([]GameAsset, error) {
 
 	games := make([]GameAsset, 0, len(entries))
 	for _, entry := range entries {
+		// Game folders use fixed asset names so new games can be added with JSON + files only.
 		logo := path.Join(entry.Key, "_logo.png")
 		if !a.assetFileExists(logo) {
 			logo = assetFallbackImage
@@ -120,6 +122,7 @@ func (a *App) ListCharacters(game string) ([]CharacterAsset, error) {
 
 	characters := make([]CharacterAsset, 0, len(entries))
 	for _, entry := range entries {
+		// Character values saved in tournament.json stay as keys; images are derived at render time.
 		portrait := path.Join(gameKey, "portraits", entry.Key+".png")
 		if !a.assetFileExists(portrait) {
 			portrait = assetFallbackImage
@@ -158,6 +161,7 @@ func normalizeRuleOptions(options []CatalogOption) []CatalogOption {
 	normalized := make([]CatalogOption, 0, len(options))
 	seen := map[int]bool{}
 	for _, option := range options {
+		// Accept either JSON keys like "3" or legacy labels like "FT3".
 		rule := parseEventRuleNumber(option.Key)
 		if rule <= 0 {
 			rule = parseEventRuleNumber(option.Name)
@@ -189,6 +193,7 @@ func (a *App) resolveGameKey(game string) (string, error) {
 	needle := strings.ToLower(game)
 	normalizedNeedle := normalizeAssetName(game)
 	for _, entry := range entries {
+		// Stored JSON should be the key, but imports and old files may carry display names.
 		if strings.ToLower(entry.Key) == needle || strings.ToLower(entry.Value) == needle {
 			return entry.Key, nil
 		}
@@ -199,6 +204,7 @@ func (a *App) resolveGameKey(game string) (string, error) {
 
 	candidate := strings.ToLower(game)
 	if isSafeAssetPath(candidate) && a.assetFileExists(path.Join(candidate, "characters.json")) {
+		// Last-chance fallback supports hand-authored keys before games.json is updated.
 		return candidate, nil
 	}
 
@@ -221,6 +227,7 @@ func (a *App) readAssetFile(rel string) ([]byte, error) {
 		return nil, err
 	}
 
+	// The path resolver hides dev vs portable differences from catalog readers.
 	for _, diskPath := range assetDiskPaths(cleanRel) {
 		if data, err := os.ReadFile(diskPath); err == nil {
 			return data, nil
@@ -265,6 +272,7 @@ func stringInSlice(values []string, needle string) bool {
 func decodeOrderedStringMap(data []byte) ([]assetTextEntry, error) {
 	decoder := json.NewDecoder(bytes.NewReader(data))
 
+	// encoding/json maps do not preserve author order, so read the object token stream.
 	token, err := decoder.Token()
 	if err != nil {
 		return nil, err

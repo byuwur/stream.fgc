@@ -131,11 +131,13 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 	for _, matchID := range sortedTemplateMatchIDs(template) {
 		templateMatch := template.Matches[matchID]
 		matchView := bracketMatchView(matchID, templateMatch, state)
+		// Admin can request a slice of the full graph without changing the overlay setting.
 		if !bracketViewAllows(view, matchView.Group) {
 			continue
 		}
 
 		matchCount++
+		// Build section/round buckets lazily so templates define the visual structure.
 		if _, ok := sectionsByKey[matchView.Group]; !ok {
 			sectionsByKey[matchView.Group] = &BracketSection{Key: matchView.Group, Name: bracketGroupName(matchView.Group)}
 			roundsBySection[matchView.Group] = map[string]*BracketRound{}
@@ -151,6 +153,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 	}
 
 	sections := make([]BracketSection, 0, len(sectionOrder))
+	// Sort after grouping so JSON object iteration cannot change bracket layout.
 	sort.SliceStable(sectionOrder, func(i, j int) bool {
 		return bracketGroupSort(sectionOrder[i]) < bracketGroupSort(sectionOrder[j])
 	})
@@ -195,6 +198,7 @@ func bracketMatchView(matchID string, templateMatch TemplateMatch, state Tournam
 	player1 := resolveParticipant(templateMatch.Player1, state)
 	player2 := resolveParticipant(templateMatch.Player2, state)
 	matchState := state.Matches[matchID]
+	// Older JSON may only have Winner. Derive Loser for display without rewriting here.
 	if matchState.Winner != "" && matchState.Loser == "" {
 		switch matchState.Winner {
 		case player1.PlayerID:
@@ -204,6 +208,7 @@ func bracketMatchView(matchID string, templateMatch TemplateMatch, state Tournam
 		}
 	}
 	if matchState.Winner != "" && matchState.Reason == "" && (player1.Status == participantStatusBye || player2.Status == participantStatusBye) {
+		// BYE matches should explain why the other side advanced in admin and overlays.
 		matchState.Reason = matchReasonBye
 	}
 	group := bracketMatchGroup(templateMatch)
@@ -284,6 +289,7 @@ func applyByeAdvancement(state *TournamentState, template BracketTemplate) {
 		state.Matches = map[string]MatchState{}
 	}
 
+	// Propagate until stable because one BYE can reveal another BYE-driven downstream match.
 	for changed := true; changed; {
 		changed = false
 		for _, matchID := range sortedTemplateMatchIDs(template) {
@@ -359,6 +365,7 @@ func hasBracketStarted(state TournamentState, template BracketTemplate) bool {
 		player1 := resolveParticipant(templateMatch.Player1, state)
 		player2 := resolveParticipant(templateMatch.Player2, state)
 		if player1.Status == participantStatusBye || player2.Status == participantStatusBye {
+			// Auto-advanced setup BYEs should not block reset/randomize before play starts.
 			continue
 		}
 		if matchState.Reason == matchReasonBye {
@@ -472,6 +479,7 @@ func bracketGroupSort(group string) int {
 // bracketMatchGroup resolves the visual section for a template match.
 func bracketMatchGroup(match TemplateMatch) string {
 	if match.Group != "" {
+		// Prefer explicit template groups; name sniffing is only a compatibility fallback.
 		switch normalizeBracketViewKey(match.Group) {
 		case bracketViewWinners:
 			return bracketViewWinners
@@ -574,6 +582,7 @@ func naturalMatchOrder(id string) int {
 	if value, err := strconv.Atoi(strings.TrimLeft(id, "M")); err == nil {
 		return value
 	}
+	// Letter IDs sort like spreadsheet columns: A, B, ..., Z, AA, AB.
 	order := 0
 	for _, character := range strings.ToUpper(id) {
 		if character < 'A' || character > 'Z' {

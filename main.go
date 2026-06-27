@@ -30,6 +30,7 @@ var assets embed.FS
 func embeddedFrontend() fs.FS {
 	frontend, err := fs.Sub(assets, "frontend")
 	if err != nil {
+		// Falling back keeps Wails bootable even if the embed path changes during development.
 		return assets
 	}
 	return frontend
@@ -246,6 +247,7 @@ func staticLibraryHandler() http.Handler {
 		cleanURLPath := path.Clean(request.URL.Path)
 		rootDir := ""
 		filePath := ""
+		// Only expose the external folders that the frontend/overlays intentionally reference.
 		switch {
 		case strings.HasPrefix(cleanURLPath, "/assets/"):
 			rootDir = "assets"
@@ -259,10 +261,12 @@ func staticLibraryHandler() http.Handler {
 		}
 
 		if filePath == "" || strings.HasPrefix(filePath, "../") || strings.Contains(filePath, "/../") {
+			// Keep the static bridge from becoming an arbitrary filesystem reader.
 			http.NotFound(response, request)
 			return
 		}
 
+		// Backend.ExternalFilePaths handles dev vs portable folder lookup.
 		for _, diskPath := range backend.ExternalFilePaths(rootDir, filePath) {
 			if info, err := os.Stat(diskPath); err == nil && !info.IsDir() {
 				http.ServeFile(response, request, diskPath)
@@ -278,6 +282,7 @@ func staticLibraryHandler() http.Handler {
 func main() {
 	app := NewApp()
 
+	// The frontend is embedded in the exe; data/assets/templates remain external and portable.
 	err := wails.Run(&options.App{
 		Title:  "Stream.FGC",
 		Width:  1280,

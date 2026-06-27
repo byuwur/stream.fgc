@@ -28,6 +28,9 @@ func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	configureExternalPaths(ctx)
 	ensureRuntimeFolders()
+
+	// Prime the in-memory copy so Wails can answer immediately after startup.
+	// LoadTournament still re-reads disk later so external JSON edits are visible.
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.state = a.loadTournamentLocked()

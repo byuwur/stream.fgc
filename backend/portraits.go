@@ -31,6 +31,7 @@ func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, err
 		return "", err
 	}
 
+	// The frontend sends image data only; all filesystem decisions stay in Go.
 	rawImage, err := decodePlayerPortraitData(imageData)
 	if err != nil {
 		return "", err
@@ -44,6 +45,7 @@ func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, err
 		return "", fmt.Errorf("player portrait must be a PNG, JPEG, or GIF image: %w", err)
 	}
 
+	// Normalize every upload to PNG so overlays can reference /players/{id}.png reliably.
 	var pngBuffer bytes.Buffer
 	if err := png.Encode(&pngBuffer, imageValue); err != nil {
 		return "", err
@@ -68,6 +70,7 @@ func (a *App) RemovePlayerPortrait(playerID string) (string, error) {
 	}
 
 	fileName := playerKey + ".png"
+	// Remove from every lookup path so a release copy cannot be masked by an old dev copy.
 	for _, dirPath := range playerPortraitDirs() {
 		targetPath := filepath.Join(dirPath, fileName)
 		if err := os.Remove(targetPath); err != nil && !os.IsNotExist(err) {
@@ -86,6 +89,7 @@ func decodePlayerPortraitData(imageData string) ([]byte, error) {
 	}
 
 	if strings.HasPrefix(strings.ToLower(payload), "data:") {
+		// Dropzone/FileReader produces data URLs; manual tests may send raw base64.
 		commaIndex := strings.Index(payload, ",")
 		if commaIndex < 0 {
 			return nil, fmt.Errorf("invalid image data URL")
@@ -109,6 +113,7 @@ func decodePlayerPortraitData(imageData string) ([]byte, error) {
 func cleanPlayerPortraitKey(playerID string) (string, error) {
 	var builder strings.Builder
 	for _, character := range strings.TrimSpace(playerID) {
+		// Portrait filenames are derived from player IDs, so strip anything path-like.
 		switch {
 		case character >= 'a' && character <= 'z':
 			builder.WriteRune(character)
