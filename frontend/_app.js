@@ -1966,6 +1966,7 @@
 
 	/** Infers the visual round for static templates. */
 	function staticMatchRound(match, group) {
+		if (group === "finals" && match?.reset && String(match?.name || "").trim()) return String(match.name).trim();
 		if (match?.round) return match.round;
 		const name = String(match?.name || "");
 		const index = name.indexOf(" - ");

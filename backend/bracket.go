@@ -599,6 +599,10 @@ func bracketMatchGroup(match TemplateMatch) string {
 
 // bracketMatchRound resolves the visual round/column label for a template match.
 func bracketMatchRound(match TemplateMatch, group string) string {
+	if group == bracketViewFinals && match.Reset && strings.TrimSpace(match.Name) != "" {
+		// Grand finals and reset are separate visual columns even when the template round is shared.
+		return strings.TrimSpace(match.Name)
+	}
 	if match.Round != "" {
 		return match.Round
 	}
