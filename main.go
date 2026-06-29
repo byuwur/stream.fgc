@@ -53,29 +53,12 @@ func staticLibraryHandler() http.Handler {
 			return
 		}
 
-		cleanURLPath := path.Clean(request.URL.Path)
-		rootDir := ""
-		filePath := ""
-		// Only expose the external folders that the frontend/overlays intentionally reference.
-		switch {
-		case strings.HasPrefix(cleanURLPath, "/assets/"):
-			rootDir = "assets"
-			filePath = strings.TrimPrefix(cleanURLPath, "/assets/")
-		case strings.HasPrefix(cleanURLPath, "/players/"):
-			rootDir = "players"
-			filePath = strings.TrimPrefix(cleanURLPath, "/players/")
-		default:
+		rootDir, filePath, ok := externalStaticTarget(request.URL.Path)
+		if !ok {
 			http.NotFound(response, request)
 			return
 		}
 
-		if filePath == "" || strings.HasPrefix(filePath, "../") || strings.Contains(filePath, "/../") {
-			// Keep the static bridge from becoming an arbitrary filesystem reader.
-			http.NotFound(response, request)
-			return
-		}
-
-		// Backend.ExternalFilePaths handles dev vs portable folder lookup.
 		for _, diskPath := range backend.ExternalFilePaths(rootDir, filePath) {
 			if info, err := os.Stat(diskPath); err == nil && !info.IsDir() {
 				http.ServeFile(response, request, diskPath)
@@ -85,6 +68,29 @@ func staticLibraryHandler() http.Handler {
 
 		http.NotFound(response, request)
 	})
+}
+
+// externalStaticTarget maps browser URLs to the small set of public runtime folders.
+func externalStaticTarget(rawURLPath string) (string, string, bool) {
+	cleanURLPath := path.Clean(rawURLPath)
+	for _, route := range []struct {
+		prefix string
+		root   string
+	}{
+		{prefix: "/assets/", root: "assets"},
+		{prefix: "/players/", root: "players"},
+	} {
+		if strings.HasPrefix(cleanURLPath, route.prefix) {
+			filePath := strings.TrimPrefix(cleanURLPath, route.prefix)
+			return route.root, filePath, safeStaticFilePath(filePath)
+		}
+	}
+	return "", "", false
+}
+
+// safeStaticFilePath keeps the bridge from becoming an arbitrary filesystem reader.
+func safeStaticFilePath(filePath string) bool {
+	return filePath != "" && !strings.HasPrefix(filePath, "../") && !strings.Contains(filePath, "/../")
 }
 
 // main starts the Wails desktop shell with embedded frontend assets.

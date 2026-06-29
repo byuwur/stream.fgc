@@ -49,30 +49,17 @@ type assetTextEntry struct {
 
 // ListRules returns rule options from assets/rules.json.
 func (a *App) ListRules() ([]CatalogOption, error) {
-	options, err := a.readCatalogOptions("rules.json")
-	if err != nil {
-		// Missing catalogs are not fatal; the frontend can render an empty select.
-		return []CatalogOption{}, nil
-	}
-	return normalizeRuleOptions(options), nil
+	return normalizeRuleOptions(a.catalogOptionsOrEmpty("rules.json")), nil
 }
 
 // ListFormats returns bracket format options from assets/formats.json.
 func (a *App) ListFormats() ([]CatalogOption, error) {
-	options, err := a.readCatalogOptions("formats.json")
-	if err != nil {
-		return []CatalogOption{}, nil
-	}
-	return options, nil
+	return a.catalogOptionsOrEmpty("formats.json"), nil
 }
 
 // ListSizes returns allowed tournament sizes from assets/sizes.json.
 func (a *App) ListSizes() ([]CatalogOption, error) {
-	options, err := a.readCatalogOptions("sizes.json")
-	if err != nil {
-		return []CatalogOption{}, nil
-	}
-	return options, nil
+	return a.catalogOptionsOrEmpty("sizes.json"), nil
 }
 
 // ListGames returns all configured games with display logo and background URLs.
@@ -136,6 +123,15 @@ func (a *App) ListCharacters(game string) ([]CharacterAsset, error) {
 	}
 
 	return characters, nil
+}
+
+// catalogOptionsOrEmpty keeps optional select catalogs from breaking the frontend.
+func (a *App) catalogOptionsOrEmpty(rel string) []CatalogOption {
+	options, err := a.readCatalogOptions(rel)
+	if err != nil {
+		return []CatalogOption{}
+	}
+	return options
 }
 
 // readCatalogOptions converts a key/value JSON catalog into frontend options.

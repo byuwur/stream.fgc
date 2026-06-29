@@ -16,6 +16,31 @@
  * @param {Object} global The global object, usually `window` in Wails or a browser.
  */
 (function (global) {
+	/** Builds a frontend-owned URL through SPA.js when possible. */
+	function appAssetURL(path) {
+		const normalized = `/${String(path || "").replace(/^\/+/, "")}`;
+		if (typeof global.bySPA?.buildRequestURL === "function") return global.bySPA.buildRequestURL(normalized);
+		return `.${normalized}`;
+	}
+
+	/** Builds URLs for external runtime folders beside the repo or portable exe. */
+	function externalURL(path) {
+		const normalized = String(path || "").replace(/^\/+/, "");
+		const homePath = String(global.bySPA?.HOME_PATH || global.location.origin || "").replace(/\/$/, "");
+		let base = null;
+		try {
+			base = new URL(`${homePath || "."}/`, global.location.href);
+		} catch (_) {
+			base = new URL("./", global.location.href);
+		}
+
+		if (base.pathname.replace(/\/$/, "").toLowerCase().endsWith("/frontend")) {
+			base = new URL("../", base);
+		}
+
+		return new URL(normalized, base).toString();
+	}
+
 	const GLOBAL_RELOAD = "[data-global-reload]";
 	const EVENT_FORM = "[data-event-form]";
 	const CURRENT_MATCH = "[data-current-match]";
@@ -685,31 +710,6 @@
 		return ["en", "es", "ja"].includes(lang) ? lang : "es";
 	}
 
-	/** Builds a local asset URL compatible with SPA.js and direct file serving. */
-	function appAssetURL(path) {
-		const normalized = `/${String(path || "").replace(/^\/+/, "")}`;
-		if (typeof global.bySPA?.buildRequestURL === "function") return global.bySPA.buildRequestURL(normalized);
-		return `.${normalized}`;
-	}
-
-	/** Builds URLs for external runtime folders beside the repo or portable exe. */
-	function externalURL(path) {
-		const normalized = String(path || "").replace(/^\/+/, "");
-		const homePath = String(global.bySPA?.HOME_PATH || global.location.origin || "").replace(/\/$/, "");
-		let base = null;
-		try {
-			base = new URL(`${homePath || "."}/`, global.location.href);
-		} catch (_) {
-			base = new URL("./", global.location.href);
-		}
-
-		if (base.pathname.replace(/\/$/, "").toLowerCase().endsWith("/frontend")) {
-			base = new URL("../", base);
-		}
-
-		return new URL(normalized, base).toString();
-	}
-
 	/** Loads JSON from external runtime folders instead of the embedded frontend. */
 	async function loadExternalJSON(path) {
 		return loadJSON(externalURL(path));
@@ -1061,6 +1061,52 @@
 		}
 	}
 
+	/** Creates the small callback bundle used by manual save and autosave. */
+	function autosaveOptions(manualPending, pending, save, signature) {
+		return {
+			manualPending,
+			pending,
+			save,
+			signature,
+		};
+	}
+
+	/** Returns autosave behavior for the event editor. */
+	function eventAutosaveOptions(form) {
+		return autosaveOptions(
+			function () {
+				setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
+			},
+			function () {
+				setStatus(form, "event.status.pending", "Event changes pending...", "neutral");
+			},
+			function () {
+				return saveEvent(form);
+			},
+			function () {
+				return formSignature(readEventForm, form);
+			},
+		);
+	}
+
+	/** Returns autosave behavior for one player card. */
+	function playerAutosaveOptions(form, page) {
+		return autosaveOptions(
+			function () {
+				setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
+			},
+			function () {
+				setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
+			},
+			function () {
+				return savePlayer(form, page);
+			},
+			function () {
+				return formSignature(readPlayerForm, form);
+			},
+		);
+	}
+
 	// --- Event page ---
 
 	/** Loads tournament/event data, catalogs, and initializes the event form. */
@@ -1260,41 +1306,16 @@
 	function bindEventForm(form) {
 		if (form.dataset.bound === "true") return;
 		form.dataset.bound = "true";
+		const options = eventAutosaveOptions(form);
 		bindEventAssetDropzones(form);
 		bindEventAssetRemove(form);
 
 		form.addEventListener("submit", function (event) {
 			event.preventDefault();
-			void flushAutosave(form, {
-				manualPending: function () {
-					setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
-				},
-				pending: function () {
-					setStatus(form, "event.status.pending", "Event changes pending...", "neutral");
-				},
-				save: function () {
-					return saveEvent(form);
-				},
-				signature: function () {
-					return formSignature(readEventForm, form);
-				},
-			});
+			void flushAutosave(form, options);
 		});
 
-		bindAutosave(form, {
-			manualPending: function () {
-				setStatus(form, "event.status.unsaved", "Unsaved event changes", "warning");
-			},
-			pending: function () {
-				setStatus(form, "event.status.pending", "Event changes pending...", "neutral");
-			},
-			save: function () {
-				return saveEvent(form);
-			},
-			signature: function () {
-				return formSignature(readEventForm, form);
-			},
-		});
+		bindAutosave(form, options);
 
 		const gameSelect = formControl(form, "game");
 		if (gameSelect instanceof HTMLSelectElement) {
@@ -2469,6 +2490,14 @@
 		}
 	}
 
+	/** Runs one named backend bracket method and keeps button handlers readable. */
+	function runBracketBackendMethod(page, methodName, ...args) {
+		void runBracketAction(page, function (app) {
+			if (typeof app[methodName] !== "function") return Promise.reject(new Error(`${methodName} is unavailable`));
+			return app[methodName](...args);
+		});
+	}
+
 	/** Reads one bracket score from a rendered match card. */
 	function readBracketScore(matchCard, side) {
 		const input = matchCard?.querySelector(`[data-bracket-score-input="${side}"]`);
@@ -2495,10 +2524,7 @@
 		if (player1Input instanceof HTMLInputElement) player1Input.value = String(player1Score);
 		if (player2Input instanceof HTMLInputElement) player2Input.value = String(player2Score);
 
-		void runBracketAction(page, function (app) {
-			if (typeof app.UpdateMatchScore !== "function") return Promise.reject(new Error("UpdateMatchScore is unavailable"));
-			return app.UpdateMatchScore(matchID, player1Score, player2Score);
-		});
+		runBracketBackendMethod(page, "UpdateMatchScore", matchID, player1Score, player2Score);
 	}
 
 	/** Handles first/second click selection for bracket seed swaps without moving player records. */
@@ -2517,10 +2543,7 @@
 			setBracketStatus(page, "bracket.status.swap_cleared", "Player swap cancelled", "neutral");
 			return;
 		}
-		void runBracketAction(page, function (app) {
-			if (typeof app.SwapBracketSeeds !== "function") return Promise.reject(new Error("SwapBracketSeeds is unavailable"));
-			return app.SwapBracketSeeds(selectedSeed, seed);
-		});
+		runBracketBackendMethod(page, "SwapBracketSeeds", selectedSeed, seed);
 	}
 
 	/** Handles native and Select2-driven bracket view changes through one path. */
@@ -2573,19 +2596,13 @@
 		const reset = page.querySelector("[data-bracket-reset]");
 		if (reset) {
 			reset.addEventListener("click", function () {
-				void runBracketAction(page, function (app) {
-					if (typeof app.ResetBracket !== "function") return Promise.reject(new Error("ResetBracket is unavailable"));
-					return app.ResetBracket();
-				});
+				runBracketBackendMethod(page, "ResetBracket");
 			});
 		}
 		const randomize = page.querySelector("[data-bracket-randomize]");
 		if (randomize) {
 			randomize.addEventListener("click", function () {
-				void runBracketAction(page, function (app) {
-					if (typeof app.RandomizeBracketSeeds !== "function") return Promise.reject(new Error("RandomizeBracketSeeds is unavailable"));
-					return app.RandomizeBracketSeeds();
-				});
+				runBracketBackendMethod(page, "RandomizeBracketSeeds");
 			});
 		}
 
@@ -2602,9 +2619,7 @@
 			if (currentButton instanceof HTMLButtonElement) {
 				event.preventDefault();
 				const matchID = currentButton.getAttribute("data-bracket-current") || "";
-				void runBracketAction(page, function (app) {
-					return app.SetCurrentMatch(matchID);
-				});
+				runBracketBackendMethod(page, "SetCurrentMatch", matchID);
 				return;
 			}
 
@@ -2614,13 +2629,8 @@
 				const matchID = winnerButton.getAttribute("data-bracket-winner") || "";
 				const playerID = winnerButton.getAttribute("data-player-id") || "";
 				const reason = winnerButton.getAttribute("data-result-reason") || "";
-				void runBracketAction(page, function (app) {
-					if (reason) {
-						if (typeof app.SetMatchResult !== "function") return Promise.reject(new Error("SetMatchResult is unavailable"));
-						return app.SetMatchResult(matchID, playerID, reason);
-					}
-					return app.SetMatchWinner(matchID, playerID);
-				});
+				if (reason) runBracketBackendMethod(page, "SetMatchResult", matchID, playerID, reason);
+				else runBracketBackendMethod(page, "SetMatchWinner", matchID, playerID);
 				return;
 			}
 
@@ -2630,10 +2640,7 @@
 				const matchID = byeButton.getAttribute("data-bracket-bye") || "";
 				const side = Number(byeButton.getAttribute("data-side") || 0);
 				const bye = byeButton.getAttribute("data-bye") === "true";
-				void runBracketAction(page, function (app) {
-					if (typeof app.SetMatchParticipantBye !== "function") return Promise.reject(new Error("SetMatchParticipantBye is unavailable"));
-					return app.SetMatchParticipantBye(matchID, side, bye);
-				});
+				runBracketBackendMethod(page, "SetMatchParticipantBye", matchID, side, bye);
 				return;
 			}
 
@@ -2641,9 +2648,7 @@
 			if (clearButton instanceof HTMLButtonElement) {
 				event.preventDefault();
 				const matchID = clearButton.getAttribute("data-bracket-clear") || "";
-				void runBracketAction(page, function (app) {
-					return app.SetMatchWinner(matchID, "");
-				});
+				runBracketBackendMethod(page, "SetMatchWinner", matchID, "");
 				return;
 			}
 
@@ -3529,42 +3534,17 @@
 	function bindPlayerForm(form, page) {
 		if (form.dataset.bound === "true") return;
 		form.dataset.bound = "true";
+		const options = playerAutosaveOptions(form, page);
 		markAutosaved(form, formSignature(readPlayerForm, form));
 		bindPlayerPortraitDropzone(form, page);
 		bindPlayerPortraitRemove(form, page);
 
 		form.addEventListener("submit", function (event) {
 			event.preventDefault();
-			void flushAutosave(form, {
-				manualPending: function () {
-					setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
-				},
-				pending: function () {
-					setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
-				},
-				save: function () {
-					return savePlayer(form, page);
-				},
-				signature: function () {
-					return formSignature(readPlayerForm, form);
-				},
-			});
+			void flushAutosave(form, options);
 		});
 
-		bindAutosave(form, {
-			manualPending: function () {
-				setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
-			},
-			pending: function () {
-				setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
-			},
-			save: function () {
-				return savePlayer(form, page);
-			},
-			signature: function () {
-				return formSignature(readPlayerForm, form);
-			},
-		});
+		bindAutosave(form, options);
 	}
 
 	/** Binds the players page shell and triggers its initial load. */

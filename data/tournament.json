@@ -3,7 +3,7 @@
   "event": {
     "name": "Chimbacanería",
     "phase": "2026:28",
-    "rule": 5,
+    "rule": 2,
     "game": "sf6",
     "format": "double_elimination",
     "size": 4
@@ -37,8 +37,46 @@
   },
   "matches": {
     "A": {
-      "player1_score": 0,
-      "player2_score": 0
+      "player1_score": 2,
+      "player2_score": 1,
+      "winner": "1",
+      "loser": "2"
+    },
+    "B": {
+      "player1_score": 2,
+      "player2_score": 1,
+      "winner": "3",
+      "loser": "4"
+    },
+    "C": {
+      "player1_score": 2,
+      "player2_score": 1,
+      "winner": "1",
+      "loser": "3"
+    },
+    "D": {
+      "player1_score": 2,
+      "player2_score": 1,
+      "winner": "2",
+      "loser": "4"
+    },
+    "E": {
+      "player1_score": 2,
+      "player2_score": 1,
+      "winner": "2",
+      "loser": "3"
+    },
+    "F": {
+      "player1_score": 1,
+      "player2_score": 2,
+      "winner": "2",
+      "loser": "1"
+    },
+    "G": {
+      "player1_score": 1,
+      "player2_score": 2,
+      "winner": "1",
+      "loser": "2"
     }
   },
   "bracket": {

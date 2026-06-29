@@ -189,24 +189,11 @@ type startGGInt int
 
 // UnmarshalJSON accepts GraphQL ID values as strings or numbers.
 func (id *startGGID) UnmarshalJSON(data []byte) error {
-	raw := strings.TrimSpace(string(data))
-	if raw == "" || raw == "null" {
-		*id = ""
+	value, ok := decodeStartGGScalar(data)
+	if ok {
+		*id = startGGID(value)
 		return nil
 	}
-
-	var text string
-	if err := json.Unmarshal(data, &text); err == nil {
-		*id = startGGID(strings.TrimSpace(text))
-		return nil
-	}
-
-	var number json.Number
-	if err := json.Unmarshal(data, &number); err == nil {
-		*id = startGGID(number.String())
-		return nil
-	}
-
 	return fmt.Errorf("start.gg id must be a string or number")
 }
 
@@ -217,38 +204,20 @@ func (id startGGID) String() string {
 
 // UnmarshalJSON accepts numeric start.gg fields as numbers, strings, or null.
 func (value *startGGInt) UnmarshalJSON(data []byte) error {
-	raw := strings.TrimSpace(string(data))
-	if raw == "" || raw == "null" {
+	text, ok := decodeStartGGScalar(data)
+	if !ok {
+		return fmt.Errorf("start.gg number must be a string or number")
+	}
+	if text == "" {
 		*value = 0
 		return nil
 	}
-
-	var text string
-	if err := json.Unmarshal(data, &text); err == nil {
-		text = strings.TrimSpace(text)
-		if text == "" {
-			*value = 0
-			return nil
-		}
-		number, err := strconv.Atoi(text)
-		if err != nil {
-			return err
-		}
-		*value = startGGInt(number)
-		return nil
+	number, err := strconv.Atoi(text)
+	if err != nil {
+		return err
 	}
-
-	var number json.Number
-	if err := json.Unmarshal(data, &number); err == nil {
-		integer, err := strconv.Atoi(number.String())
-		if err != nil {
-			return err
-		}
-		*value = startGGInt(integer)
-		return nil
-	}
-
-	return fmt.Errorf("start.gg number must be a string or number")
+	*value = startGGInt(number)
+	return nil
 }
 
 // Int returns the parsed provider integer.
@@ -259,6 +228,26 @@ func (value startGGInt) Int() int {
 // String returns the provider integer as display-safe text.
 func (value startGGInt) String() string {
 	return strconv.Itoa(value.Int())
+}
+
+// decodeStartGGScalar accepts null, string, and number GraphQL scalar values.
+func decodeStartGGScalar(data []byte) (string, bool) {
+	raw := strings.TrimSpace(string(data))
+	if raw == "" || raw == "null" {
+		return "", true
+	}
+
+	var text string
+	if err := json.Unmarshal(data, &text); err == nil {
+		return strings.TrimSpace(text), true
+	}
+
+	var number json.Number
+	if err := json.Unmarshal(data, &number); err == nil {
+		return number.String(), true
+	}
+
+	return "", false
 }
 
 type startGGEvent struct {

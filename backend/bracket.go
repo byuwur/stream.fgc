@@ -125,10 +125,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 	managerView := selectedBracketView("", state.Bracket.ManagerView, template.Type)
 	started := hasBracketStarted(state, template)
 	options := bracketViewOptions(template.Type)
-	sectionsByKey := map[string]*BracketSection{}
-	roundsBySection := map[string]map[string]*BracketRound{}
-	sectionOrder := []string{}
-	roundOrder := map[string][]string{}
+	builder := newBracketProjectionBuilder()
 	matchCount := 0
 
 	for _, matchID := range sortedTemplateMatchIDs(template) {
@@ -140,42 +137,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 		}
 
 		matchCount++
-		// Build section/round buckets lazily so templates define the visual structure.
-		if _, ok := sectionsByKey[matchView.Group]; !ok {
-			sectionsByKey[matchView.Group] = &BracketSection{Key: matchView.Group, Name: bracketGroupName(matchView.Group)}
-			roundsBySection[matchView.Group] = map[string]*BracketRound{}
-			sectionOrder = append(sectionOrder, matchView.Group)
-		}
-
-		roundKey := normalizeRoundKey(matchView.Round)
-		if _, ok := roundsBySection[matchView.Group][roundKey]; !ok {
-			roundsBySection[matchView.Group][roundKey] = &BracketRound{Key: roundKey, Name: matchView.Round}
-			roundOrder[matchView.Group] = append(roundOrder[matchView.Group], roundKey)
-		}
-		roundsBySection[matchView.Group][roundKey].Matches = append(roundsBySection[matchView.Group][roundKey].Matches, matchView)
-	}
-
-	sections := make([]BracketSection, 0, len(sectionOrder))
-	// Sort after grouping so JSON object iteration cannot change bracket layout.
-	sort.SliceStable(sectionOrder, func(i, j int) bool {
-		return bracketGroupSort(sectionOrder[i]) < bracketGroupSort(sectionOrder[j])
-	})
-	for _, sectionKey := range sectionOrder {
-		section := *sectionsByKey[sectionKey]
-		keys := roundOrder[sectionKey]
-		sort.SliceStable(keys, func(i, j int) bool {
-			left := roundsBySection[sectionKey][keys[i]]
-			right := roundsBySection[sectionKey][keys[j]]
-			return roundSortOrder(left.Matches) < roundSortOrder(right.Matches)
-		})
-		for _, roundKey := range keys {
-			round := *roundsBySection[sectionKey][roundKey]
-			sort.SliceStable(round.Matches, func(i, j int) bool {
-				return round.Matches[i].Order < round.Matches[j].Order
-			})
-			section.Rounds = append(section.Rounds, round)
-		}
-		sections = append(sections, section)
+		builder.add(matchView)
 	}
 
 	return BracketProjection{
@@ -190,10 +152,71 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 		CanRandomize: !started,
 		Views:        options,
 		SeedOptions:  bracketSeedOptions(state),
-		Sections:     sections,
+		Sections:     builder.sections(),
 		MatchCount:   matchCount,
 		PlayerCount:  activePlayerCount(state),
 		Error:        template.Error,
+	}
+}
+
+type bracketProjectionBuilder struct {
+	sectionsByKey   map[string]*BracketSection
+	roundsBySection map[string]map[string]*BracketRound
+	sectionOrder    []string
+	roundOrder      map[string][]string
+}
+
+func newBracketProjectionBuilder() *bracketProjectionBuilder {
+	return &bracketProjectionBuilder{
+		sectionsByKey:   map[string]*BracketSection{},
+		roundsBySection: map[string]map[string]*BracketRound{},
+		sectionOrder:    []string{},
+		roundOrder:      map[string][]string{},
+	}
+}
+
+func (builder *bracketProjectionBuilder) add(match BracketMatchView) {
+	if _, ok := builder.sectionsByKey[match.Group]; !ok {
+		builder.sectionsByKey[match.Group] = &BracketSection{Key: match.Group, Name: bracketGroupName(match.Group)}
+		builder.roundsBySection[match.Group] = map[string]*BracketRound{}
+		builder.sectionOrder = append(builder.sectionOrder, match.Group)
+	}
+
+	roundKey := normalizeRoundKey(match.Round)
+	if _, ok := builder.roundsBySection[match.Group][roundKey]; !ok {
+		builder.roundsBySection[match.Group][roundKey] = &BracketRound{Key: roundKey, Name: match.Round}
+		builder.roundOrder[match.Group] = append(builder.roundOrder[match.Group], roundKey)
+	}
+	builder.roundsBySection[match.Group][roundKey].Matches = append(builder.roundsBySection[match.Group][roundKey].Matches, match)
+}
+
+func (builder *bracketProjectionBuilder) sections() []BracketSection {
+	sections := make([]BracketSection, 0, len(builder.sectionOrder))
+	// Sort after grouping so JSON object iteration cannot change bracket layout.
+	sort.SliceStable(builder.sectionOrder, func(i, j int) bool {
+		return bracketGroupSort(builder.sectionOrder[i]) < bracketGroupSort(builder.sectionOrder[j])
+	})
+	for _, sectionKey := range builder.sectionOrder {
+		section := *builder.sectionsByKey[sectionKey]
+		builder.appendSortedRounds(&section, sectionKey)
+		sections = append(sections, section)
+	}
+	return sections
+}
+
+func (builder *bracketProjectionBuilder) appendSortedRounds(section *BracketSection, sectionKey string) {
+	keys := builder.roundOrder[sectionKey]
+	sort.SliceStable(keys, func(i, j int) bool {
+		left := builder.roundsBySection[sectionKey][keys[i]]
+		right := builder.roundsBySection[sectionKey][keys[j]]
+		return roundSortOrder(left.Matches) < roundSortOrder(right.Matches)
+	})
+	for _, roundKey := range keys {
+		round := *builder.roundsBySection[sectionKey][roundKey]
+		sort.SliceStable(round.Matches, func(i, j int) bool {
+			return round.Matches[i].Order < round.Matches[j].Order
+		})
+		section.Rounds = append(section.Rounds, round)
 	}
 }
 
