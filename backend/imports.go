@@ -373,12 +373,7 @@ func (a *App) ImportTournamentLink(rawURL string) (TournamentState, error) {
 	current := a.loadTournamentLocked()
 	// Import currently replaces event/player setup while preserving reusable app settings.
 	imported := tournamentStateFromExternal(current, preview)
-	if err := writeTournamentState(imported); err != nil {
-		return cloneTournamentState(a.state), err
-	}
-
-	a.state = imported
-	return cloneTournamentState(a.state), nil
+	return a.saveTournamentLocked(imported)
 }
 
 // LoadImportIntegrations reads saved provider API keys for the import page.

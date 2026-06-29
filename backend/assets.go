@@ -258,16 +258,6 @@ func assetDiskPaths(cleanRel string) []string {
 	return externalFilePaths(assetDirPath, cleanRel)
 }
 
-// stringInSlice reports whether values already contains needle.
-func stringInSlice(values []string, needle string) bool {
-	for _, value := range values {
-		if value == needle {
-			return true
-		}
-	}
-	return false
-}
-
 // decodeOrderedStringMap preserves JSON object order for select option lists.
 func decodeOrderedStringMap(data []byte) ([]assetTextEntry, error) {
 	decoder := json.NewDecoder(bytes.NewReader(data))

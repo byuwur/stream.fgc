@@ -10,6 +10,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
 const (
@@ -53,7 +54,7 @@ func externalDirPaths(rootDir string) []string {
 	for _, basePath := range externalBaseDirs() {
 		dirPath := filepath.Clean(filepath.Join(basePath, rootDir))
 		// Keep paths unique so delete loops and lookup loops cannot double-hit the same folder.
-		if !stringInSlice(paths, dirPath) {
+		if !slices.Contains(paths, dirPath) {
 			paths = append(paths, dirPath)
 		}
 	}
@@ -66,7 +67,7 @@ func externalFilePaths(rootDir string, filePath string) []string {
 	paths := []string{}
 	for _, dirPath := range externalDirPaths(rootDir) {
 		diskPath := filepath.Clean(filepath.Join(dirPath, rel))
-		if !stringInSlice(paths, diskPath) {
+		if !slices.Contains(paths, diskPath) {
 			paths = append(paths, diskPath)
 		}
 	}

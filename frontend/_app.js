@@ -56,34 +56,26 @@
 
 	// --- Backend and status helpers ---
 
-	/** Returns the Wails backend binding, supporting current and generated namespaces. */
-	function backend() {
+	function backendBinding() {
 		return global.go?.backend?.App || global.go?.main?.App || global.streamFgcBackend || null;
 	}
 
-	/** Loads generated Wails bindings when the production build does not expose window.go. */
 	async function loadGeneratedBackend() {
-		if (backend()) return backend();
+		const existing = backendBinding();
+		if (existing) return existing;
+		if (generatedBackendPromise) return generatedBackendPromise;
 		if (!global.runtime && typeof global.ObfuscatedCall !== "function") return null;
-		if (!generatedBackendPromise) {
-			generatedBackendPromise = import("./wailsjs/go/main/App.js")
-				.then(function (module) {
-					global.streamFgcBackend = module;
-					return module;
-				})
-				.catch(function (error) {
-					console.warn("Could not load generated Wails bindings.", error);
-					return null;
-				});
-		}
-		return generatedBackendPromise;
-	}
 
-	/** Waits without blocking the UI thread. */
-	function sleep(ms) {
-		return new Promise(function (resolve) {
-			global.setTimeout(resolve, ms);
-		});
+		generatedBackendPromise = import("./wailsjs/go/main/App.js")
+			.then(function (module) {
+				global.streamFgcBackend = module;
+				return module;
+			})
+			.catch(function (error) {
+				console.warn("Could not load generated Wails bindings.", error);
+				return null;
+			});
+		return generatedBackendPromise;
 	}
 
 	/** Rejects slow backend calls so status badges cannot spin forever. */
@@ -101,17 +93,16 @@
 		});
 	}
 
-	/** Polls briefly for Wails bindings, which can arrive after page scripts run. */
 	async function waitForBackend(timeout = 2000) {
 		const started = Date.now();
-		let app = backend();
-		if (!app) app = await loadGeneratedBackend();
-		while (!app && Date.now() - started < timeout) {
-			await sleep(50);
-			app = backend();
-			if (!app) app = await loadGeneratedBackend();
+		while (Date.now() - started < timeout) {
+			const app = backendBinding() || (await loadGeneratedBackend());
+			if (app) return app;
+			await new Promise(function (resolve) {
+				global.setTimeout(resolve, 50);
+			});
 		}
-		return app;
+		return backendBinding() || (await loadGeneratedBackend());
 	}
 
 	/** Resolves one i18n string through SPA.js and falls back to a literal label. */
@@ -241,32 +232,29 @@
 		setStatusElement(status, key, fallback, tone);
 	}
 
-	/** Sets the event page status badge. */
-	function setStatus(form, key, fallback, tone = "neutral") {
-		const status = statusTarget(form, "[data-event-status]");
-		if (!status) return;
-		setStatusElement(status, key, fallback, tone);
+	function setScopedStatus(root, selector, key, fallback, tone = "neutral") {
+		const status = statusTarget(root, selector);
+		if (status) setStatusElement(status, key, fallback, tone);
+	}
+
+	/** Sets the event/current-match status badge. */
+	function setStatus(root, key, fallback, tone = "neutral") {
+		setScopedStatus(root, "[data-event-status]", key, fallback, tone);
 	}
 
 	/** Sets the players page status badge. */
 	function setPlayerStatus(page, key, fallback, tone = "neutral") {
-		const status = statusTarget(page, "[data-player-status]");
-		if (!status) return;
-		setStatusElement(status, key, fallback, tone);
+		setScopedStatus(page, "[data-player-status]", key, fallback, tone);
 	}
 
 	/** Sets the bracket page status badge. */
 	function setBracketStatus(page, key, fallback, tone = "neutral") {
-		const status = statusTarget(page, "[data-bracket-status]");
-		if (!status) return;
-		setStatusElement(status, key, fallback, tone);
+		setScopedStatus(page, "[data-bracket-status]", key, fallback, tone);
 	}
 
 	/** Sets the import page status badge. */
 	function setImportStatus(page, key, fallback, tone = "neutral") {
-		const status = statusTarget(page, "[data-import-status]");
-		if (!status) return;
-		setStatusElement(status, key, fallback, tone);
+		setScopedStatus(page, "[data-import-status]", key, fallback, tone);
 	}
 
 	/** Issues a render token so older bracket refreshes cannot overwrite newer ones. */
@@ -430,18 +418,20 @@
 		return JSON.parse(JSON.stringify(value || null));
 	}
 
-	/** Enables or disables every editable control in a form. */
-	function setFormEnabled(form, enabled) {
-		form.querySelectorAll("input, select, button").forEach(function (control) {
+	function setControlsEnabled(root, selector, enabled) {
+		root.querySelectorAll(selector).forEach(function (control) {
 			control.disabled = !enabled;
 		});
 	}
 
+	/** Enables or disables every editable control in a form. */
+	function setFormEnabled(form, enabled) {
+		setControlsEnabled(form, "input, select, button", enabled);
+	}
+
 	/** Enables or disables every editable control in a page. */
 	function setPageEnabled(page, enabled) {
-		page.querySelectorAll("input, select, button").forEach(function (control) {
-			control.disabled = !enabled;
-		});
+		setControlsEnabled(page, "input, select, button", enabled);
 	}
 
 	/** Builds a form signature through the supplied reader function. */
@@ -474,9 +464,7 @@
 
 	/** Temporarily locks buttons while a save request is in flight. */
 	function setButtonsEnabled(root, enabled) {
-		root.querySelectorAll("button").forEach(function (button) {
-			button.disabled = !enabled;
-		});
+		setControlsEnabled(root, "button", enabled);
 	}
 
 	/** Reads the user's autosave preference from localStorage. */
@@ -1492,7 +1480,7 @@
 			side === 1
 				? `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p>`
 				: `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`,
-			swapButton,
+			//swapButton,
 			side === 1
 				? `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
 				: `<p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p>`,
