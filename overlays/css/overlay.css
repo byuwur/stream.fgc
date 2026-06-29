@@ -1,0 +1,209 @@
+/*
+ * File: overlay.css
+ * Desc: Shared OBS overlay styles for Stream.FGC pages.
+ * Deps: Bootstrap/Shards vendor CSS, overlays/js/overlay.js.
+ */
+
+:root {
+	--fgc-stage-width: 1920px;
+	--fgc-stage-height: 1080px;
+	--fgc-safe-x: 72px;
+	--fgc-safe-y: 54px;
+	--fgc-panel-bg: rgba(8, 8, 14, 0.82);
+	--fgc-panel-border: rgba(255, 255, 255, 0.28);
+	--fgc-text: #ffffff;
+	--fgc-muted: rgba(255, 255, 255, 0.7);
+	--fgc-accent: #ff4757;
+	--fgc-gold: #ffd43b;
+	--fgc-blue: #4dabf7;
+	--fgc-green: #51cf66;
+	--fgc-transition-ms: 220ms;
+	--fgc-game-bg: none;
+	--fgc-game-logo: none;
+	--fgc-page-frame: none;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	background: transparent;
+	color: var(--fgc-text);
+	font-family: "Segoe UI", "Montserrat", "Arial", sans-serif;
+}
+
+body {
+	text-rendering: geometricPrecision;
+}
+
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -2;
+	background-image: var(--fgc-game-bg);
+	background-position: center;
+	background-size: cover;
+	opacity: 0.92;
+}
+
+body::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.72)),
+		var(--fgc-page-frame);
+	background-position: center;
+	background-size: cover;
+	pointer-events: none;
+}
+
+.fgc-stage {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	padding: var(--fgc-safe-y) var(--fgc-safe-x);
+}
+
+.fgc-panel {
+	background: var(--fgc-panel-bg);
+	border: 2px solid var(--fgc-panel-border);
+	box-shadow: 0 16px 42px rgba(0, 0, 0, 0.45);
+	backdrop-filter: blur(6px);
+}
+
+.fgc-eyebrow {
+	color: var(--fgc-accent);
+	font-size: 20px;
+	font-weight: 900;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.fgc-title {
+	margin: 0;
+	font-size: 60px;
+	font-weight: 900;
+	line-height: 0.96;
+}
+
+.fgc-subtitle {
+	color: var(--fgc-muted);
+	font-size: 28px;
+	font-weight: 700;
+}
+
+.fgc-name {
+	font-size: 46px;
+	font-weight: 900;
+	line-height: 1;
+}
+
+.fgc-team {
+	color: var(--fgc-muted);
+	font-size: 24px;
+	font-weight: 700;
+}
+
+.fgc-score {
+	min-width: 96px;
+	font-size: 72px;
+	font-weight: 900;
+	line-height: 1;
+	text-align: center;
+}
+
+.fgc-country {
+	width: 64px;
+	height: 42px;
+	object-fit: cover;
+	border-radius: 4px;
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+
+.fgc-portrait {
+	width: 240px;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.fgc-character {
+	width: 128px;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.fgc-logo {
+	width: 260px;
+	max-height: 180px;
+	object-fit: contain;
+}
+
+.fgc-vs {
+	color: var(--fgc-gold);
+	font-size: 96px;
+	font-weight: 900;
+	line-height: 1;
+	text-shadow: 0 8px 22px rgba(0, 0, 0, 0.65);
+}
+
+.fgc-bottom-bar {
+	position: absolute;
+	right: var(--fgc-safe-x);
+	bottom: var(--fgc-safe-y);
+	left: var(--fgc-safe-x);
+}
+
+.fgc-center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.fgc-is-changing {
+	opacity: 0;
+	transform: translateY(8px);
+}
+
+[data-fgc-text],
+[data-fgc-html],
+[data-fgc-src],
+[data-fgc-bg],
+[data-fgc-region] {
+	transition:
+		opacity var(--fgc-transition-ms) ease,
+		transform var(--fgc-transition-ms) ease;
+}
+
+[data-fgc-hidden="true"] {
+	opacity: 0;
+	visibility: hidden;
+}
+
+@media (max-width: 1280px) {
+	:root {
+		--fgc-safe-x: 48px;
+		--fgc-safe-y: 36px;
+	}
+
+	.fgc-title {
+		font-size: 46px;
+	}
+
+	.fgc-name {
+		font-size: 34px;
+	}
+
+	.fgc-score {
+		font-size: 58px;
+	}
+}
