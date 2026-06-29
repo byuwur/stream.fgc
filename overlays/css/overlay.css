@@ -169,6 +169,32 @@ body::after {
 	transform: translate(-50%, -50%);
 }
 
+.fgc-runtime-warning {
+	position: fixed;
+	top: 28px;
+	left: 50%;
+	z-index: 9999;
+	width: min(920px, calc(100vw - 48px));
+	padding: 18px 22px;
+	transform: translateX(-50%);
+	background: rgba(8, 8, 14, 0.94);
+	border: 2px solid var(--fgc-gold);
+	border-radius: 8px;
+	box-shadow: 0 16px 42px rgba(0, 0, 0, 0.55);
+	color: var(--fgc-text);
+	font-size: 20px;
+	font-weight: 800;
+	text-align: center;
+}
+
+.fgc-runtime-warning code {
+	display: block;
+	margin-top: 8px;
+	color: var(--fgc-gold);
+	font-size: 16px;
+	white-space: normal;
+}
+
 .fgc-is-changing {
 	opacity: 0;
 	transform: translateY(8px);
