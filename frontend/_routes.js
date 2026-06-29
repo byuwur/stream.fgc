@@ -29,7 +29,6 @@
 	const ROUTE_ES = "es";
 	const ROUTE_EN = "en";
 	const ROUTE_JA = "ja";
-	const ROUTE_TEST = "test";
 
 	// Default components to include on each route
 	const COMPONENTS_EMPTY = { COMPONENT: { "nav#spa-nav": "", "footer#spa-foot": "" } };
@@ -54,7 +53,6 @@
 		[`/${ROUTE_BRACKET_ES}`]: { URI: `/brackets.html`, GET: { lang: "es" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_BRACKET_EN}`]: { URI: `/brackets.html`, GET: { lang: "en" }, ...ROOT_COMPONENTS },
 		[`/${ROUTE_BRACKET_JA}`]: { URI: `/brackets.html`, GET: { lang: "ja" }, ...ROOT_COMPONENTS },
-		[`/${ROUTE_TEST}`]: { URI: `/test.html`, ...ROOT_COMPONENTS },
 	};
 
 	localStorage.setItem("ROUTES", JSON.stringify(bySPA.ROUTES));
