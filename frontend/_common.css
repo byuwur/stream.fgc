@@ -1,6 +1,6 @@
 @font-face {
 	font-family: "Michroma";
-	src: url("./assets/michroma.ttf") format("truetype");
+	src: url("../assets/michroma.ttf") format("truetype");
 }
 :root {
 	/* Stream.FGC override, derived from SPA.js red palette for dark labels */

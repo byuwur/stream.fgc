@@ -27,11 +27,11 @@
 	const AUTOSAVE_DELAY = 700;
 	const BRACKET_OVERLAY_REFRESH_MS = 2000;
 	const AUTOSAVE_STORAGE_KEY = "streamFgc.autosave";
-	const FALLBACK_ASSET = "./assets/nopic.png";
+	const FALLBACK_ASSET = externalURL("/assets/nopic.png");
 	const EMPTY_STATE_CLASS = "fgc-empty border rounded p-3 text-center";
-	const SPA_BACKGROUND_FALLBACK = "./assets/nobg.jpg";
-	const EVENT_LOGO_PATH = "/players/_logo.png";
-	const EVENT_BACKGROUND_PATH = "/players/_bg.jpg";
+	const SPA_BACKGROUND_FALLBACK = externalURL("/assets/nobg.jpg");
+	const EVENT_LOGO_PATH = externalURL("/players/_logo.png");
+	const EVENT_BACKGROUND_PATH = externalURL("/players/_bg.jpg");
 	const PLAYER_PORTRAIT_MAX_MB = 10;
 	const TOURNAMENT_ASSET_MAX_MB = 20;
 	let currentState = null;
@@ -692,9 +692,32 @@
 		return `.${normalized}`;
 	}
 
+	/** Builds URLs for external runtime folders beside the repo or portable exe. */
+	function externalURL(path) {
+		const normalized = String(path || "").replace(/^\/+/, "");
+		const homePath = String(global.bySPA?.HOME_PATH || global.location.origin || "").replace(/\/$/, "");
+		let base = null;
+		try {
+			base = new URL(`${homePath || "."}/`, global.location.href);
+		} catch (_) {
+			base = new URL("./", global.location.href);
+		}
+
+		if (base.pathname.replace(/\/$/, "").toLowerCase().endsWith("/frontend")) {
+			base = new URL("../", base);
+		}
+
+		return new URL(normalized, base).toString();
+	}
+
+	/** Loads JSON from external runtime folders instead of the embedded frontend. */
+	async function loadExternalJSON(path) {
+		return loadJSON(externalURL(path));
+	}
+
 	/** Loads JSON with jQuery when available, otherwise with fetch. */
 	async function loadJSON(path) {
-		const url = appAssetURL(path);
+		const url = /^[a-z][a-z0-9+.-]*:\/\//i.test(String(path || "")) ? String(path) : appAssetURL(path);
 		const jquery = global.jQuery;
 		if (jquery?.ajax) {
 			return Promise.resolve(
@@ -816,7 +839,7 @@
 	async function ensureProviderCatalog() {
 		if (providers.length) return providers;
 		try {
-			providers = normalizeLocalCatalogRows(await loadJSON("/assets/providers.json"));
+			providers = normalizeLocalCatalogRows(await loadExternalJSON("/assets/providers.json"));
 		} catch (error) {
 			console.warn("Could not load import providers catalog", error);
 			providers = [];
@@ -854,12 +877,12 @@
 			}
 		} else {
 			try {
-				const rows = await loadJSON(`/assets/${gameKey}/characters.json`);
+				const rows = await loadExternalJSON(`/assets/${gameKey}/characters.json`);
 				characters = Object.entries(rows || {}).map(function ([key, name]) {
 					return {
 						key: String(key || ""),
 						name: String(name || key || ""),
-						portrait: appAssetURL(`/assets/${gameKey}/portraits/${key}.png`),
+						portrait: externalURL(`/assets/${gameKey}/portraits/${key}.png`),
 					};
 				});
 			} catch (_) {
@@ -2704,14 +2727,14 @@
 
 	/** Returns the frontend flag SVG path for a country code. */
 	function countryFlagPath(code) {
-		return `./flags/${String(code).toLowerCase()}.svg`;
+		return externalURL(`/assets/flags/${String(code).toLowerCase()}.svg`);
 	}
 
 	/** Returns the player portrait URL, optionally cache-busted after upload/remove. */
 	function playerPortraitPath(playerID, cacheBust = false) {
 		const key = encodeURIComponent(String(playerID || ""));
 		const suffix = cacheBust ? `?v=${Date.now()}` : "";
-		return `/players/${key}.png${suffix}`;
+		return `${externalURL(`/players/${key}.png`)}${suffix}`;
 	}
 
 	/** Applies a fallback when a preview URL cannot be loaded. */

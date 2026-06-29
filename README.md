@@ -60,6 +60,9 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 ### Public Assets
 
 - **assets/games.json:** Game catalog. Keys are saved into tournament JSON.
+- **assets/michroma.ttf:** Shared app font loaded by the embedded frontend through `../assets/`.
+- **assets/flags/{iso2}.svg:** Country flags used by the player, import, current-match, and bracket UIs.
+- **assets/nopic.png**, **assets/nobg.jpg**, and **assets/stream.fgc.png:** Shared controller fallbacks and branding images.
 - **assets/{game}/_logo.png:** Game logo shown in event game selects.
 - **assets/{game}/_bg.jpg:** Game background used by the admin SPA shell.
 - **assets/{game}/characters.json:** Character catalog for that game. Keys are saved into player records.
@@ -71,6 +74,40 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **players/_logo.png:** Custom tournament logo for overlays.
 - **players/_bg.jpg:** Custom tournament background for overlays only.
 - **overlays/**: Local OBS overlay workspace opened from the controller sidebar.
+
+### OBS Overlays
+
+OBS overlays live only in `overlays/`. They are a separate static mini-site that reads `../data/tournament.json` and sibling asset folders.
+
+- **overlays/css/bootstrap.min.css**, **overlays/css/shards.css:** Copied framework CSS from SPA.js.
+- **overlays/css/overlay.css:** Shared overlay layout, transitions, and visual primitives.
+- **overlays/js/jquery.min.js**, **overlays/js/popper.min.js**, **overlays/js/bootstrap.min.js**, **overlays/js/shards.min.js:** Copied framework JS from SPA.js.
+- **overlays/js/overlay.js:** Shared JSON polling, current-match resolution, image helpers, and fade-swap updates.
+- **overlays/scoreboard.html:** Current match score overlay.
+- **overlays/versus.html:** Current match versus screen.
+- **overlays/winner.html:** Current match winner overlay.
+- **overlays/champion.html:** Tournament champion screen placeholder using the current winner until placement logic exists.
+- **overlays/bracket.html:** Bracket overlay that reads the stored overlay view.
+- **overlays/bracket_top8.html:** Compatibility redirect to `bracket.html?view=top8`.
+- **overlays/intro.html:** Event intro/standby screen.
+
+Overlay pages poll JSON every 1s or 2.5s depending on the page. If the JSON text changes, the shared runtime fades affected fields out, swaps values, and fades them back in instead of hard-replacing the whole page.
+
+Game-specific overlay identity should use the same filenames in each game folder:
+
+```text
+overlays/{game}/
+  _bg.jpg
+  _logo.png
+  intro.png
+  scoreboard.png
+  versus.png
+  winner.png
+  champion.png
+  bracket.png
+```
+
+For example, `overlays/sf6/_bg.jpg` and `overlays/tekken8/_bg.jpg` change the visual identity while the HTML and JSON logic stay identical.
 
 ### External Imports
 
@@ -96,7 +133,7 @@ Imports currently bring event metadata and player slots into `data/tournament.js
 
 `event.rule` is stored as a number. For example, `3` means FT3. Score controls clamp at zero and at the active first-to limit.
 
-Player records intentionally do not store portrait paths. Player portraits are resolved from `players/{player}.png`, with `frontend/assets/nopic.png` as the UI fallback.
+Player records intentionally do not store portrait paths. Player portraits are resolved from `players/{player}.png`, with `assets/nopic.png` as the UI fallback.
 
 ## Bracket Model
 
@@ -127,7 +164,9 @@ Match results can be normal, `bye`, or `dq`. BYE results are generated during se
 4. Open the Players page to fill player slots, countries, characters, and portraits.
 5. Open the Bracket page to randomize/swap bracket seeds, set the current match, and record wins, DQs, or BYEs.
 6. Let autosave write changes through Go into `data/tournament.json`.
-7. Point OBS overlays at the local JSON/assets when those overlay pages are added.
+7. Point OBS Browser Sources at the needed file in `overlays/`, such as `scoreboard.html`, `versus.html`, `winner.html`, or `bracket.html`.
+
+For regular browser testing, open overlays through HTTP instead of double-clicking them as `file:///` pages. Chrome/Brave block `fetch("../data/tournament.json")` from local files.
 
 > The frontend does not write files directly. Any save, upload, remove, reset, randomize, or swap operation goes through a Wails-bound Go method.
 
