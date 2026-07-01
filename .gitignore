@@ -1,7 +1,17 @@
 # === WAILS ===
 frontend/wailsjs/
-build/bin/
 *.syso
+# === ASSETS ===
+*.png
+*.jpg
+*.jpeg
+*.tiff
+*.webp
+*.af
+*.ai
+*.psd
+# Include overlays/ files
+!assets/*/overlays/*
 
 # === ENVIRONMENT ===
 *.env*
@@ -46,7 +56,7 @@ Icon?
 *.bak
 *.backup
 *.old
-# Multimedia
+# === MULTIMEDIA ===
 *.mp4
 *.mkv
 *.mov
