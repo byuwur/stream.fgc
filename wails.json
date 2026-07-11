@@ -33,7 +33,7 @@
 	"devServer": "localhost:22902",
 	"appargs": "",
 	"nsisType": "multiple",
-	"obfuscated": true,
+	"obfuscated": false,
 	"garbleargs": "",
 	"frontend:dir": "frontend",
 	"assetdir": "frontend",
