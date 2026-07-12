@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Stream.FGC Intro Overlay</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/animate.min.css" />
+		<link rel="stylesheet" href="css/_common.css" />
+		<link rel="stylesheet" href="css/overlay.css" />
+		<script defer src="js/jquery.min.js"></script>
+		<script defer src="js/popper.min.js"></script>
+		<script defer src="js/bootstrap.min.js"></script>
+		<script defer src="js/overlay.js"></script>
+	</head>
+	<body data-overlay-page="intro" data-poll-ms="2500">
+		<main class="fgc-stage d-flex align-items-center justify-content-center text-center">
+			<section>
+				<img class="fgc-logo mb-4" data-tournament-logo alt="" />
+				<div class="fgc-eyebrow mb-3" data-fgc-text="event.phase"></div>
+				<h1 class="fgc-title" data-fgc-text="event.name">Stream.FGC Tournament</h1>
+				<div class="fgc-subtitle mt-4">
+					<span data-fgc-text="event.game"></span>
+					<span> / FT</span><span data-fgc-text="event.rule"></span>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

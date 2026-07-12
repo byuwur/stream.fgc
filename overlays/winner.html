@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Stream.FGC Winner Overlay</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/animate.min.css" />
+		<link rel="stylesheet" href="css/_common.css" />
+		<link rel="stylesheet" href="css/overlay.css" />
+		<script defer src="js/jquery.min.js"></script>
+		<script defer src="js/popper.min.js"></script>
+		<script defer src="js/bootstrap.min.js"></script>
+		<script defer src="js/overlay.js"></script>
+	</head>
+	<body data-overlay-page="winner" data-poll-ms="1000">
+		<main class="fgc-stage d-flex align-items-center justify-content-center">
+			<section class="fgc-panel rounded p-5 text-center" data-winner-panel>
+				<div class="fgc-eyebrow mb-3">Winner</div>
+				<img class="fgc-portrait mb-4" data-winner-portrait alt="" />
+				<div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+					<img class="fgc-country" data-winner-flag alt="" />
+					<h1 class="fgc-title" data-winner-name>TBD</h1>
+				</div>
+				<div class="fgc-subtitle" data-winner-team></div>
+				<div class="fgc-subtitle mt-3" data-winner-character></div>
+			</section>
+		</main>
+	</body>
+</html>

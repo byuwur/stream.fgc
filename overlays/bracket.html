@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Stream.FGC Bracket Overlay</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/animate.min.css" />
+		<link rel="stylesheet" href="css/_common.css" />
+		<link rel="stylesheet" href="css/overlay.css" />
+		<script defer src="js/jquery.min.js"></script>
+		<script defer src="js/popper.min.js"></script>
+		<script defer src="js/bootstrap.min.js"></script>
+		<script defer src="js/overlay.js"></script>
+	</head>
+	<body data-overlay-page="bracket" data-poll-ms="2500">
+		<main class="fgc-stage">
+			<header class="d-flex align-items-end justify-content-between mb-4">
+				<div>
+					<div class="fgc-eyebrow" data-fgc-text="event.phase"></div>
+					<h1 class="fgc-title" data-fgc-text="event.name">Bracket</h1>
+				</div>
+				<div class="fgc-subtitle text-end">
+					<div data-bracket-view></div>
+					<div data-fgc-text="event.game"></div>
+				</div>
+			</header>
+
+			<section class="bracket-grid" data-bracket-region></section>
+		</main>
+	</body>
+</html>

@@ -1,72 +1,85 @@
 /*
  * File: overlay.css
- * Desc: Shared OBS overlay styles for Stream.FGC pages.
- * Deps: Bootstrap/Shards vendor CSS, overlays/js/overlay.js.
+ * Desc: Shared 1920x1080 layout and visual components for Stream.FGC OBS overlays.
+ * Deps: Bootstrap, Animate.css, css/_common.css, js/overlay.js.
  */
 
 :root {
 	--fgc-stage-width: 1920px;
 	--fgc-stage-height: 1080px;
-	--fgc-safe-x: 72px;
-	--fgc-safe-y: 54px;
-	--fgc-panel-bg: rgba(8, 8, 14, 0.82);
-	--fgc-panel-border: rgba(255, 255, 255, 0.28);
-	--fgc-text: #ffffff;
-	--fgc-muted: rgba(255, 255, 255, 0.7);
+	--fgc-safe-x: 3.75%;
+	--fgc-safe-y: 5%;
+	--fgc-panel-bg: rgba(8, 8, 14, 0.88);
+	--fgc-panel-border: rgba(255, 255, 255, 0.3);
+	--fgc-text: #fff;
+	--fgc-muted: rgba(255, 255, 255, 0.72);
 	--fgc-accent: #ff4757;
 	--fgc-gold: #ffd43b;
 	--fgc-blue: #4dabf7;
 	--fgc-green: #51cf66;
 	--fgc-transition-ms: 220ms;
+	--fgc-animate-duration: 320ms;
 	--fgc-game-bg: none;
-	--fgc-game-logo: none;
 	--fgc-page-frame: none;
 }
 
-html,
 body {
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	overflow: hidden;
+	display: grid;
+	place-items: center;
 	background: transparent;
 	color: var(--fgc-text);
-	font-family: "Segoe UI", "Montserrat", "Arial", sans-serif;
+	font-family: var(--fgc-body-font);
+	text-rendering: geometricprecision;
 }
 
-body {
-	text-rendering: geometricPrecision;
-}
-
-body::before {
-	content: "";
-	position: fixed;
-	inset: 0;
-	z-index: -2;
-	background-image: var(--fgc-game-bg);
-	background-position: center;
-	background-size: cover;
-	opacity: 0.92;
-}
-
-body::after {
-	content: "";
-	position: fixed;
-	inset: 0;
-	z-index: -1;
-	background:
-		linear-gradient(90deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.72)),
-		var(--fgc-page-frame);
-	background-position: center;
-	background-size: cover;
-	pointer-events: none;
+.fgc-stage-shell {
+	position: relative;
+	overflow: hidden;
 }
 
 .fgc-stage {
 	position: relative;
-	width: 100vw;
-	height: 100vh;
+	width: var(--fgc-stage-width);
+	height: var(--fgc-stage-height);
 	padding: var(--fgc-safe-y) var(--fgc-safe-x);
+	overflow: hidden;
+	isolation: isolate;
+	opacity: 0;
+	transform-origin: top left;
+	transition: opacity var(--fgc-transition-ms) ease;
+}
+
+.fgc-stage.fgc-overlay-ready {
+	opacity: 1;
+}
+
+.fgc-stage::before,
+.fgc-stage::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.fgc-stage::before {
+	z-index: -2;
+	background-color: transparent;
+	background-image: var(--fgc-game-bg);
+	background-position: center;
+	background-size: cover;
+}
+
+.fgc-stage::after {
+	z-index: -1;
+	background-image:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.68)),
+		var(--fgc-page-frame);
+	background-position: center;
+	background-size: cover;
+}
+
+.animate__animated {
+	--animate-duration: var(--fgc-animate-duration);
 }
 
 .fgc-panel {
@@ -84,11 +97,21 @@ body::after {
 	text-transform: uppercase;
 }
 
+.fgc-title,
+.fgc-name,
+.fgc-score,
+.fgc-vs,
+.fgc-bracket-section h2,
+.fgc-bracket-round h3,
+.fgc-bracket-match header strong {
+	font-family: var(--fgc-display-font);
+}
+
 .fgc-title {
 	margin: 0;
 	font-size: 60px;
 	font-weight: 900;
-	line-height: 0.96;
+	line-height: 1.05;
 }
 
 .fgc-subtitle {
@@ -98,12 +121,13 @@ body::after {
 }
 
 .fgc-name {
-	font-size: 46px;
+	font-size: 42px;
 	font-weight: 900;
-	line-height: 1;
+	line-height: 1.05;
 }
 
 .fgc-team {
+	margin-top: 8px;
 	color: var(--fgc-muted);
 	font-size: 24px;
 	font-weight: 700;
@@ -129,7 +153,7 @@ body::after {
 	width: 240px;
 	aspect-ratio: 1 / 1;
 	object-fit: cover;
-	border-radius: 10px;
+	border-radius: 8px;
 	background: rgba(255, 255, 255, 0.1);
 }
 
@@ -142,8 +166,8 @@ body::after {
 }
 
 .fgc-logo {
-	width: 260px;
-	max-height: 180px;
+	width: 300px;
+	max-height: 220px;
 	object-fit: contain;
 }
 
@@ -162,12 +186,236 @@ body::after {
 	left: var(--fgc-safe-x);
 }
 
-.fgc-center {
+.versus-card {
+	width: 760px;
+}
+
+body[data-overlay-page="winner"] .fgc-panel,
+body[data-overlay-page="champion"] .fgc-panel {
+	width: 760px;
+}
+
+body[data-overlay-page="intro"] .fgc-stage::after,
+body[data-overlay-page="versus"] .fgc-stage::after,
+body[data-overlay-page="winner"] .fgc-stage::after,
+body[data-overlay-page="champion"] .fgc-stage::after {
+	background-image:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.62)),
+		var(--fgc-page-frame);
+}
+
+/* Bracket overlay */
+
+body[data-overlay-page="bracket"] .fgc-stage {
+	padding-top: 3.5%;
+	padding-bottom: 3.5%;
+}
+
+.bracket-grid {
+	display: flex;
+	height: 850px;
+	min-height: 0;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.fgc-bracket-section {
+	display: flex;
+	min-height: 0;
+	flex: var(--fgc-group-weight, 1) 1 0;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.fgc-bracket-section > h2 {
+	margin: 0;
+	color: var(--fgc-accent);
+	font-size: 15px;
+	font-weight: 900;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.fgc-bracket-rounds {
+	display: grid;
+	min-height: 0;
+	flex: 1;
+	grid-template-columns: repeat(var(--fgc-round-count), minmax(0, 1fr));
+	gap: 20px;
+}
+
+.fgc-bracket-round {
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+	flex-direction: column;
+	gap: 7px;
+}
+
+.fgc-bracket-round h3 {
+	margin: 0;
+	overflow: hidden;
+	color: var(--fgc-muted);
+	font-size: 14px;
+	font-weight: 800;
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fgc-bracket-round-matches {
+	display: flex;
+	min-height: 0;
+	flex: 1;
+	flex-direction: column;
+	justify-content: space-around;
+	gap: 6px;
+}
+
+[data-bracket-group="finals"] .fgc-bracket-round-matches {
+	flex-direction: row;
+	align-items: center;
+}
+
+[data-bracket-group="finals"] .fgc-bracket-match {
+	flex: 1;
+}
+
+.fgc-bracket-match {
+	position: relative;
+	min-width: 0;
+	padding: 7px;
+	background: rgba(8, 8, 14, 0.88);
+	border: 1px solid rgba(255, 255, 255, 0.28);
+	border-radius: 5px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.fgc-bracket-match::after {
+	content: "";
 	position: absolute;
 	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+	right: -20px;
+	width: 20px;
+	border-top: 1px solid rgba(255, 255, 255, 0.34);
 }
+
+.fgc-bracket-round:last-child .fgc-bracket-match::after {
+	display: none;
+}
+
+.fgc-bracket-match.is-current {
+	border-color: var(--fgc-gold);
+	box-shadow: 0 0 0 1px var(--fgc-gold), 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.fgc-bracket-match header {
+	display: flex;
+	min-width: 0;
+	margin-bottom: 5px;
+	gap: 7px;
+	align-items: center;
+}
+
+.fgc-bracket-match header span {
+	color: var(--fgc-accent);
+	font-size: 12px;
+	font-weight: 900;
+}
+
+.fgc-bracket-match header strong {
+	overflow: hidden;
+	font-size: 11px;
+	font-weight: 700;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fgc-bracket-player {
+	display: flex;
+	min-width: 0;
+	min-height: 31px;
+	padding: 4px 6px;
+	gap: 7px;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.055);
+	border: 1px solid transparent;
+}
+
+.fgc-bracket-player + .fgc-bracket-player {
+	margin-top: 3px;
+}
+
+.fgc-bracket-player.is-winner {
+	background: rgba(81, 207, 102, 0.16);
+	border-color: var(--fgc-green);
+}
+
+.fgc-bracket-player.is-loser {
+	background: rgba(255, 71, 87, 0.16);
+	border-color: var(--fgc-accent);
+}
+
+.fgc-bracket-flag {
+	width: 21px;
+	height: 14px;
+	flex: 0 0 auto;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+.fgc-bracket-player-copy {
+	display: block;
+	min-width: 0;
+	flex: 1;
+}
+
+.fgc-bracket-player-copy strong,
+.fgc-bracket-player-copy small {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fgc-bracket-player-copy strong {
+	font-size: 14px;
+	line-height: 1.05;
+}
+
+.fgc-bracket-player-copy small {
+	margin-top: 2px;
+	color: var(--fgc-muted);
+	font-size: 10px;
+}
+
+.fgc-bracket-reason {
+	color: var(--fgc-gold);
+	font-size: 10px;
+	font-weight: 900;
+}
+
+.fgc-bracket-score {
+	min-width: 20px;
+	font-family: var(--fgc-display-font);
+	font-size: 16px;
+	text-align: center;
+}
+
+.fgc-overlay-empty {
+	display: grid;
+	height: 100%;
+	place-items: center;
+	padding: 32px;
+	background: var(--fgc-panel-bg);
+	border: 2px solid var(--fgc-panel-border);
+	border-radius: 8px;
+	font-family: var(--fgc-display-font);
+	font-size: 30px;
+	text-align: center;
+}
+
+/* Browser-only runtime diagnostics */
 
 .fgc-runtime-warning {
 	position: fixed;
@@ -177,7 +425,7 @@ body::after {
 	width: min(920px, calc(100vw - 48px));
 	padding: 18px 22px;
 	transform: translateX(-50%);
-	background: rgba(8, 8, 14, 0.94);
+	background: rgba(8, 8, 14, 0.96);
 	border: 2px solid var(--fgc-gold);
 	border-radius: 8px;
 	box-shadow: 0 16px 42px rgba(0, 0, 0, 0.55);
@@ -193,43 +441,4 @@ body::after {
 	color: var(--fgc-gold);
 	font-size: 16px;
 	white-space: normal;
-}
-
-.fgc-is-changing {
-	opacity: 0;
-	transform: translateY(8px);
-}
-
-[data-fgc-text],
-[data-fgc-html],
-[data-fgc-src],
-[data-fgc-bg],
-[data-fgc-region] {
-	transition:
-		opacity var(--fgc-transition-ms) ease,
-		transform var(--fgc-transition-ms) ease;
-}
-
-[data-fgc-hidden="true"] {
-	opacity: 0;
-	visibility: hidden;
-}
-
-@media (max-width: 1280px) {
-	:root {
-		--fgc-safe-x: 48px;
-		--fgc-safe-y: 36px;
-	}
-
-	.fgc-title {
-		font-size: 46px;
-	}
-
-	.fgc-name {
-		font-size: 34px;
-	}
-
-	.fgc-score {
-		font-size: 58px;
-	}
 }

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Stream.FGC Scoreboard Overlay</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<link rel="stylesheet" href="css/animate.min.css" />
+		<link rel="stylesheet" href="css/_common.css" />
+		<link rel="stylesheet" href="css/overlay.css" />
+		<script defer src="js/jquery.min.js"></script>
+		<script defer src="js/popper.min.js"></script>
+		<script defer src="js/bootstrap.min.js"></script>
+		<script defer src="js/overlay.js"></script>
+	</head>
+	<body data-overlay-page="scoreboard" data-poll-ms="1000">
+		<main class="fgc-stage">
+			<section class="fgc-bottom-bar">
+				<div class="fgc-panel rounded d-flex align-items-center justify-content-between p-4">
+					<div class="d-flex align-items-center gap-3 flex-fill">
+						<img class="fgc-country" data-p1-flag alt="" />
+						<div>
+							<div class="fgc-name" data-p1-name>TBD</div>
+							<div class="fgc-team" data-p1-team></div>
+						</div>
+					</div>
+					<div class="d-flex align-items-center gap-4 px-5">
+						<div class="fgc-score" data-p1-score>0</div>
+						<div class="fgc-title">-</div>
+						<div class="fgc-score" data-p2-score>0</div>
+					</div>
+					<div class="d-flex align-items-center justify-content-end gap-3 flex-fill text-end">
+						<div>
+							<div class="fgc-name" data-p2-name>TBD</div>
+							<div class="fgc-team" data-p2-team></div>
+						</div>
+						<img class="fgc-country" data-p2-flag alt="" />
+					</div>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
