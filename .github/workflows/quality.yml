@@ -1,0 +1,38 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project and SPA.js
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Test Go packages
+        run: go test ./...
+
+      - name: Vet Go packages
+        run: go vet ./...
+
+      - name: Check project JavaScript syntax
+        shell: bash
+        run: |
+          find frontend overlays/js -type f -name '*.js' \
+            ! -path 'frontend/spa.js/*' \
+            ! -name '*.min.js' \
+            -print0 | xargs -0 -n1 node --check
