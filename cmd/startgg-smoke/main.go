@@ -1,10 +1,10 @@
 //go:build manual_startgg_import_test
 
 /*
- * File: imports.test.go
+ * File: cmd/startgg-smoke/main.go
  * Desc: Standalone start.gg import smoke test for the official Blink Respawn SF6 event.
  * Deps: Go bytes/encoding-json/fmt/io/net-http/net-url/os/strings/time.
- * Usage: go run -tags manual_startgg_import_test backend/imports.test.go
+ * Usage: go run -tags manual_startgg_import_test ./cmd/startgg-smoke
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  */
 package main

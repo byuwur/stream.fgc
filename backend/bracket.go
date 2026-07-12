@@ -106,16 +106,19 @@ type BracketMatchView struct {
 }
 
 // GetBracketView resolves the current tournament into a display/overlay bracket.
-func (a *App) GetBracketView(view string) BracketProjection {
+func (a *App) GetBracketView(view string) (BracketProjection, error) {
 	a.mu.Lock()
-	state := a.loadTournamentLocked()
+	state, loadErr := a.loadTournamentLocked()
 	a.mu.Unlock()
+	if loadErr != nil {
+		return BracketProjection{}, loadErr
+	}
 
 	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
 	if err != nil {
 		template = emptyBracketTemplate(state.Event.Format, state.Event.Size, err.Error())
 	}
-	return buildBracketProjection(state, template, view)
+	return buildBracketProjection(state, template, view), nil
 }
 
 // buildBracketProjection resolves every template match and filters by view.
@@ -166,6 +169,7 @@ type bracketProjectionBuilder struct {
 	roundOrder      map[string][]string
 }
 
+// newBracketProjectionBuilder initializes ordered section and round indexes.
 func newBracketProjectionBuilder() *bracketProjectionBuilder {
 	return &bracketProjectionBuilder{
 		sectionsByKey:   map[string]*BracketSection{},
@@ -175,6 +179,7 @@ func newBracketProjectionBuilder() *bracketProjectionBuilder {
 	}
 }
 
+// add groups one resolved match by bracket section and display round.
 func (builder *bracketProjectionBuilder) add(match BracketMatchView) {
 	if _, ok := builder.sectionsByKey[match.Group]; !ok {
 		builder.sectionsByKey[match.Group] = &BracketSection{Key: match.Group, Name: bracketGroupName(match.Group)}
@@ -190,6 +195,7 @@ func (builder *bracketProjectionBuilder) add(match BracketMatchView) {
 	builder.roundsBySection[match.Group][roundKey].Matches = append(builder.roundsBySection[match.Group][roundKey].Matches, match)
 }
 
+// sections returns grouped sections in deterministic bracket order.
 func (builder *bracketProjectionBuilder) sections() []BracketSection {
 	sections := make([]BracketSection, 0, len(builder.sectionOrder))
 	// Sort after grouping so JSON object iteration cannot change bracket layout.
@@ -204,6 +210,7 @@ func (builder *bracketProjectionBuilder) sections() []BracketSection {
 	return sections
 }
 
+// appendSortedRounds copies one section's rounds and matches in display order.
 func (builder *bracketProjectionBuilder) appendSortedRounds(section *BracketSection, sectionKey string) {
 	keys := builder.roundOrder[sectionKey]
 	sort.SliceStable(keys, func(i, j int) bool {
