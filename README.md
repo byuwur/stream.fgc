@@ -10,7 +10,7 @@ Stream.FGC is built on top of [byuwur/spa.js](https://github.com/byuwur/spa.js) 
 
 This project is a local tournament control system for fighting game streams. It is meant for events such as Street Fighter 6 brackets where an operator needs to edit event data, player data, the current match, scores, bracket results, and visual assets without using a cloud service or a database.
 
-The saved JSON file is the source of truth for future OBS overlays. The desktop app is the controller; OBS-facing pages can read the same local files and render scoreboard, winner, and bracket views.
+The saved JSON file is the source of truth for the OBS overlays. The desktop app is the controller; the static overlay pages read the same local files and render scoreboard, versus, winner, champion, intro, and bracket views.
 
 ## What does it do?
 
@@ -30,18 +30,28 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 ### Core Files [in priority order]
 
 - **main.go:** Starts Wails, embeds `frontend/`, binds the app API, and serves external `assets/` and `players/` folders beside the executable.
-- **backend/app.go:** Owns backend state and the mutex used to serialize tournament JSON access.
-- **backend/tournament.go:** Loads, normalizes, mutates, and saves `data/tournament.json`.
+- **backend/app.go:** Creates the Wails-bound app object, serializes tournament mutations with one mutex, and validates runtime folders at startup.
+- **backend/models.go:** Defines the JSON, template, participant, and resolved-match shapes shared by backend files.
+- **backend/storage.go:** Loads or creates `data/tournament.json` and replaces it atomically after successful writes.
+- **backend/normalization.go:** Holds schema migration, defaults, score clamping, and state cleanup in one place.
+- **backend/tournament.go:** Exposes the direct Wails methods that mutate event, player, match, seed, and bracket settings.
+- **backend/templates.go:** Maps format/size to JSON templates and resolves seed/winner/loser participant sources.
+- **backend/seeding.go:** Normalizes bracket-only seed assignments, BYEs, and randomization.
 - **backend/paths.go:** Resolves external folders for dev mode and portable release builds.
 - **backend/bracket.go:** Resolves template-driven brackets into admin/overlay projections.
 - **backend/assets.go:** Reads game, character, rule, format, and size catalogs from `assets/`.
-- **backend/imports.go:** Detects external tournament links, previews provider data, and imports supported providers into local state.
+- **backend/integrations.go:** Reads and writes ignored local API credentials in `data/integrations.json`.
+- **backend/imports.go:** Owns provider-neutral link detection, preview normalization, and local tournament import.
+- **backend/imports_startgg.go:** Contains only the start.gg GraphQL adapter and response mapping.
 - **backend/portraits.go:** Validates player portrait uploads and writes `players/{player}.png`.
 - **backend/event_assets.go:** Validates tournament logo/background uploads and writes `players/_logo.png` and `players/_bg.jpg`.
 - **backend/overlays.go:** Opens the local `overlays/` folder from the sidebar through the OS file explorer.
-- **frontend/index.html:** Static SPA entry point that loads SPA.js, Bootstrap, Select2, Dropzone, Shards, Font Awesome, and Stream.FGC scripts.
-- **frontend/_routes.js:** Defines SPA.js hash routes for event, players, and bracket pages.
-- **frontend/_app.js:** Main controller for Wails calls, autosave, catalogs, Select2 rendering, Dropzone uploads, current match, player cards, and bracket controls.
+- **frontend/index.html:** Static SPA entry point. Deferred scripts are loaded directly; there is no bundler or package step.
+- **frontend/_routes.js:** Defines SPA.js hash routes for import, event, players, and bracket pages.
+- **frontend/_app.js:** Shared Wails access, status, autosave, catalog, Select2, asset URL, event, and current-match runtime.
+- **frontend/app/import.js:** Import page controller.
+- **frontend/app/players.js:** Player page and portrait controller.
+- **frontend/app/bracket.js:** Bracket manager and preview controller.
 - **frontend/import.html:** External tournament import page fragment.
 - **frontend/main.html:** Event editor and Playing Now page fragment.
 - **frontend/players.html:** Player editor page fragment.
@@ -52,14 +62,15 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 - **frontend/_common.css:** Stream.FGC visual overrides on top of SPA.js, Bootstrap, Shards, and Select2.
 - **frontend/_var.js:** SPA.js app-level settings.
 - **frontend/sidebar.html:** Shared SPA navigation component.
-- **frontend/lang/en.json** and **frontend/lang/es.json:** App language dictionaries.
-- **frontend/lang/flags.en.json** and **frontend/lang/flags.es.json:** Localized country names for flag selects.
+- **frontend/lang/en.json**, **frontend/lang/es.json**, and **frontend/lang/ja.json:** App language dictionaries using dotted hierarchy keys.
+- **frontend/lang/flags.{lang}.json:** Localized country names for flag selects.
 - **templates/default.json:** Default tournament state used when `data/tournament.json` is missing or empty.
 - **templates/{format}{size}.json:** Required bracket templates, such as `double8.json` or `single4.json`. When a matching file is missing, the app shows `[template] template missing`.
 
 ### Public Assets
 
 - **assets/games.json:** Game catalog. Keys are saved into tournament JSON.
+- **assets/country_aliases.json:** Provider country names mapped to ISO2 codes without hardcoding that lookup in Go.
 - **assets/michroma.ttf:** Shared app font loaded by the embedded frontend through `../assets/`.
 - **assets/flags/{iso2}.svg:** Country flags used by the player, import, current-match, and bracket UIs.
 - **assets/nopic.png**, **assets/nobg.jpg**, and **assets/stream.fgc.png:** Shared controller fallbacks and branding images.
@@ -79,19 +90,19 @@ The saved JSON file is the source of truth for future OBS overlays. The desktop 
 
 OBS overlays live only in `overlays/`. They are a separate static mini-site that reads `../data/tournament.json` and sibling asset folders.
 
-- **overlays/css/bootstrap.min.css**, **overlays/css/shards.css:** Copied framework CSS from SPA.js.
-- **overlays/css/overlay.css:** Shared overlay layout, transitions, and visual primitives.
-- **overlays/js/jquery.min.js**, **overlays/js/popper.min.js**, **overlays/js/bootstrap.min.js**, **overlays/js/shards.min.js:** Copied framework JS from SPA.js.
-- **overlays/js/overlay.js:** Shared JSON polling, current-match resolution, image helpers, and fade-swap updates.
+- **overlays/css/bootstrap.min.css** and **overlays/css/animate.min.css:** Copied framework CSS used by every overlay.
+- **overlays/css/_common.css:** Minimal overlay reset and shared Michroma font declaration.
+- **overlays/css/overlay.css:** Fixed 1920x1080 stage, page components, and bracket layout.
+- **overlays/js/jquery.min.js**, **overlays/js/popper.min.js**, and **overlays/js/bootstrap.min.js:** Copied framework JavaScript used by the static pages.
+- **overlays/js/overlay.js:** Shared jQuery polling, template resolution, contain scaling, asset fallback, and changed-value animation runtime.
 - **overlays/scoreboard.html:** Current match score overlay.
 - **overlays/versus.html:** Current match versus screen.
 - **overlays/winner.html:** Current match winner overlay.
-- **overlays/champion.html:** Tournament champion screen placeholder using the current winner until placement logic exists.
+- **overlays/champion.html:** Tournament champion screen using the latest completed finals winner.
 - **overlays/bracket.html:** Bracket overlay that reads the stored overlay view.
-- **overlays/bracket_top8.html:** Compatibility redirect to `bracket.html?view=top8`.
 - **overlays/intro.html:** Event intro/standby screen.
 
-Overlay pages poll JSON every 1s or 2.5s depending on the page. If the JSON text changes, the shared runtime fades affected fields out, swaps values, and fades them back in instead of hard-replacing the whole page.
+Overlay pages poll JSON every 1s or 2.5s depending on the page. If the JSON text changes, the shared runtime applies Animate.css `fadeOut`, swaps only changed values, and returns them with `fadeInUp`. The layout always remains a 1920x1080 canvas scaled with contain behavior for the OBS/browser viewport.
 
 Game-specific overlay identity should use the same filenames in each game folder:
 
@@ -117,6 +128,8 @@ The Import page accepts tournament links and keeps Stream.FGC as the local sourc
 - **Challonge, Tonamel, and Parry.gg:** Links are detected and return a clear "not implemented yet" message until provider adapters are added.
 
 Imports currently bring event metadata and player slots into `data/tournament.json`. Provider matches are previewed only; bracket control remains local and template-driven.
+
+The ordinary import parser is covered by `backend/imports_test.go`. A real-network start.gg smoke check lives separately in `cmd/startgg-smoke/` and only runs when explicitly invoked with the `manual_startgg_import_test` build tag.
 
 ## Data Model
 
@@ -156,6 +169,47 @@ Bundled templates currently cover 2-player through 64-player single elimination,
 
 Match results can be normal, `bye`, or `dq`. BYE results are generated during setup and do not count as bracket-started state, so randomize/reset setup tools can still work before real play begins.
 
+## Development
+
+Stream.FGC deliberately has no frontend install or build command. Wails serves `frontend/` directly in development and embeds the same directory in production.
+
+```bash
+git submodule update --init --recursive
+go mod download
+wails dev -assetdir frontend -reloaddirs frontend
+```
+
+The explicit Wails paths make file watching predictable on Windows, Linux, and macOS without PowerShell helper files. `wails dev` regenerates the ignored `frontend/wailsjs/` bindings when backend methods change.
+
+Wails binding obfuscation is disabled. Garble does not protect local tournament data and its randomized Windows executables can trigger Defender false positives; a direct portable build is faster and easier to verify.
+
+Build the portable executable and run the project checks with:
+
+```bash
+wails build
+go test ./...
+go vet ./...
+node --check frontend/_app.js
+node --check overlays/js/overlay.js
+```
+
+In development, writable `assets/`, `data/`, `overlays/`, `players/`, and `templates/` paths resolve from the project directory. In a production build, the same folders resolve beside the portable executable. Only the static controller frontend is embedded in the `.exe`.
+
+For a normal browser, test overlays through the local web server, for example `http://localhost/stream.fgc/overlays/scoreboard.html`. Browsers block sibling JSON reads when the same page is opened through `file:///`; OBS Browser Source may behave differently, so HTTP is the consistent test path.
+
+## Reading the Go Code
+
+The backend uses one package and several files, not a framework inside a framework:
+
+- `module stream.fgc` in `go.mod` gives local imports their full path. That is why `main.go` imports `stream.fgc/backend`.
+- Every file declaring `package backend` is compiled together. Splitting storage, templates, imports, and normalization into files is organization, not a runtime layer.
+- `func (a *App) UpdateEvent(...)` is a method on the one Wails-bound `App`. An uppercase method name makes it callable from JavaScript.
+- A Go method returning `(value, error)` becomes a JavaScript Promise. A non-nil error rejects it, which is why frontend calls use `try/catch`.
+- Struct tags such as `json:"player1_score"` are the exact keys written into tournament JSON.
+- `App.mu` serializes read-modify-write operations. It does not cache a second tournament state; each mutation starts from disk.
+- `storage.go` writes a temporary file and renames it only after encoding succeeds, so a partial save cannot truncate the live OBS JSON.
+- A `//go:build` line opts a file into special commands. The start.gg smoke command is excluded from normal builds and tests unless its manual tag is supplied.
+
 ## Usage
 
 1. Run the app with Wails during development.
@@ -165,8 +219,6 @@ Match results can be normal, `bye`, or `dq`. BYE results are generated during se
 5. Open the Bracket page to randomize/swap bracket seeds, set the current match, and record wins, DQs, or BYEs.
 6. Let autosave write changes through Go into `data/tournament.json`.
 7. Point OBS Browser Sources at the needed file in `overlays/`, such as `scoreboard.html`, `versus.html`, `winner.html`, or `bracket.html`.
-
-For regular browser testing, open overlays through HTTP instead of double-clicking them as `file:///` pages. Chrome/Brave block `fetch("../data/tournament.json")` from local files.
 
 > The frontend does not write files directly. Any save, upload, remove, reset, randomize, or swap operation goes through a Wails-bound Go method.
 
@@ -180,7 +232,7 @@ The code follows the same documentation idea used in SPA.js and SPA.php:
 
 - Project-owned JavaScript files use a file header plus `/** ... */` doc blocks before bootstrappers and named functions.
 - Project-owned Go files use a file header plus GoDoc comments before every function, including internal helpers.
-- Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, filesystem writes in backend upload helpers, and UI/backend boundaries in `frontend/_app.js`.
+- Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, atomic persistence in `backend/storage.go`, provider mapping in `backend/imports_startgg.go`, page ownership in `frontend/app/`, and static rendering in `overlays/js/overlay.js`.
 
 ## License
 
