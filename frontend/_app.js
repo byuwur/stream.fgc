@@ -16,6 +16,8 @@
  * @param {Object} global The global object, usually `window` in Wails or a browser.
  */
 (function (global) {
+	const fgc = (global.StreamFGC = global.StreamFGC || {});
+
 	/** Builds a frontend-owned URL through SPA.js when possible. */
 	function appAssetURL(path) {
 		const normalized = `/${String(path || "").replace(/^\/+/, "")}`;
@@ -75,16 +77,16 @@
 	const autosaveForms = new WeakMap();
 	const autosaveFormSet = new Set();
 	const bracketLoadTickets = new WeakMap();
-	const bracketSeedSelections = new WeakMap();
 	const currentSeedSelections = new WeakMap();
-	const importUndoStates = new WeakMap();
 
 	// --- Backend and status helpers ---
 
+	/** Returns whichever Wails binding shape is available in development or production. */
 	function backendBinding() {
 		return global.go?.backend?.App || global.go?.main?.App || global.streamFgcBackend || null;
 	}
 
+	/** Loads generated Wails bindings on demand when the injected global is not present. */
 	async function loadGeneratedBackend() {
 		const existing = backendBinding();
 		if (existing) return existing;
@@ -118,6 +120,7 @@
 		});
 	}
 
+	/** Waits briefly for Wails to inject the backend during WebView startup. */
 	async function waitForBackend(timeout = 2000) {
 		const started = Date.now();
 		while (Date.now() - started < timeout) {
@@ -257,6 +260,7 @@
 		setStatusElement(status, key, fallback, tone);
 	}
 
+	/** Updates one status element inside a page without touching the global status badge. */
 	function setScopedStatus(root, selector, key, fallback, tone = "neutral") {
 		const status = statusTarget(root, selector);
 		if (status) setStatusElement(status, key, fallback, tone);
@@ -443,6 +447,7 @@
 		return JSON.parse(JSON.stringify(value || null));
 	}
 
+	/** Enables or disables matching form controls while an asynchronous save is running. */
 	function setControlsEnabled(root, selector, enabled) {
 		root.querySelectorAll(selector).forEach(function (control) {
 			control.disabled = !enabled;
@@ -645,11 +650,13 @@
 			}
 
 			document.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
-				if (page instanceof HTMLElement) tasks.push(loadPlayers(page));
+				if (page instanceof HTMLElement && fgc.players?.load) tasks.push(fgc.players.load(page));
 			});
 
 			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
-				if (page instanceof HTMLElement) tasks.push(loadBracket(page, page.matches(BRACKET_PAGE) ? bracketManagerView(page) : ""));
+				if (page instanceof HTMLElement && fgc.bracket?.load) {
+					tasks.push(fgc.bracket.load(page, page.matches(BRACKET_PAGE) ? fgc.bracket.managerView(page) : ""));
+				}
 			});
 
 			if (tasks.length > 0) await Promise.all(tasks);
@@ -1085,24 +1092,6 @@
 			},
 			function () {
 				return formSignature(readEventForm, form);
-			},
-		);
-	}
-
-	/** Returns autosave behavior for one player card. */
-	function playerAutosaveOptions(form, page) {
-		return autosaveOptions(
-			function () {
-				setPlayerStatus(page, "players.status.unsaved", "Unsaved player changes", "warning");
-			},
-			function () {
-				setPlayerStatus(page, "players.status.pending", "Player changes pending...", "neutral");
-			},
-			function () {
-				return savePlayer(form, page);
-			},
-			function () {
-				return formSignature(readPlayerForm, form);
 			},
 		);
 	}
@@ -1767,616 +1756,6 @@
 		});
 	}
 
-	// --- Bracket pages ---
-
-	/** Returns the localized label for a bracket match status. */
-	function bracketStatusLabel(status) {
-		const labels = {
-			bye: t("bracket.status.bye", "BYE"),
-			complete: t("bracket.status.complete", "Complete"),
-			pending: t("bracket.status.pending", "Pending"),
-			ready: t("bracket.status.ready_match", "Ready"),
-		};
-		return labels[status] || status || t("bracket.status.pending", "Pending");
-	}
-
-	/** Normalizes bracket view keys for backend and static overlay rendering. */
-	function normalizeBracketView(view) {
-		const key = String(view || "").toLowerCase().trim();
-		if (["winners", "winner", "upper"].includes(key)) return "winners";
-		if (["losers", "loser", "lower"].includes(key)) return "losers";
-		if (["finals", "final", "grand", "grand_finals"].includes(key)) return "finals";
-		if (["top8", "top", "top_8", "top-8"].includes(key)) return "top8";
-		return "all";
-	}
-
-	/** Finds a view option in a backend bracket projection. */
-	function bracketViewName(projection, viewKey = "") {
-		const key = viewKey || projection?.view || "";
-		const view = projection?.views?.find(function (option) {
-			return option.key === key;
-		});
-		return view?.name || key || "";
-	}
-
-	/** Returns the active admin manager view from the Select2-backed control. */
-	function bracketManagerView(page) {
-		const select = page?.querySelector?.("[data-bracket-manager-view-select]");
-		if (select instanceof HTMLSelectElement && select.value) return normalizeBracketView(select.value);
-		return normalizeBracketView(currentState?.bracket?.manager_view || BRACKET_ADMIN_VIEW);
-	}
-
-	/** Loads the saved manager view before the bracket page has rendered its select. */
-	async function savedBracketManagerView(app) {
-		if (currentState?.bracket?.manager_view) return normalizeBracketView(currentState.bracket.manager_view);
-		if (typeof app?.LoadTournament === "function") {
-			currentState = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
-			return normalizeBracketView(currentState?.bracket?.manager_view || BRACKET_ADMIN_VIEW);
-		}
-		return BRACKET_ADMIN_VIEW;
-	}
-
-	/** Builds the compact summary shown above admin and overlay brackets. */
-	function bracketSummary(projection, admin = false) {
-		if (projection?.error) return projection.error;
-		const template = admin
-			? t("bracket.admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}")
-			: t("bracket.summary", "{players}/{size} players - {matches} matches - {view}");
-		return template
-			.replace("{players}", String(projection?.player_count ?? 0))
-			.replace("{size}", String(projection?.size ?? 0))
-			.replace("{matches}", String(projection?.match_count ?? 0))
-			.replace("{view}", bracketViewName(projection))
-			.replace("{overlay}", bracketViewName(projection, projection?.overlay_view));
-	}
-
-	/** Returns the compact label for an exceptional match result reason. */
-	function bracketResultReasonLabel(reason) {
-		switch (String(reason || "").toLowerCase()) {
-		case "bye":
-			return t("bracket.result.bye", "BYE");
-		case "dq":
-			return t("bracket.result.dq", "DQ");
-		default:
-			return "";
-		}
-	}
-
-	/** Rebuilds one bracket view select while keeping Select2 synchronized. */
-	function renderBracketViewSelect(root, selector, options, selectedView) {
-		const select = root.querySelector(selector);
-		if (!(select instanceof HTMLSelectElement)) return;
-		destroySelect(select);
-		select.innerHTML = (options || [])
-			.map(function (option) {
-				const selected = option.key === selectedView ? " selected" : "";
-				return `<option value="${escapeHtml(option.key)}"${selected}>${escapeHtml(option.name)}</option>`;
-			})
-			.join("");
-		select.value = selectedView;
-	}
-
-	/** Writes projection metadata into the optional view selectors and summary. */
-	function renderBracketHeader(root, projection) {
-		const admin = root.matches(BRACKET_PAGE);
-		root.dataset.rule = String(parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3);
-		const summary = root.querySelector("[data-bracket-summary]");
-		if (summary) summary.textContent = bracketSummary(projection, admin);
-
-		const eventLabel = root.querySelector("[data-bracket-overlay-event]");
-		if (eventLabel) eventLabel.textContent = [projection?.event?.name, projection?.event?.phase].filter(Boolean).join(" · ") || "Stream.FGC";
-
-		const title = root.querySelector("[data-bracket-overlay-title]");
-		if (title) title.textContent = bracketViewName(projection) || t("bracket.title", "Bracket");
-
-		const randomize = root.querySelector("[data-bracket-randomize]");
-		if (randomize instanceof HTMLButtonElement) {
-			randomize.disabled = !projection?.can_randomize;
-			randomize.dataset.started = projection?.started ? "true" : "false";
-		}
-
-		const options = projection?.views || [];
-		renderBracketViewSelect(root, "[data-bracket-overlay-view-select]", options, projection?.overlay_view || BRACKET_ADMIN_VIEW);
-		renderBracketViewSelect(root, "[data-bracket-manager-view-select]", options, projection?.manager_view || projection?.view || BRACKET_ADMIN_VIEW);
-		enhanceSelects(root);
-	}
-
-	/** Returns one participant line for the bracket board. */
-	function bracketParticipantHTML(participant, score, match, side, admin, projection) {
-		const status = participant?.status || "pending";
-		const playerID = participant?.player_id || "";
-		const name = participantName(participant);
-		const team = participantMeta(participant);
-		const matchWinnerID = String(match?.winner_id || match?.winnerId || match?.state?.winner || "");
-		const matchLoserID = String(match?.loser_id || match?.loserId || match?.state?.loser || "");
-		const complete = match?.status === "complete" || Boolean(matchWinnerID);
-		const winner = Boolean(playerID && playerID === matchWinnerID);
-		const loser = Boolean(playerID && (playerID === matchLoserID || (!matchLoserID && complete && !winner && participant?.resolved)));
-		const inferredReason = !match?.state?.reason && complete && (match?.player1?.status === "bye" || match?.player2?.status === "bye") ? "bye" : "";
-		const reasonKey = match?.state?.reason || match?.reason || inferredReason;
-		const reason = bracketResultReasonLabel(reasonKey);
-		const country = String(participant?.player?.country || "").toUpperCase();
-		const seed = swappableParticipantSeed(participant);
-		const controlsLocked = admin && complete;
-		const swapAttrs = admin && seed && !controlsLocked ? ` data-bracket-seed-player data-seed="${seed}"` : "";
-		const flag = participant?.resolved && isISO2Code(country) && status !== "bye"
-			? [
-					`<span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country>`,
-					`<img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.88rem; object-fit: cover; box-shadow: 0 0 0 1px var(--fgc-border);" />`,
-					`<span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>`,
-					`</span>`,
-				].join("")
-			: "";
-		const scoreControl = admin && !controlsLocked
-			? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true, limit: parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3 })
-			: `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
-		const actionControls = controlsLocked ? "" : bracketParticipantActionsHTML(match, side, admin);
-		const swapLabel = t("bracket.swap_player", "Select player to swap");
-		return [
-			`<div class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}" data-bracket-participant data-status="${escapeHtml(status)}" data-outcome="${winner ? "winner" : loser ? "loser" : ""}"${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>`,
-			`<div class="d-flex flex-nowrap gap-2 align-items-center">`,
-			`<span class="small fw-bold flex-shrink-0" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>`,
-			flag,
-			bracketParticipantMediaHTML(participant),
-			`<span class="min-w-0 flex-grow-1">`,
-			`<span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>`,
-			team ? `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : "",
-			`</span>`,
-			reason && (winner || loser) ? `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : "",
-			`<div class="d-flex flex-nowrap gap-1 align-items-center justify-content-end flex-shrink-0 ms-2" data-bracket-player-controls>`,
-			scoreControl,
-			actionControls,
-			swapAttrs && !controlsLocked
-				? `<button class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0" type="button" data-bracket-seed-swap="${seed}" title="${escapeHtml(swapLabel)}" aria-label="${escapeHtml(swapLabel)}" style="width: 1.9rem; height: 1.9rem;"><i class="fas fa-exchange-alt" aria-hidden="true"></i></button>`
-				: "",
-			`</div>`,
-			`</div>`,
-			`</div>`,
-		].join("");
-	}
-
-	/** Builds admin-only result controls for one bracket participant row, hidden after completion. */
-	function bracketParticipantActionsHTML(match, side, admin) {
-		if (!admin) return "";
-		if (match?.status === "complete" || match?.winner_id || match?.state?.winner) return "";
-		const p1 = match?.player1?.player_id || "";
-		const p2 = match?.player2?.player_id || "";
-		const canDecide = Boolean(match?.can_decide);
-		const playerID = side === 1 ? p1 : p2;
-		const opponentID = side === 1 ? p2 : p1;
-		const seedParticipant = (side === 1 ? match?.player1 : match?.player2)?.source?.type === "seed";
-		const bye = (side === 1 ? match?.player1 : match?.player2)?.status === "bye";
-		const winLabel = t("bracket.win.title", "Mark this player as the winner");
-		const dqLabel = t("bracket.dq.title", "Disqualify this player");
-		const byeLabel = bye ? t("bracket.live.title", "Remove BYE from this player") : t("bracket.bye.title", "Give this player a BYE");
-		return [
-			canDecide
-				? `<button class="btn btn-outline-success btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(playerID)}" title="${escapeHtml(winLabel)}" aria-label="${escapeHtml(winLabel)}">${escapeHtml(t("bracket.win", "Win"))}</button>`
-				: "",
-			canDecide
-				? `<button class="btn btn-outline-danger btn-sm" type="button" data-bracket-action data-bracket-winner="${escapeHtml(match.id)}" data-player-id="${escapeHtml(opponentID)}" data-result-reason="dq" title="${escapeHtml(dqLabel)}" aria-label="${escapeHtml(dqLabel)}">${escapeHtml(t("bracket.dq", "DQ"))}</button>`
-				: "",
-			seedParticipant
-				? `<button class="btn btn-outline-warning btn-sm" type="button" data-bracket-action data-bracket-bye="${escapeHtml(match.id)}" data-side="${side}" data-bye="${bye ? "false" : "true"}" title="${escapeHtml(byeLabel)}" aria-label="${escapeHtml(byeLabel)}">${escapeHtml(bye ? t("bracket.live", "Live") : t("bracket.bye", "BYE"))}</button>`
-				: "",
-		].join("");
-	}
-
-	/** Builds admin-only match-level controls that are not tied to one player. */
-	function bracketMatchActionsHTML(match, admin) {
-		if (!admin) return "";
-		const current = match?.current ? " disabled" : "";
-		const currentLabel = match?.current ? t("bracket.current", "Current") : t("bracket.set_current", "Current");
-		const currentTitle = match?.current ? t("bracket.current", "Current") : t("bracket.set_current.title", "Set this match as the current match");
-		const clearTitle = t("bracket.clear_winner", "Clear winner");
-		const currentButton = `<button class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center" type="button" data-bracket-action data-bracket-current="${escapeHtml(match.id)}" title="${escapeHtml(currentTitle)}" aria-label="${escapeHtml(currentTitle)}"${current}><i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span></button>`;
-		const complete = match?.status === "complete" || Boolean(match?.winner_id || match?.state?.winner);
-		if (complete) {
-			return [
-				`<div class="d-flex flex-wrap gap-2 mt-2">`,
-				currentButton,
-				match?.winner_id || match?.state?.winner ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket.clear", "Clear"))}</button>` : "",
-				`</div>`,
-			].join("");
-		}
-		return [
-			`<div class="d-flex flex-wrap gap-2 mt-2">`,
-			currentButton,
-			match?.winner_id ? `<button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">${escapeHtml(t("bracket.clear", "Clear"))}</button>` : "",
-			`</div>`,
-		].join("");
-	}
-
-	/** Builds one bracket match card. */
-	function bracketMatchHTML(match, admin, projection) {
-		const scoreLimit = parseRuleValue(projection?.event?.rule || currentState?.event?.rule || 3) || 3;
-		const score1 = clampScore(match?.state?.player1_score || 0, scoreLimit);
-		const score2 = clampScore(match?.state?.player2_score || 0, scoreLimit);
-		return [
-			`<article class="w-100" data-bracket-match-wrap>`,
-			`<div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}">`,
-			`<div class="d-flex gap-2 align-items-start justify-content-between mb-2">`,
-			`<div class="min-w-0">`,
-			`<p class="fgc-kicker m-0">${escapeHtml(match?.id || "")}</p>`,
-			`<h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket.match", "Match"))}</h4>`,
-			`</div>`,
-			`<span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>`,
-			`</div>`,
-			`<div class="d-flex flex-column gap-2">`,
-			bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection),
-			bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection),
-			`</div>`,
-			bracketMatchActionsHTML(match, admin),
-			`</div>`,
-			`</article>`,
-		].join("");
-	}
-
-	/** Builds one bracket section with Bootstrap columns for rounds. */
-	function bracketSectionHTML(section, admin, projection) {
-		const rounds = section?.rounds || [];
-		return [
-			`<section class="col-12 mb-3" data-bracket-section="${escapeHtml(section?.key || "")}">`,
-			`<div class="d-flex flex-column gap-3">`,
-			`<div class="d-flex gap-2 align-items-baseline">`,
-			`<p class="fgc-kicker m-0">${escapeHtml(section?.name || "")}</p>`,
-			`<span class="small" style="color: var(--fgc-text-muted);">${rounds.length}</span>`,
-			`</div>`,
-			`<div class="d-flex flex-nowrap overflow-auto pb-2" data-bracket-lane>`,
-			rounds
-				.map(function (round) {
-					const matches = (round.matches || []).map(function (match) {
-						return bracketMatchHTML(match, admin, projection);
-					});
-					return [
-						`<div class="flex-shrink-0 pe-4" data-bracket-round>`,
-						`<div class="w-100 d-flex flex-column gap-2">`,
-						`<h3 class="fgc-title fs-6 lh-sm m-0">${escapeHtml(round.name || "")}</h3>`,
-						`<div class="d-flex flex-column gap-3" data-bracket-round-matches>`,
-						matches.join(""),
-						`</div>`,
-						`</div>`,
-						`</div>`,
-					].join("");
-				})
-				.join(""),
-			`</div>`,
-			`</div>`,
-			`</section>`,
-		].join("");
-	}
-
-	/** Draws a backend bracket projection into either admin or overlay root. */
-	function renderBracketProjection(root, projection, admin = false) {
-		renderBracketHeader(root, projection);
-		const board = root.querySelector("[data-bracket-board]");
-		if (!board) return;
-		const error = String(projection?.error || "");
-		if (error) {
-			board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(error)}</div></div>`;
-			return;
-		}
-		const sections = projection?.sections || [];
-		board.innerHTML = sections.length
-			? sections
-					.map(function (section) {
-						return bracketSectionHTML(section, admin, projection);
-					})
-					.join("")
-			: `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.empty", "No bracket matches found."))}</div></div>`;
-		board.querySelectorAll("[data-flag-image]").forEach(function (image) {
-			if (!(image instanceof HTMLImageElement)) return;
-			image.addEventListener("error", function () {
-				image.remove();
-			});
-		});
-		board.querySelectorAll("[data-fallback-image]").forEach(function (image) {
-			setImageFallback(image);
-		});
-		applyLanguage(board);
-	}
-
-	/** Loads the bracket projection through Wails. */
-	async function loadBracket(root, requestedView = "") {
-		const scrollState = captureScrollState(root);
-		const ticket = nextBracketLoadTicket(root);
-		const app = await waitForBackend();
-		const admin = root.matches(BRACKET_PAGE);
-		try {
-			if (!app || typeof app.GetBracketView !== "function") {
-				const board = root.querySelector("[data-bracket-board]");
-				if (board) board.innerHTML = `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div></div>`;
-				setBracketStatus(root, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-				return null;
-			}
-
-			setBracketStatus(root, "bracket.status.loading", "Loading bracket...", "neutral");
-			const view = admin ? requestedView || (await savedBracketManagerView(app)) : requestedView;
-			const projection = await withTimeout(app.GetBracketView(view), 5000, "Bracket load timed out");
-			if (!isCurrentBracketLoad(root, ticket)) return projection;
-			await ensureCharacterCatalog(app, projection?.event?.game || "");
-			renderBracketProjection(root, projection, admin);
-			if (projection?.error) {
-				setBracketStatus(root, "bracket_status_template_missing", projection.error, "warning");
-			} else {
-				setBracketStatus(root, "bracket.status.ready", "Bracket ready", "success");
-			}
-			return projection;
-		} catch (error) {
-			if (!isCurrentBracketLoad(root, ticket)) return null;
-			console.error("GetBracketView failed", error);
-			setBracketStatus(root, "bracket.status.load_failed", "Bracket load failed", "error");
-			return null;
-		} finally {
-			restoreScrollState(scrollState);
-		}
-	}
-
-	/** Saves the selected overlay view and refreshes the admin preview. */
-	async function saveBracketOverlayView(page, view) {
-		const scrollState = captureScrollState(page);
-		const app = await waitForBackend();
-		if (!app || typeof app.SetBracketOverlayView !== "function") {
-			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			restoreScrollState(scrollState);
-			return;
-		}
-
-		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
-		try {
-			currentState = await withTimeout(app.SetBracketOverlayView(view), 5000, "Bracket overlay save timed out");
-			await loadBracket(page, bracketManagerView(page));
-			setBracketStatus(page, "bracket.status.overlay_saved", "Overlay view saved", "success");
-		} catch (error) {
-			console.error("SetBracketOverlayView failed", error);
-			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
-		} finally {
-			restoreScrollState(scrollState);
-		}
-	}
-
-	/** Saves the selected manager view and refreshes the admin bracket slice. */
-	async function saveBracketManagerView(page, view) {
-		const scrollState = captureScrollState(page);
-		const app = await waitForBackend();
-		if (!app || (typeof app.SetBracketManagerView !== "function" && (typeof app.LoadTournament !== "function" || typeof app.SaveTournament !== "function"))) {
-			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			restoreScrollState(scrollState);
-			return;
-		}
-
-		const normalizedView = normalizeBracketView(view);
-		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
-		try {
-			if (typeof app.SetBracketManagerView === "function") {
-				currentState = await withTimeout(app.SetBracketManagerView(normalizedView), 5000, "Bracket manager view save timed out");
-			} else {
-				const state = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
-				state.bracket = { ...(state.bracket || {}), manager_view: normalizedView };
-				await withTimeout(app.SaveTournament(state), 10000, "Bracket manager view save timed out");
-				currentState = await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out");
-			}
-			await loadBracket(page, normalizedView);
-			setBracketStatus(page, "bracket.status.manager_saved", "Manager view saved", "success");
-		} catch (error) {
-			console.error("SetBracketManagerView failed", error);
-			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
-		} finally {
-			restoreScrollState(scrollState);
-		}
-	}
-
-	/** Performs one admin bracket action and reloads the projection. */
-	async function runBracketAction(page, action) {
-		const scrollState = captureScrollState(page);
-		const app = await waitForBackend();
-		if (!app) {
-			setBracketStatus(page, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			restoreScrollState(scrollState);
-			return;
-		}
-
-		setBracketStatus(page, "bracket.status.saving", "Saving bracket...", "neutral");
-		try {
-			currentState = await withTimeout(action(app), 5000, "Bracket action timed out");
-			await loadBracket(page, bracketManagerView(page));
-			setBracketStatus(page, "bracket.status.saved", "Bracket saved", "success");
-		} catch (error) {
-			console.error("Bracket action failed", error);
-			setBracketStatus(page, "bracket.status.failed", "Bracket save failed", "error");
-		} finally {
-			restoreScrollState(scrollState);
-		}
-	}
-
-	/** Runs one named backend bracket method and keeps button handlers readable. */
-	function runBracketBackendMethod(page, methodName, ...args) {
-		void runBracketAction(page, function (app) {
-			if (typeof app[methodName] !== "function") return Promise.reject(new Error(`${methodName} is unavailable`));
-			return app[methodName](...args);
-		});
-	}
-
-	/** Reads one bracket score from a rendered match card. */
-	function readBracketScore(matchCard, side) {
-		const input = matchCard?.querySelector(`[data-bracket-score-input="${side}"]`);
-		if (!(input instanceof HTMLInputElement)) return 0;
-		return clampScore(input.value, eventRuleLimit(matchCard));
-	}
-
-	/** Handles compact bracket score +/- controls. */
-	function updateBracketScoreFromButton(page, button) {
-		const matchID = button.getAttribute("data-match-id") || "";
-		const side = Number(button.getAttribute("data-side") || 0);
-		const delta = Number(button.getAttribute("data-delta") || 0);
-		const matchCard = button.closest("[data-bracket-match]");
-		if (!matchID || !side || !delta || !(matchCard instanceof HTMLElement)) return;
-
-		let player1Score = readBracketScore(matchCard, 1);
-		let player2Score = readBracketScore(matchCard, 2);
-		const scoreLimit = eventRuleLimit(page);
-		if (side === 1) player1Score = clampScore(player1Score + delta, scoreLimit);
-		if (side === 2) player2Score = clampScore(player2Score + delta, scoreLimit);
-
-		const player1Input = matchCard.querySelector('[data-bracket-score-input="1"]');
-		const player2Input = matchCard.querySelector('[data-bracket-score-input="2"]');
-		if (player1Input instanceof HTMLInputElement) player1Input.value = String(player1Score);
-		if (player2Input instanceof HTMLInputElement) player2Input.value = String(player2Score);
-
-		runBracketBackendMethod(page, "UpdateMatchScore", matchID, player1Score, player2Score);
-	}
-
-	/** Handles first/second click selection for bracket seed swaps without moving player records. */
-	function selectBracketSeedForSwap(page, seed) {
-		if (!seed) return;
-		const selectedSeed = bracketSeedSelections.get(page) || 0;
-		if (!selectedSeed) {
-			bracketSeedSelections.set(page, seed);
-			setSeedSelection(page, "[data-bracket-seed-player]", seed);
-			setBracketStatus(page, "bracket.status.swap_select", "Select another player to swap", "neutral");
-			return;
-		}
-		bracketSeedSelections.delete(page);
-		setSeedSelection(page, "[data-bracket-seed-player]", 0);
-		if (selectedSeed === seed) {
-			setBracketStatus(page, "bracket.status.swap_cleared", "Player swap cancelled", "neutral");
-			return;
-		}
-		runBracketBackendMethod(page, "SwapBracketSeeds", selectedSeed, seed);
-	}
-
-	/** Handles native and Select2-driven bracket view changes through one path. */
-	function handleBracketViewSelectChange(page, select) {
-		if (!(select instanceof HTMLSelectElement)) return false;
-		if (select.matches("[data-bracket-overlay-view-select]")) {
-			void saveBracketOverlayView(page, select.value);
-			return true;
-		}
-		if (select.matches("[data-bracket-manager-view-select]")) {
-			void saveBracketManagerView(page, select.value);
-			return true;
-		}
-		return false;
-	}
-
-	/** Binds admin bracket controls. */
-	function bindBracketPage(page) {
-		const bindingVersion = "view-select2-v2";
-		if (page.dataset.bound === bindingVersion) return;
-		page.dataset.bound = bindingVersion;
-
-		page.addEventListener(
-			"click",
-			function (event) {
-				const target = event.target instanceof Element ? event.target : null;
-				const seed = bracketSwapSeedFromTarget(target);
-				if (!seed) return;
-				event.preventDefault();
-				event.stopPropagation();
-				selectBracketSeedForSwap(page, seed);
-			},
-			true,
-		);
-
-		page.addEventListener("change", function (event) {
-			const target = event.target instanceof Element ? event.target : null;
-			if (handleBracketViewSelectChange(page, target)) event.preventDefault();
-		});
-
-		const jquery = global.jQuery;
-		if (jquery?.fn?.on) {
-			jquery(page)
-				.off("change.streamFgcBracketViews")
-				.on("change.streamFgcBracketViews", "[data-bracket-overlay-view-select], [data-bracket-manager-view-select]", function () {
-					handleBracketViewSelectChange(page, this);
-				});
-		}
-
-		const reset = page.querySelector("[data-bracket-reset]");
-		if (reset) {
-			reset.addEventListener("click", function () {
-				runBracketBackendMethod(page, "ResetBracket");
-			});
-		}
-		const randomize = page.querySelector("[data-bracket-randomize]");
-		if (randomize) {
-			randomize.addEventListener("click", function () {
-				runBracketBackendMethod(page, "RandomizeBracketSeeds");
-			});
-		}
-
-		page.addEventListener("click", function (event) {
-			const target = event.target instanceof Element ? event.target : null;
-			const scoreButton = target?.closest("[data-bracket-score-action]");
-			if (scoreButton instanceof HTMLButtonElement) {
-				event.preventDefault();
-				updateBracketScoreFromButton(page, scoreButton);
-				return;
-			}
-
-			const currentButton = target?.closest("[data-bracket-current]");
-			if (currentButton instanceof HTMLButtonElement) {
-				event.preventDefault();
-				const matchID = currentButton.getAttribute("data-bracket-current") || "";
-				runBracketBackendMethod(page, "SetCurrentMatch", matchID);
-				return;
-			}
-
-			const winnerButton = target?.closest("[data-bracket-winner]");
-			if (winnerButton instanceof HTMLButtonElement) {
-				event.preventDefault();
-				const matchID = winnerButton.getAttribute("data-bracket-winner") || "";
-				const playerID = winnerButton.getAttribute("data-player-id") || "";
-				const reason = winnerButton.getAttribute("data-result-reason") || "";
-				if (reason) runBracketBackendMethod(page, "SetMatchResult", matchID, playerID, reason);
-				else runBracketBackendMethod(page, "SetMatchWinner", matchID, playerID);
-				return;
-			}
-
-			const byeButton = target?.closest("[data-bracket-bye]");
-			if (byeButton instanceof HTMLButtonElement) {
-				event.preventDefault();
-				const matchID = byeButton.getAttribute("data-bracket-bye") || "";
-				const side = Number(byeButton.getAttribute("data-side") || 0);
-				const bye = byeButton.getAttribute("data-bye") === "true";
-				runBracketBackendMethod(page, "SetMatchParticipantBye", matchID, side, bye);
-				return;
-			}
-
-			const clearButton = target?.closest("[data-bracket-clear]");
-			if (clearButton instanceof HTMLButtonElement) {
-				event.preventDefault();
-				const matchID = clearButton.getAttribute("data-bracket-clear") || "";
-				runBracketBackendMethod(page, "SetMatchWinner", matchID, "");
-				return;
-			}
-
-			const seed = bracketSwapSeedFromTarget(target);
-			if (seed) selectBracketSeedForSwap(page, seed);
-		});
-
-		page.addEventListener("keydown", function (event) {
-			if (event.key !== "Enter" && event.key !== " ") return;
-			const target = event.target instanceof Element ? event.target : null;
-			const swapTarget = target?.closest("[data-bracket-seed-swap]");
-			if (!(swapTarget instanceof HTMLElement)) return;
-			event.preventDefault();
-			const seed = bracketSwapSeedFromTarget(target) || Number(swapTarget.dataset.bracketSeedSwap || 0);
-			selectBracketSeedForSwap(page, seed);
-		});
-
-		void loadBracket(page, bracketManagerView(page));
-	}
-
-	/** Binds the standalone overlay bracket page with a light refresh loop. */
-	function bindBracketOverlay(root) {
-		if (root.dataset.bound === "true") return;
-		root.dataset.bound = "true";
-		void loadBracket(root);
-		global.setInterval(function () {
-			void loadBracket(root);
-		}, BRACKET_OVERLAY_REFRESH_MS);
-	}
 
 	// --- Players page ---
 
@@ -2692,566 +2071,109 @@
 		}
 	}
 
-	// --- Import page ---
+	// --- Page controller API ---
 
-	/** Reads provider API keys from the import integrations form. */
-	function readImportIntegrationsForm(page) {
-		const form = page.querySelector("[data-import-integrations-form]");
-		if (!(form instanceof HTMLFormElement)) return { startgg: { api_key: "" } };
-		return {
-			startgg: {
-				api_key: formControl(form, "startgg_api_key")?.value.trim() || "",
+	/*
+	 * Page files share this small API instead of reaching into one another.
+	 * The mutable properties keep one tournament/catalog state across SPA routes.
+	 */
+	Object.defineProperties(fgc, {
+		countryCodes: {
+			configurable: true,
+			get: function () {
+				return countryCodes;
 			},
-		};
-	}
+			set: function (value) {
+				countryCodes = value;
+			},
+		},
+		countryNames: {
+			configurable: true,
+			get: function () {
+				return countryNames;
+			},
+			set: function (value) {
+				countryNames = value;
+			},
+		},
+		currentState: {
+			configurable: true,
+			get: function () {
+				return currentState;
+			},
+			set: function (value) {
+				currentState = value;
+			},
+		},
+	});
 
-	/** Fills provider API key fields from saved integration settings. */
-	function fillImportIntegrationsForm(page, settings) {
-		const form = page.querySelector("[data-import-integrations-form]");
-		if (!(form instanceof HTMLFormElement)) return;
-		const startGGInput = formControl(form, "startgg_api_key");
-		if (startGGInput) startGGInput.value = settings?.startgg?.api_key || "";
-	}
+	Object.assign(fgc, {
+		applyAutosavePreference,
+		applyGameBackgroundFromState,
+		applyLanguage,
+		autosaveOptions,
+		autosaveForms,
+		bindAutosave,
+		bindKeyboardClick,
+		bracketParticipantMediaHTML,
+		bracketSwapSeedFromTarget,
+		captureScrollState,
+		clampScore,
+		cloneJSON,
+		constants: Object.freeze({
+			BRACKET_ADMIN_VIEW,
+			BRACKET_OVERLAY_REFRESH_MS,
+			BRACKET_PAGE,
+			EMPTY_STATE_CLASS,
+			FALLBACK_ASSET,
+			PLAYER_PORTRAIT_MAX_MB,
+		}),
+		countryFlagPath,
+		countryLabel,
+		destroySelect,
+		destroySelects,
+		enhanceSelects,
+		ensureCharacterCatalog,
+		ensureGameCatalog,
+		ensureProviderCatalog,
+		escapeHtml,
+		eventRuleLimit,
+		fileAsDataURL,
+		flushAutosave,
+		formControl,
+		formSignature,
+		gameCatalogEntry,
+		isAutosaveEnabled,
+		isCurrentBracketLoad,
+		isISO2Code,
+		loadCountryNames,
+		markAutosaved,
+		nextBracketLoadTicket,
+		normalizeCountryCodes,
+		parseRuleValue,
+		participantMeta,
+		participantName,
+		playerCard,
+		playerEntriesForEvent,
+		playerSignature,
+		refreshPlayerPortrait,
+		renderImportProviderSelect,
+		restoreScrollState,
+		scheduleAutosave,
+		scoreStepperHTML,
+		setBracketStatus,
+		setImageFallback,
+		setImportStatus,
+		setPageEnabled,
+		setPlayerReadyStatus,
+		setPlayerStatus,
+		setSeedSelection,
+		swappableParticipantSeed,
+		t,
+		waitForBackend,
+		withTimeout,
+	});
 
-	/** Loads provider API keys from the backend into the Import page. */
-	async function loadImportIntegrations(page) {
-		const app = await waitForBackend();
-		if (!app || typeof app.LoadImportIntegrations !== "function") {
-			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
-			return;
-		}
-
-		try {
-			const settings = await withTimeout(app.LoadImportIntegrations(), 5000, "Integration settings load timed out");
-			fillImportIntegrationsForm(page, settings);
-			setImportStatus(page, "import.status.idle", "Paste a tournament link to preview imported data.", "neutral");
-		} catch (error) {
-			console.error("LoadImportIntegrations failed", error);
-			setImportStatus(page, "import.status.integrations_load_failed", error?.message || "API key load failed", "error");
-		}
-	}
-
-	/** Loads provider options into the Import form's provider select. */
-	async function loadImportProviderSelect(page) {
-		try {
-			await ensureProviderCatalog();
-			renderImportProviderSelect(page, readImportProvider(page) || "startgg");
-			enhanceSelects(page);
-		} catch (error) {
-			console.warn("Could not initialize import providers", error);
-		}
-	}
-
-	/** Saves provider API keys through Go so the frontend never writes files directly. */
-	async function saveImportIntegrations(page) {
-		const app = await waitForBackend();
-		if (!app || typeof app.SaveImportIntegrations !== "function") {
-			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
-			return;
-		}
-
-		setImportStatus(page, "import.status.integrations.saving", "Saving API keys...", "neutral");
-		setPageEnabled(page, false);
-		try {
-			const settings = await withTimeout(app.SaveImportIntegrations(readImportIntegrationsForm(page)), 5000, "Integration settings save timed out");
-			fillImportIntegrationsForm(page, settings);
-			setImportStatus(page, "import.status.integrations.saved", "API keys saved", "success");
-		} catch (error) {
-			console.error("SaveImportIntegrations failed", error);
-			setImportStatus(page, "import.status.integrations.failed", error?.message || "API key save failed", "error");
-		} finally {
-			setPageEnabled(page, true);
-			syncImportActionButtons(page);
-			if (!page.dataset.previewUrl) setImportReady(page, false);
-		}
-	}
-
-	/** Reads the selected provider key from the import form. */
-	function readImportProvider(page) {
-		const form = page.querySelector("[data-import-form]");
-		if (!(form instanceof HTMLFormElement)) return "";
-		return formControl(form, "provider")?.value.trim() || "";
-	}
-
-	/** Reads the tournament URL from the import form. */
-	function readImportURL(page) {
-		const form = page.querySelector("[data-import-form]");
-		if (!(form instanceof HTMLFormElement)) return "";
-		return formControl(form, "url")?.value.trim() || "";
-	}
-
-	/** Enables undo only when the page has a saved pre-import tournament snapshot. */
-	function setImportUndoReady(page, ready) {
-		const button = page.querySelector("[data-import-undo]");
-		if (button instanceof HTMLButtonElement) button.disabled = !ready;
-	}
-
-	/** Enables import only after a successful preview of the current URL. */
-	function setImportReady(page, ready, url = "") {
-		page.dataset.previewUrl = ready ? url : "";
-		const button = page.querySelector("[data-import-apply]");
-		if (button instanceof HTMLButtonElement) button.disabled = !ready;
-	}
-
-	/** Reapplies Import/Undo disabled state after temporary page-wide locks. */
-	function syncImportActionButtons(page) {
-		const readyURL = page.dataset.previewUrl || "";
-		const importButton = page.querySelector("[data-import-apply]");
-		if (importButton instanceof HTMLButtonElement) importButton.disabled = !readyURL;
-		setImportUndoReady(page, importUndoStates.has(page));
-	}
-
-	/** Formats a provider name from an import preview. */
-	function importProviderName(preview) {
-		return preview?.provider_name || preview?.provider || t("import.unknown_provider", "Unknown provider");
-	}
-
-	/** Renders one small import summary tile. */
-	function importSummaryTile(label, value, options) {
-		const body = options?.html ? String(value || "") : escapeHtml(value);
-		return [
-			`<div class="col-12 col-sm-6 col-lg-4 col-xl">`,
-			`<div class="border rounded p-3 h-100">`,
-			`<span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>`,
-			`<strong>${body}</strong>`,
-			`</div>`,
-			`</div>`,
-		].join("");
-	}
-
-	/** Renders the imported game as full catalog name and logo when supported. */
-	function importGameHTML(game) {
-		const rawGame = String(game?.key || game?.name || game || "").trim();
-		const entry = gameCatalogEntry(rawGame);
-		const supported = Boolean(entry);
-		const name = supported ? entry.name : rawGame || t("import.unknown_game", "Unknown");
-		const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
-		const suffix = supported ? "" : ` ${t("import.not_supported", "(not supported)")}`;
-		return [
-			`<span class="d-inline-flex gap-2 align-items-center mw-100">`,
-			`<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
-			`<span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>`,
-			`</span>`,
-		].join("");
-	}
-
-	/** Renders an imported ISO2 country with its flag and localized label. */
-	function importCountryHTML(country) {
-		const code = String(country || "").toUpperCase();
-		if (!code) return "";
-		if (!isISO2Code(code)) return escapeHtml(code);
-		return [
-			`<span class="d-inline-flex gap-2 align-items-center">`,
-			`<img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />`,
-			`<span>${escapeHtml(countryLabel(code))}</span>`,
-			`</span>`,
-		].join("");
-	}
-
-	/** Builds the imported player preview table. */
-	function importPlayersTable(players) {
-		if (!players.length) {
-			return `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div>`;
-		}
-		const rows = players
-			.slice(0, 64)
-			.map(function (player, index) {
-				return [
-					`<tr>`,
-					`<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
-					`<td>${escapeHtml(player.name || "")}</td>`,
-					`<td>${escapeHtml(player.team || "")}</td>`,
-					`<td>${importCountryHTML(player.country)}</td>`,
-					`</tr>`,
-				].join("");
-			})
-			.join("");
-		const hiddenCount = Math.max(0, players.length - 64);
-		const hiddenNote = hiddenCount
-			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
-			: "";
-		return [
-			`<div class="table-responsive border rounded p-2" data-import-preview-table>`,
-			`<table class="table table-dark align-middle m-0">`,
-			`<thead><tr>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>`,
-			`</tr></thead>`,
-			`<tbody>${rows}</tbody>`,
-			`</table>`,
-			`</div>`,
-			hiddenNote,
-		].join("");
-	}
-
-	/** Draws an import preview returned by the backend provider layer. */
-	function renderImportPreview(page, preview) {
-		const body = page.querySelector("[data-import-preview-body]");
-		if (!(body instanceof HTMLElement)) return;
-		const players = Array.isArray(preview?.players) ? preview.players : [];
-		const matches = Array.isArray(preview?.matches) ? preview.matches : [];
-		const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
-		const event = preview?.event || {};
-		body.innerHTML = [
-			importSummaryTile(t("import.provider", "Provider"), importProviderName(preview)),
-			importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event")),
-			importSummaryTile(t("import.phase", "Phase"), event.phase || ""),
-			importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true }),
-			importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
-			warnings.length
-				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
-						.map(function (warning) {
-							return `<p class="m-0 small">${escapeHtml(warning)}</p>`;
-						})
-						.join("")}</div></div>`
-				: "",
-			`<div class="col-12">`,
-			`<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>`,
-			importPlayersTable(players),
-			`</div>`,
-		].join("");
-		applyLanguage(body);
-	}
-
-	/** Loads an external tournament preview through the backend. */
-	async function previewTournamentImport(page) {
-		const app = await waitForBackend();
-		if (!app || typeof app.PreviewTournamentImport !== "function") {
-			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
-			return;
-		}
-
-		const url = readImportURL(page);
-		const provider = readImportProvider(page);
-		setImportReady(page, false);
-		setImportStatus(page, "import.status.loading", "Loading import preview...", "neutral");
-		setPageEnabled(page, false);
-		try {
-			if (!provider) throw new Error(t("import.status.provider_required", "Select an import provider."));
-			const preview = await withTimeout(app.PreviewTournamentImport(url), 30000, "Import preview timed out");
-			await ensureGameCatalog(app);
-			if (!Object.keys(countryNames).length) countryNames = (await loadCountryNames()) || {};
-			renderImportPreview(page, preview);
-			setImportReady(page, true, url);
-			setImportStatus(page, "import.status.ready", "Import preview ready", "success");
-		} catch (error) {
-			console.error("PreviewTournamentImport failed", error);
-			setImportStatus(page, "import.status.failed", error?.message || "Import preview failed", "error");
-		} finally {
-			setPageEnabled(page, true);
-			syncImportActionButtons(page);
-		}
-	}
-
-	/** Imports the previously previewed tournament into local JSON through Go. */
-	async function importTournamentLink(page) {
-		const app = await waitForBackend();
-		if (!app || typeof app.ImportTournamentLink !== "function") {
-			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
-			return;
-		}
-
-		const url = page.dataset.previewUrl || "";
-		if (!url || url !== readImportURL(page)) {
-			setImportReady(page, false);
-			setImportStatus(page, "import.status.preview_required", "Preview this link before importing.", "warning");
-			return;
-		}
-
-		setImportStatus(page, "import.status.importing", "Importing tournament...", "neutral");
-		setPageEnabled(page, false);
-		try {
-			const previousState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : currentState;
-			currentState = await withTimeout(app.ImportTournamentLink(url), 30000, "Tournament import timed out");
-			importUndoStates.set(page, cloneJSON(previousState || currentState));
-			setImportStatus(page, "import.status.imported", "Tournament imported", "success");
-			setImportReady(page, false);
-		} catch (error) {
-			console.error("ImportTournamentLink failed", error);
-			setImportStatus(page, "import.status.import_failed", error?.message || "Tournament import failed", "error");
-		} finally {
-			setPageEnabled(page, true);
-			syncImportActionButtons(page);
-		}
-	}
-
-	/** Restores the tournament JSON captured immediately before the last import. */
-	async function undoTournamentImport(page) {
-		const app = await waitForBackend();
-		const state = importUndoStates.get(page);
-		if (!state) {
-			setImportStatus(page, "import.status.undo_unavailable", "No import to undo", "warning");
-			setImportUndoReady(page, false);
-			return;
-		}
-		if (!app || typeof app.SaveTournament !== "function") {
-			setImportStatus(page, "import.status.backend_missing", "Open in Wails to import tournament links.", "warning");
-			return;
-		}
-
-		setImportStatus(page, "import.status.undoing", "Undoing import...", "neutral");
-		setPageEnabled(page, false);
-		try {
-			await withTimeout(app.SaveTournament(state), 10000, "Import undo timed out");
-			currentState = typeof app.LoadTournament === "function" ? await withTimeout(app.LoadTournament(), 5000, "Tournament load timed out") : cloneJSON(state);
-			importUndoStates.delete(page);
-			setImportReady(page, false);
-			setImportStatus(page, "import.status.undone", "Import undone", "success");
-		} catch (error) {
-			console.error("UndoTournamentImport failed", error);
-			setImportStatus(page, "import.status.undo_failed", error?.message || "Import undo failed", "error");
-		} finally {
-			setPageEnabled(page, true);
-			syncImportActionButtons(page);
-		}
-	}
-
-	/** Binds the import page form and action buttons. */
-	function bindImportPage(page) {
-		if (page.dataset.bound === "true") return;
-		page.dataset.bound = "true";
-		const integrationsForm = page.querySelector("[data-import-integrations-form]");
-		if (integrationsForm instanceof HTMLFormElement) {
-			integrationsForm.addEventListener("submit", function (event) {
-				event.preventDefault();
-				void saveImportIntegrations(page);
-			});
-		}
-		const form = page.querySelector("[data-import-form]");
-		if (form instanceof HTMLFormElement) {
-			form.addEventListener("submit", function (event) {
-				event.preventDefault();
-				void previewTournamentImport(page);
-			});
-			form.addEventListener("input", function () {
-				setImportReady(page, false);
-			});
-			form.addEventListener("change", function () {
-				setImportReady(page, false);
-			});
-		}
-		const importButton = page.querySelector("[data-import-apply]");
-		if (importButton instanceof HTMLButtonElement) {
-			importButton.addEventListener("click", function () {
-				void importTournamentLink(page);
-			});
-		}
-		const undoButton = page.querySelector("[data-import-undo]");
-		if (undoButton instanceof HTMLButtonElement) {
-			undoButton.addEventListener("click", function () {
-				void undoTournamentImport(page);
-			});
-		}
-		setImportReady(page, false);
-		setImportUndoReady(page, false);
-		setImportStatus(page, "import.status.idle", "Paste a tournament link to preview imported data.", "neutral");
-		void loadImportProviderSelect(page);
-		void loadImportIntegrations(page);
-	}
-
-	/** Renders player cards and binds each generated form. */
-	function renderPlayers(page) {
-		const list = page.querySelector("[data-player-list]");
-		if (!list) return;
-		destroySelects(list);
-		const rows = playerEntriesForEvent(currentState).map(function ([playerID, player]) {
-			return playerCard(playerID, player);
-		});
-		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players.empty">No players found.</div></div>`;
-		list.querySelectorAll("[data-player-form]").forEach(function (form) {
-			if (!(form instanceof HTMLFormElement)) return;
-			bindPlayerForm(form, page);
-			const playerID = form.getAttribute("data-player-form") || "";
-			const savedSignature = playerSignature(currentState?.players?.[playerID] || {});
-			if (formSignature(readPlayerForm, form) !== savedSignature) {
-				markAutosaved(form, savedSignature);
-				const state = autosaveForms.get(form);
-				if (state?.options) scheduleAutosave(form, state.options);
-			}
-		});
-		enhanceSelects(list);
-		applyAutosavePreference();
-		applyLanguage(list);
-	}
-
-	/** Loads tournament players, country codes, and character options for the page. */
-	async function loadPlayers(page) {
-		const scrollState = captureScrollState(page);
-		const app = await waitForBackend();
-		if (!app) {
-			setPageEnabled(page, true);
-			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			restoreScrollState(scrollState);
-			return;
-		}
-
-		setPlayerStatus(page, "players.status.loading", "Loading players...", "neutral");
-		setPageEnabled(page, false);
-		try {
-			const [state, codes, names] = await Promise.all([app.LoadTournament(), app.ListCountryCodes(), loadCountryNames()]);
-			currentState = state;
-			await ensureGameCatalog(app);
-			applyGameBackgroundFromState(currentState);
-			await ensureCharacterCatalog(app, currentState.event?.game || "");
-			countryNames = names || {};
-			countryCodes = normalizeCountryCodes(codes, countryNames);
-			renderPlayers(page);
-			setPlayerReadyStatus(page);
-		} catch (error) {
-			console.error("Load players failed", error);
-			setPlayerStatus(page, "players.status.load_failed", "Player load failed", "error");
-		} finally {
-			setPageEnabled(page, true);
-			restoreScrollState(scrollState);
-		}
-	}
-
-	/** Reads one player card into the backend Player shape. */
-	function readPlayerForm(form) {
-		return {
-			name: formControl(form, "name")?.value.trim() || "",
-			team: formControl(form, "team")?.value.trim() || "",
-			country: formControl(form, "country")?.value.trim().toUpperCase() || "",
-			character: formControl(form, "character")?.value.trim() || "",
-		};
-	}
-
-	/** Persists one player card and returns its saved signature. */
-	async function savePlayer(form, page) {
-		const app = await waitForBackend();
-		if (!app) {
-			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			return "";
-		}
-
-		const playerID = form.getAttribute("data-player-form") || "";
-		const playerPayload = readPlayerForm(form);
-		const submittedSignature = JSON.stringify(playerPayload);
-		const autosave = isAutosaveEnabled();
-		setPlayerStatus(page, autosave ? "players.status.saving" : "players.status.saving_manual", autosave ? "Autosaving player..." : "Saving player...", "neutral");
-		try {
-			currentState = await app.UpdatePlayer(playerID, playerPayload);
-			setPlayerStatus(page, autosave ? "players.status.saved" : "players.status.saved_manual", autosave ? "Player autosaved" : "Player saved", "success");
-			return submittedSignature;
-		} catch (error) {
-			console.error("UpdatePlayer failed", error);
-			setPlayerStatus(page, "players.status.failed", "Player save failed", "error");
-			return "";
-		}
-	}
-
-	/** Uploads a custom portrait through the backend filesystem API. */
-	async function uploadPlayerPortrait(form, page, file) {
-		const app = await waitForBackend();
-		if (!app || typeof app.SavePlayerPortrait !== "function") {
-			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			return;
-		}
-
-		const playerID = form.getAttribute("data-player-form") || "";
-		setPlayerStatus(page, "players.status.portrait_uploading", "Uploading portrait...", "neutral");
-		try {
-			const imageData = await fileAsDataURL(file);
-			const url = await app.SavePlayerPortrait(playerID, imageData);
-			refreshPlayerPortrait(form, `${url}?v=${Date.now()}`);
-			setPlayerStatus(page, "players.status.portrait_saved", "Portrait uploaded", "success");
-		} catch (error) {
-			console.error("SavePlayerPortrait failed", error);
-			setPlayerStatus(page, "players.status.portrait_failed", "Portrait upload failed", "error");
-		}
-	}
-
-	/** Removes a custom portrait through the backend filesystem API. */
-	async function removePlayerPortrait(form, page) {
-		const app = await waitForBackend();
-		if (!app || typeof app.RemovePlayerPortrait !== "function") {
-			setPlayerStatus(page, "players.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
-			return;
-		}
-
-		const playerID = form.getAttribute("data-player-form") || "";
-		setPlayerStatus(page, "players.status.portrait_removing", "Removing portrait...", "neutral");
-		try {
-			const url = await app.RemovePlayerPortrait(playerID);
-			refreshPlayerPortrait(form, `${url}?v=${Date.now()}`);
-			setPlayerStatus(page, "players.status.portrait_removed", "Portrait removed", "success");
-		} catch (error) {
-			console.error("RemovePlayerPortrait failed", error);
-			setPlayerStatus(page, "players.status.portrait_remove_failed", "Portrait remove failed", "error");
-		}
-	}
-
-	/** Binds Dropzone to one player card without allowing direct filesystem writes. */
-	function bindPlayerPortraitDropzone(form, page) {
-		const dropzoneElement = form.querySelector("[data-player-dropzone]");
-		if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
-		dropzoneElement.dataset.bound = "true";
-		bindKeyboardClick(dropzoneElement);
-
-		const image = form.querySelector("[data-player-portrait]");
-		setImageFallback(image);
-
-		if (typeof global.Dropzone === "undefined") {
-			dropzoneElement.dataset.disabled = "true";
-			return;
-		}
-
-		global.Dropzone.autoDiscover = false;
-		const dropzone = new global.Dropzone(dropzoneElement, {
-			acceptedFiles: "image/png,image/jpeg,image/gif",
-			autoProcessQueue: false,
-			autoQueue: false,
-			clickable: true,
-			createImageThumbnails: false,
-			disablePreviews: true,
-			maxFiles: 1,
-			maxFilesize: PLAYER_PORTRAIT_MAX_MB,
-			previewsContainer: false,
-			url: "/players",
-		});
-
-		dropzone.on("addedfile", function (file) {
-			dropzone.removeAllFiles(true);
-			if (!(file instanceof File)) return;
-			void uploadPlayerPortrait(form, page, file);
-		});
-	}
-
-	/** Binds the remove portrait button for one player card. */
-	function bindPlayerPortraitRemove(form, page) {
-		const removeButton = form.querySelector("[data-player-portrait-remove]");
-		if (!(removeButton instanceof HTMLButtonElement) || removeButton.dataset.bound === "true") return;
-		removeButton.dataset.bound = "true";
-		removeButton.addEventListener("click", function () {
-			void removePlayerPortrait(form, page);
-		});
-	}
-
-	/** Binds save, autosave, and portrait controls for one player card. */
-	function bindPlayerForm(form, page) {
-		if (form.dataset.bound === "true") return;
-		form.dataset.bound = "true";
-		const options = playerAutosaveOptions(form, page);
-		markAutosaved(form, formSignature(readPlayerForm, form));
-		bindPlayerPortraitDropzone(form, page);
-		bindPlayerPortraitRemove(form, page);
-
-		form.addEventListener("submit", function (event) {
-			event.preventDefault();
-			void flushAutosave(form, options);
-		});
-
-		bindAutosave(form, options);
-	}
-
-	/** Binds the players page shell and triggers its initial load. */
-	function bindPlayerPage(page) {
-		if (page.dataset.bound === "true") return;
-		page.dataset.bound = "true";
-		void loadPlayers(page);
-	}
 
 	// --- SPA lifecycle ---
 
@@ -3272,16 +2194,16 @@
 			if (panel instanceof HTMLElement) bindCurrentMatch(panel);
 		});
 		root.querySelectorAll(IMPORT_PAGE).forEach(function (page) {
-			if (page instanceof HTMLElement) bindImportPage(page);
+			if (page instanceof HTMLElement) fgc.imports?.bindPage?.(page);
 		});
 		root.querySelectorAll(PLAYER_PAGE).forEach(function (page) {
-			if (page instanceof HTMLElement) bindPlayerPage(page);
+			if (page instanceof HTMLElement) fgc.players?.bindPage?.(page);
 		});
 		root.querySelectorAll(BRACKET_PAGE).forEach(function (page) {
-			if (page instanceof HTMLElement) bindBracketPage(page);
+			if (page instanceof HTMLElement) fgc.bracket?.bindPage?.(page);
 		});
 		root.querySelectorAll(BRACKET_OVERLAY).forEach(function (page) {
-			if (page instanceof HTMLElement) bindBracketOverlay(page);
+			if (page instanceof HTMLElement) fgc.bracket?.bindOverlay?.(page);
 		});
 	}
 
@@ -3307,7 +2229,9 @@
 			const matchPanel = document.querySelector(CURRENT_MATCH);
 			if (matchPanel instanceof HTMLElement && currentState) await loadCurrentMatch(matchPanel);
 			document.querySelectorAll(`${BRACKET_PAGE}, ${BRACKET_OVERLAY}`).forEach(function (page) {
-				if (page instanceof HTMLElement) void loadBracket(page, page.matches(BRACKET_PAGE) ? bracketManagerView(page) : "");
+				if (page instanceof HTMLElement && fgc.bracket?.load) {
+					void fgc.bracket.load(page, page.matches(BRACKET_PAGE) ? fgc.bracket.managerView(page) : "");
+				}
 			});
 			await refreshCountrySelects(document);
 			refreshStatusIcons(document);
