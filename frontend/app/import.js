@@ -243,7 +243,7 @@
 			importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event")),
 			importSummaryTile(t("import.phase", "Phase"), event.phase || ""),
 			importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true }),
-			importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
+			importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players.title", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
 			warnings.length
 				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
 						.map(function (warning) {
