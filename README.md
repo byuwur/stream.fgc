@@ -173,6 +173,18 @@ Bundled templates currently cover 2-player through 64-player single elimination,
 
 Match results can be normal, `bye`, or `dq`. BYE results are generated during setup and do not count as bracket-started state, so randomize/reset setup tools can still work before real play begins.
 
+## Coding Conventions
+
+**SIMPLE IS COMPLICATED ENOUGH.** Prefer code that can be followed from top to bottom without discovering a framework inside the project.
+
+- Keep feature flows direct and close to the page or backend file that owns them. A little readable repetition is better than a generic helper that hides business behavior.
+- Use Bootstrap grid, flex, spacing, form, and button utilities before adding project CSS. Keep custom CSS for stable dimensions, media, bracket geometry, and Stream.FGC-specific visuals.
+- Use jQuery when it makes selectors, plugins, or transitions shorter and clearer. Use direct browser APIs when they express a small operation more plainly.
+- Route fragment setup through the shared `StreamFGC` SPA lifecycle. Reuse `byCommon.init()` and SPA.js helpers instead of adding inline fragment scripts or initializing Bootstrap plugins twice.
+- Give every named Go or JavaScript function a short purpose comment. Add comments inside functions only where the reason or data flow is not obvious from the code.
+- Keep filesystem access in Go, frontend state mirrored from backend results, and overlay code read-only.
+- Add dependencies only when the existing Go standard library, Bootstrap, jQuery, or SPA.js cannot provide a clear solution.
+
 ## Development
 
 Stream.FGC deliberately has no frontend install or build command. Wails serves `frontend/` directly in development and embeds the same directory in production.
