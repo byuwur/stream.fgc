@@ -334,6 +334,11 @@
 		});
 	}
 
+	/** Keeps the sidebar copyright year current after SPA fragment loads. */
+	function refreshCurrentYear() {
+		global.jQuery?.("#current-year").text(new Date().getFullYear());
+	}
+
 	// --- DOM and form helpers ---
 
 	/** Escapes strings before interpolating dynamic HTML. */
@@ -2064,11 +2069,7 @@
 
 	/** Re-runs SPA.js common Bootstrap wiring after this app changes translated attributes. */
 	function refreshCommonWidgets() {
-		const common = global.byCommon;
-		if (typeof common?.init === "function") {
-			common.init();
-			return;
-		}
+		global.byCommon?.init?.();
 	}
 
 	// --- Page controller API ---
@@ -2182,6 +2183,7 @@
 		applyLanguage(root);
 		refreshCommonWidgets();
 		bindSidebarActions(root);
+		refreshCurrentYear();
 		bindAutosaveToggles(root);
 		bindGlobalReload(root);
 		applyAutosavePreference();

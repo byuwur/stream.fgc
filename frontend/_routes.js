@@ -31,7 +31,6 @@
 	const ROUTE_JA = "ja";
 
 	// Default components to include on each route
-	const COMPONENTS_EMPTY = { COMPONENT: { "nav#spa-nav": "", "footer#spa-foot": "" } };
 	const ROOT_COMPONENTS = { COMPONENT: { "nav#spa-nav": "/sidebar.html", "footer#spa-foot": "" } };
 
 	// Route definitions
