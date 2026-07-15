@@ -60,8 +60,8 @@ query StreamFGCImport($slug: String!) {
 type startGGImportProvider struct{}
 
 type startGGGraphQLRequest struct {
-	Query     string                 `json:"query"`
-	Variables map[string]interface{} `json:"variables"`
+	Query     string            `json:"query"`
+	Variables map[string]string `json:"variables"`
 }
 
 type startGGGraphQLResponse struct {
@@ -212,7 +212,7 @@ func (provider startGGImportProvider) canHandle(parsedURL *url.URL) bool {
 	return strings.Contains(host, "start.gg") || strings.Contains(host, "smash.gg")
 }
 
-// preview loads event metadata, entrants, seeds, and sets from the start.gg GraphQL API.
+// preview loads event metadata, entrants, and sets from the start.gg GraphQL API.
 func (provider startGGImportProvider) preview(app *App, rawURL string, parsedURL *url.URL) (ExternalTournament, error) {
 	slug, err := startGGEventSlug(parsedURL)
 	if err != nil {
@@ -286,7 +286,10 @@ func startGGAPIToken(app *App) string {
 
 // fetchStartGGEvent sends the GraphQL request used by the import preview.
 func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
-	body, err := json.Marshal(startGGGraphQLRequest{Query: startGGImportQuery, Variables: map[string]interface{}{"slug": slug}})
+	body, err := json.Marshal(startGGGraphQLRequest{
+		Query:     startGGImportQuery,
+		Variables: map[string]string{"slug": slug},
+	})
 	if err != nil {
 		return startGGEvent{}, err
 	}
@@ -345,16 +348,29 @@ func startGGExternalTournament(app *App, rawURL string, slug string, event start
 		}
 	}
 	return ExternalTournament{
-		Provider: "startgg", ProviderName: "start.gg", URL: rawURL,
-		Event:   EventInfo{Name: firstNonEmpty(event.Tournament.Name, event.Name, "Imported Tournament"), Phase: event.Name, Rule: defaultEventRuleForImport(), Game: game, Size: bestTournamentSizeForPlayerCount(len(players))},
-		Players: players, Matches: matches, Warnings: startGGImportWarnings(event, len(players)),
-		Meta: map[string]string{"slug": slug, "event_id": event.ID.String()},
+		Provider:     "startgg",
+		ProviderName: "start.gg",
+		URL:          rawURL,
+		Event: EventInfo{
+			Name:  firstNonEmpty(event.Tournament.Name, event.Name, "Imported Tournament"),
+			Phase: event.Name,
+			Rule:  defaultEventRuleForImport(),
+			Game:  game,
+			Size:  bestTournamentSizeForPlayerCount(len(players)),
+		},
+		Players:  players,
+		Matches:  matches,
+		Warnings: startGGImportWarnings(event, len(players)),
+		Meta:     map[string]string{"slug": slug, "event_id": event.ID.String()},
 	}
 }
 
 // startGGExternalPlayer converts one entrant into one player slot.
 func startGGExternalPlayer(entrant startGGEntrant, countryAliases map[string]string) ExternalPlayer {
-	player := ExternalPlayer{ExternalID: entrant.ID.String(), Name: strings.TrimSpace(entrant.Name)}
+	player := ExternalPlayer{
+		ExternalID: entrant.ID.String(),
+		Name:       strings.TrimSpace(entrant.Name),
+	}
 	if len(entrant.Participants) > 0 {
 		participant := entrant.Participants[0]
 		player.Name = firstNonEmpty(participant.GamerTag, entrant.Name)
@@ -366,7 +382,13 @@ func startGGExternalPlayer(entrant startGGEntrant, countryAliases map[string]str
 
 // startGGExternalMatch converts one start.gg set into one provider-neutral match preview.
 func startGGExternalMatch(order int, set startGGSet) ExternalMatch {
-	match := ExternalMatch{ExternalID: set.ID.String(), Round: strings.TrimSpace(set.FullRoundText), Order: order, WinnerID: set.WinnerID.String(), ProviderState: set.State.String()}
+	match := ExternalMatch{
+		ExternalID:    set.ID.String(),
+		Round:         strings.TrimSpace(set.FullRoundText),
+		Order:         order,
+		WinnerID:      set.WinnerID.String(),
+		ProviderState: set.State.String(),
+	}
 	if len(set.Slots) > 0 {
 		match.Player1ID = set.Slots[0].Entrant.ID.String()
 		match.Player1Score = set.Slots[0].Standing.Stats.Score.Value.Int()
