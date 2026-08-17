@@ -44,39 +44,40 @@
     },
     "B": {
       "player1_score": 2,
-      "player2_score": 1,
+      "player2_score": 0,
       "winner": "3",
       "loser": "4"
     },
     "C": {
-      "player1_score": 2,
-      "player2_score": 1,
-      "winner": "1",
-      "loser": "3"
+      "player1_score": 1,
+      "player2_score": 2,
+      "winner": "3",
+      "loser": "1"
     },
     "D": {
-      "player1_score": 2,
-      "player2_score": 1,
+      "player1_score": 0,
+      "player2_score": 0,
       "winner": "2",
-      "loser": "4"
+      "loser": "4",
+      "reason": "dq"
     },
     "E": {
       "player1_score": 2,
-      "player2_score": 1,
+      "player2_score": 0,
       "winner": "2",
-      "loser": "3"
+      "loser": "1"
     },
     "F": {
       "player1_score": 1,
       "player2_score": 2,
       "winner": "2",
-      "loser": "1"
+      "loser": "3"
     },
     "G": {
-      "player1_score": 1,
-      "player2_score": 2,
-      "winner": "1",
-      "loser": "2"
+      "player1_score": 2,
+      "player2_score": 0,
+      "winner": "2",
+      "loser": "3"
     }
   },
   "bracket": {
