@@ -13,6 +13,10 @@
  * @param {Object} global - The global object, usually `window` in a browser.
  */
 (function (global) {
+  const currentScript = document.currentScript;
+  const scriptURL = new URL(currentScript?.getAttribute("src") || "_init.js", global.location.href);
+  const applicationURL = new URL("./", scriptURL);
+
   /*
    * File: _storage.js
    * Desc: Manages the Single Page Application (SPA) storage.
@@ -28,7 +32,7 @@
   global.byStorage = global.byStorage || {};
   const byStorage = global.byStorage;
   byStorage.memory = {};
-  byStorage.base = new URL(document.baseURI || global.location.href).pathname.replace(/\/[^/]*$/, "") || "/";
+  byStorage.base = applicationURL.pathname.replace(/\/$/, "") || "/";
   byStorage.prefix = `bySPA:${byStorage.base}:`;
 
   /**
@@ -42,7 +46,15 @@
       if (value !== null) return value;
       // Migrate legacy unprefixed storage.
       const legacy = global.localStorage.getItem(key);
-      if (legacy !== null) global.localStorage.setItem(byStorage.prefix + key, legacy);
+      if (legacy !== null) {
+        byStorage.memory[key] = legacy;
+        global.localStorage.setItem(byStorage.prefix + key, legacy);
+        // Remove the old key only after storage confirms the migrated value.
+        if (global.localStorage.getItem(byStorage.prefix + key) === legacy)
+          try {
+            global.localStorage.removeItem(key);
+          } catch (_) {}
+      }
       return legacy;
     } catch (_) {
       return Object.prototype.hasOwnProperty.call(byStorage.memory, key) ? byStorage.memory[key] : null;
@@ -108,9 +120,6 @@
    * PHP server values. Static /spa.js/ uses the script URL and browser
    * location instead of __FILE__, SCRIPT_FILENAME and PHP_SELF.
    */
-  const currentScript = document.currentScript;
-  const scriptURL = new URL(currentScript?.getAttribute("src") || "_init.js", global.location.href);
-
   // === /spa.js/ only: static routing can run in hash or path mode ===
   const ROUTER_MODE = (byStorage.getItem("ROUTER_MODE") || "hash").toLowerCase();
 
