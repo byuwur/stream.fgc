@@ -74,7 +74,7 @@
     } catch (_) {}
   };
 
-  // ===
+  // ===========================
 
   global.bySPA = global.bySPA || {};
   const bySPA = global.bySPA;
