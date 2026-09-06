@@ -4,9 +4,13 @@
 
 ## Before changing code
 
-Read `README.md`, the coding standards, and relevant project documentation. Inspect the nearby implementation and tests, including existing helpers and the paths that call the behavior. Understand the requested outcome and current contract before proposing architectural changes.
+Read [README.md](./README.md), the coding standards, and relevant project documentation. Inspect the nearby implementation and tests, including existing helpers and the paths that call the behavior. Understand the requested outcome and current contract before proposing architectural changes.
 
 Check repository-specific requirements and preserve unrelated work. If the implementation differs intentionally from a general convention, understand the reason before changing it.
+
+## Repository workflow
+
+Use the README's [Development section](./README.md#development) for setup, Wails development, builds, and local checks. The [quality workflow](./.github/workflows/quality.yml) defines the Go tests, Go vet, and project JavaScript syntax checks used in CI.
 
 ## Make a focused change
 

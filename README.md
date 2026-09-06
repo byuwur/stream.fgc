@@ -250,6 +250,11 @@ The code follows the same documentation idea used in SPA.js and SPA.php:
 - Project-owned Go files use a file header plus GoDoc comments before every function, including internal helpers.
 - Complex behavior is documented where it lives: BYE advancement in `backend/bracket.go`, atomic persistence in `backend/storage.go`, provider mapping in `backend/imports_startgg.go`, page ownership in `frontend/app/`, and static rendering in `overlays/js/overlay.js`.
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the contribution workflow and
+[CODING_STANDARDS.md](./CODING_STANDARDS.md) for this project's engineering standards.
+
 ## License
 
 MIT (c) Andrés Trujillo [Mateus] byUwUr
