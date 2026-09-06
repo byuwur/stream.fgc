@@ -1,0 +1,7 @@
+[
+  {"name":"slot BYE loser","source":{"type":"loser","match":"A"},"state":{"players":{"1":{"name":"One"},"2":{"name":"Two"}},"matches":{"A":{"winner":"1","loser":"2","reason":"bye"}}},"status":"bye","player_id":"2"},
+  {"name":"empty BYE loser","source":{"type":"loser","match":"A"},"state":{"players":{"1":{"name":"One"}},"matches":{"A":{"winner":"1","reason":"bye"}}},"status":"bye","player_id":""},
+  {"name":"real loser","source":{"type":"loser","match":"A"},"state":{"players":{"1":{"name":"One"},"2":{"name":"Two"}},"matches":{"A":{"winner":"1","loser":"2"}}},"status":"player","player_id":"2"},
+  {"name":"legacy BYE","source":{"type":"loser","match":"A"},"state":{"players":{"2":{"bye":true}},"matches":{"A":{"winner":"1","loser":"2"}}},"status":"bye","player_id":"2"},
+  {"name":"pending loser","source":{"type":"loser","match":"A"},"state":{},"status":"pending","player_id":""}
+]

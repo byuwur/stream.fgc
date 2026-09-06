@@ -1,0 +1,111 @@
+// Tournament transition regressions use isolated files and shared overlay fixtures.
+package backend
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strconv"
+	"testing"
+)
+
+// TestParticipantResolutionFixtures shares BYE provenance cases with the overlay runtime.
+func TestParticipantResolutionFixtures(t *testing.T) {
+	data, err := os.ReadFile("testdata/participant-resolution.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []struct {
+		Name     string
+		Source   TemplateParticipant
+		State    TournamentState
+		Status   string
+		PlayerID string `json:"player_id"`
+	}
+	if err := json.Unmarshal(data, &cases); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			got := resolveParticipant(tc.Source, tc.State)
+			if got.Status != tc.Status || got.PlayerID != tc.PlayerID {
+				t.Fatalf("got %#v", got)
+			}
+		})
+	}
+}
+
+// tournamentTestApp isolates public mutation tests from the operator's saved tournament.
+func tournamentTestApp(t *testing.T) *App {
+	t.Helper()
+	template, err := loadBracketTemplate("double_elimination", 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	sizes, err := os.ReadFile(externalFilePaths(assetDirPath, "sizes.json")[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(dir)
+	if err := os.MkdirAll("assets", 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile("assets/sizes.json", sizes, 0644); err != nil {
+		t.Fatal(err)
+	}
+	oldMode := externalPathMode
+	externalPathMode = externalPathModeDev
+	t.Cleanup(func() { externalPathMode = oldMode })
+	if err := os.MkdirAll("templates", 0755); err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(template)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join("templates", "double4.json"), data, 0644); err != nil {
+		t.Fatal(err)
+	}
+	state := defaultTournamentState()
+	state.Event.Format = "double_elimination"
+	state.Event.Size = 4
+	state.Matches = map[string]MatchState{}
+	for i := 1; i <= 4; i++ {
+		state.Players[strconv.Itoa(i)] = Player{Name: strconv.Itoa(i)}
+	}
+	app := NewApp()
+	if _, err := app.saveTournamentLocked(state); err != nil {
+		t.Fatal(err)
+	}
+	return app
+}
+
+// TestPublicByeLoserPropagation checks each opening side and undo through the disk-backed API.
+func TestPublicByeLoserPropagation(t *testing.T) {
+	for _, side := range []int{1, 2} {
+		t.Run(strconv.Itoa(side), func(t *testing.T) {
+			app := tournamentTestApp(t)
+			if _, err := app.SetMatchWinner("B", "3"); err != nil {
+				t.Fatal(err)
+			}
+			state, err := app.SetMatchParticipantBye("A", side, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if state.Matches["D"].Winner != "4" || state.Matches["D"].Reason != "bye" {
+				t.Fatalf("losers match: %#v", state.Matches["D"])
+			}
+			if state.Players[strconv.Itoa(side)].Bye {
+				t.Fatal("slot BYE changed player")
+			}
+			state, err = app.SetMatchParticipantBye("A", side, false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if state.Matches["D"].Winner != "" || state.Matches["B"].Winner != "3" {
+				t.Fatal("undo left generated history or erased real result")
+			}
+		})
+	}
+}

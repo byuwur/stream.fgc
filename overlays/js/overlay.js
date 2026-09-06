@@ -171,6 +171,10 @@
 			const result = state?.matches?.[source.match] || {};
 			const playerID = text(source.type === "winner" ? result.winner : result.loser);
 			const label = `${source.type === "winner" ? "Winner" : "Loser"} of ${source.match || ""}`;
+			const player = state?.players?.[playerID] || {};
+			if ((source.type === "loser" && result.reason === "bye" && text(result.winner)) || (playerID && player.bye)) {
+				return { pending_label: "BYE", player, player_id: playerID, resolved: true, source, status: "bye" };
+			}
 			if (!playerID || !text(state?.players?.[playerID]?.name)) return unresolvedParticipant(source, label);
 			return { pending_label: "", player: state.players[playerID], player_id: playerID, resolved: true, source, status: "player" };
 		}
@@ -192,7 +196,7 @@
 			country,
 			flag_url: country ? `${context.options.flagRoot}/${country.toLowerCase()}.svg` : "",
 			id: playerID,
-			name: text(player.name) || participant?.pending_label || "TBD",
+			name: participant?.status === "bye" ? "BYE" : text(player.name) || participant?.pending_label || "TBD",
 			portrait_url: playerID ? `${context.options.playerRoot}/${playerID}.png` : context.nopic,
 			team: text(player.team),
 		};

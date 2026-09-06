@@ -243,6 +243,7 @@ func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (Tourna
 
 	ensureBracketSeedAssignments(&state)
 	setBracketSeedBye(&state, participant.Seed, bye)
+	clearSetupMatchResults(&state)
 
 	matchState := state.Matches[matchID]
 	matchState.Winner = ""
