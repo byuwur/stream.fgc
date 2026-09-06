@@ -1,0 +1,7 @@
+[
+  {"name":"no final","first":"","reset":"","eligible":false,"champion":""},
+  {"name":"undefeated wins","first":"1","reset":"","eligible":false,"champion":"1"},
+  {"name":"losers finalist wins","first":"3","reset":"","eligible":true,"champion":""},
+  {"name":"reset completed","first":"3","reset":"1","eligible":true,"champion":"1"},
+  {"name":"stale reset ignored","first":"1","reset":"3","eligible":false,"champion":"1"}
+]

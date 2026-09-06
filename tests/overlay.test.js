@@ -57,3 +57,23 @@ test("champion rendering clears prior text when no decisive final exists", () =>
   assert.equal(elements.get("[data-champion-name]").value, "");
   assert.equal(elements.get("[data-champion-panel]").visible, false);
 });
+
+test("shared final fixtures distinguish decisive wins, resets, and stale history", () => {
+  const fixtures = JSON.parse(fs.readFileSync(path.join(root, "backend/testdata/finals.json")));
+  const template = JSON.parse(fs.readFileSync(path.join(root, "templates/double4.json")));
+  const context = { characters: {}, options: {}, nopic: "", gameKey: "" };
+  const api = window.StreamFGCOverlay;
+  for (const fixture of fixtures) {
+    const state = { players: { 1: { name: "One" }, 3: { name: "Three" } }, matches: {
+      A: { winner: "1" }, C: { winner: "1" }, E: { winner: "3" },
+      F: { winner: fixture.first, loser: fixture.first === "1" ? "3" : "1" }, G: { winner: fixture.reset }
+    } };
+    const matches = Object.keys(template.matches).map(id => api.resolveMatch(state, template, context, id));
+    assert.equal(api.championFromBracket(matches)?.id || "", fixture.champion, fixture.name);
+    assert.equal(matches.find(m => m.id === "G").player1.status === "player", fixture.eligible, fixture.name);
+  }
+  const single = [{ group: "finals", definition: {}, order: 1, state: { winner: "1" }, player1: { id: "1" } }];
+  assert.equal(api.championFromBracket(single).id, "1");
+  assert.equal(api.championFromBracket([{ ...single[0], group: "winners" }]), null);
+  assert.equal(api.championFromBracket([]), null);
+});

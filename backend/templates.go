@@ -82,6 +82,30 @@ func resolveParticipant(participant TemplateParticipant, state TournamentState) 
 	}
 }
 
+// resetMatchEligible honors optional reset metadata and the first final's undefeated source.
+func resetMatchEligible(match TemplateMatch, template BracketTemplate, state TournamentState) bool {
+	if !match.Reset || !match.Optional {
+		return true
+	}
+	first, ok := template.Matches[match.Player1.Match]
+	if !ok || !first.Reset || first.Optional || match.Player1.Match != match.Player2.Match {
+		return false
+	}
+	// The undefeated finalist comes from the winners bracket, independent of display sides.
+	var undefeated TemplateParticipant
+	for _, source := range []TemplateParticipant{first.Player1, first.Player2} {
+		if source.Type == "seed" || (source.Type == "winner" && template.Matches[source.Match].Group == "winners") {
+			undefeated = source
+			break
+		}
+	}
+	winner := state.Matches[match.Player1.Match].Winner
+	p1 := resolveParticipant(first.Player1, state)
+	p2 := resolveParticipant(first.Player2, state)
+	u := resolveParticipant(undefeated, state)
+	return winner != "" && u.Status == participantStatusPlayer && winner != u.PlayerID && (winner == p1.PlayerID || winner == p2.PlayerID)
+}
+
 // unresolvedParticipant keeps pending bracket sources visible in the UI.
 func unresolvedParticipant(participant TemplateParticipant, playerID string, label string) ResolvedParticipant {
 	resolved := ResolvedParticipant{PlayerID: playerID, Source: participant, PendingLabel: label, Status: participantStatusPending}

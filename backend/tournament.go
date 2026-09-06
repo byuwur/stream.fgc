@@ -96,6 +96,17 @@ func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score in
 	}
 
 	matchState := state.Matches[matchID]
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return TournamentState{}, err
+	}
+	definition, ok := template.Matches[matchID]
+	if !ok {
+		return TournamentState{}, fmt.Errorf("unknown match: %s", matchID)
+	}
+	if (player1Score != 0 || player2Score != 0) && !resetMatchEligible(definition, template, state) {
+		return TournamentState{}, fmt.Errorf("reset match is not eligible")
+	}
 	if matchState.Winner != "" {
 		return TournamentState{}, fmt.Errorf("match already has a winner; clear it before editing scores")
 	}
@@ -210,6 +221,9 @@ func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason strin
 	}
 
 	// Resolve through the template so winners/losers sources and bracket seed swaps work.
+	if !resetMatchEligible(templateMatch, template, state) {
+		return TournamentState{}, fmt.Errorf("reset match is not eligible")
+	}
 	player1 := resolveParticipant(templateMatch.Player1, state)
 	player2 := resolveParticipant(templateMatch.Player2, state)
 	winnerID, loserID, err := winnerLoserIDs(winnerPlayerID, player1, player2)
@@ -444,6 +458,11 @@ func (a *App) ResolveMatch(matchID string) (ResolvedMatch, error) {
 		// Presentational side swaps invert both participants and scores for the controller only.
 		player1, player2 = player2, player1
 		matchState.Player1Score, matchState.Player2Score = matchState.Player2Score, matchState.Player1Score
+	}
+	if !resetMatchEligible(templateMatch, template, state) {
+		player1 = unresolvedParticipant(templateMatch.Player1, "", "Reset not required")
+		player2 = unresolvedParticipant(templateMatch.Player2, "", "Reset not required")
+		matchState = MatchState{}
 	}
 
 	return ResolvedMatch{

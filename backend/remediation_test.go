@@ -227,3 +227,62 @@ func TestReconfigurationHistory(t *testing.T) {
 		t.Fatal("display swap changed result", err)
 	}
 }
+
+// TestFinalResetFixtures shares both first-final outcomes and stale reset handling with JavaScript.
+func TestFinalResetFixtures(t *testing.T) {
+	data, err := os.ReadFile("testdata/finals.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []struct {
+		Name, First, Reset string
+		Eligible           bool
+	}
+	if err := json.Unmarshal(data, &cases); err != nil {
+		t.Fatal(err)
+	}
+	template, err := loadBracketTemplate("double_elimination", 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			loser := "1"
+			if tc.First == "1" {
+				loser = "3"
+			}
+			state := TournamentState{Players: map[string]Player{"1": {Name: "One"}, "3": {Name: "Three"}}, Matches: map[string]MatchState{
+				"C": {Winner: "1"}, "E": {Winner: "3"}, "F": {Winner: tc.First, Loser: loser}, "G": {Winner: tc.Reset},
+			}}
+			if resetMatchEligible(template.Matches["G"], template, state) != tc.Eligible {
+				t.Fatal("incorrect reset eligibility")
+			}
+			view := bracketMatchView("G", template.Matches["G"], state, template)
+			if !tc.Eligible && (view.State.Winner != "" || view.CanDecide) {
+				t.Fatal("ineligible reset leaked into projection")
+			}
+		})
+	}
+}
+
+// TestPublicResetEligibility prevents recording either scores or winners in an unnecessary reset.
+func TestPublicResetEligibility(t *testing.T) {
+	app := tournamentTestApp(t)
+	for _, result := range [][2]string{{"A", "1"}, {"B", "3"}, {"C", "1"}, {"D", "2"}, {"E", "3"}, {"F", "1"}} {
+		if _, err := app.SetMatchWinner(result[0], result[1]); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := app.SetMatchWinner("G", "3"); err == nil {
+		t.Fatal("accepted unnecessary reset result")
+	}
+	if _, err := app.UpdateMatchScore("G", 1, 0); err == nil {
+		t.Fatal("accepted unnecessary reset score")
+	}
+	if _, err := app.SetMatchWinner("F", "3"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.SetMatchWinner("G", "1"); err != nil {
+		t.Fatal("required reset rejected", err)
+	}
+}

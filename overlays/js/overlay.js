@@ -202,13 +202,30 @@
 		};
 	}
 
+	/** Tests optional reset eligibility from the undefeated finalist's template source. */
+	function resetMatchEligible(definition, template, state) {
+		if (!definition.reset || !definition.optional) return true;
+		const firstID = definition.p1?.match;
+		const first = template?.matches?.[firstID];
+		if (!first?.reset || first.optional || firstID !== definition.p2?.match) return false;
+		const source = [first.p1, first.p2].find(s => s?.type === "seed" || (s?.type === "winner" && template.matches[s.match]?.group === "winners"));
+		const undefeated = resolveParticipant(source, state);
+		const winner = text(state?.matches?.[firstID]?.winner);
+		return Boolean(winner && undefeated.status === "player" && winner !== undefeated.player_id && [first.p1, first.p2].some(s => resolveParticipant(s, state).player_id === winner));
+	}
+
 	/** Resolves one template match, including current-screen side swaps. */
 	function resolveMatch(state, template, context, requestedID) {
 		const id = text(requestedID) || text(state?.current) || sortedMatchIDs(template)[0] || "";
 		const definition = template?.matches?.[id] || {};
-		const matchState = { player1_score: 0, player2_score: 0, ...(state?.matches?.[id] || {}) };
+		const eligible = resetMatchEligible(definition, template, state);
+		const matchState = { player1_score: 0, player2_score: 0, ...(eligible ? state?.matches?.[id] || {} : {}) };
 		let player1 = decorateParticipant(resolveParticipant(definition.p1, state), context);
 		let player2 = decorateParticipant(resolveParticipant(definition.p2, state), context);
+		if (!eligible) {
+			player1 = decorateParticipant(unresolvedParticipant(definition.p1, "Reset not required"), context);
+			player2 = decorateParticipant(unresolvedParticipant(definition.p2, "Reset not required"), context);
+		}
 
 		if (matchState.swap_sides) {
 			[player1, player2] = [player2, player1];
@@ -243,11 +260,13 @@
 		return null;
 	}
 
-	/** Finds the latest completed finals winner for the champion screen. */
+	/** Selects a decisive final, waiting for an eligible reset when required. */
 	function championFromBracket(matches) {
+		const requiredReset = matches.find(match => match.definition.reset && match.definition.optional && match.player1.status === "player");
+		if (requiredReset) return winnerFromMatch(requiredReset);
 		const finals = matches
 			.filter(function (match) {
-				return match.group === "finals" && winnerFromMatch(match);
+				return match.group === "finals" && !match.definition.optional && winnerFromMatch(match);
 			})
 			.sort(function (left, right) {
 				return right.order - left.order;
@@ -472,7 +491,7 @@
 		renderFlag("[data-winner-flag]", context.winner);
 	}
 
-	/** Renders the latest completed finals winner as tournament champion. */
+	/** Renders the decisive champion and clears text when the result becomes pending. */
 	function renderChampion(context) {
 		setVisible("[data-champion-panel]", Boolean(context.champion));
 		if (!context.champion) {

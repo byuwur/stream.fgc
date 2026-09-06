@@ -133,7 +133,7 @@ func buildBracketProjection(state TournamentState, template BracketTemplate, req
 
 	for _, matchID := range sortedTemplateMatchIDs(template) {
 		templateMatch := template.Matches[matchID]
-		matchView := bracketMatchView(matchID, templateMatch, state)
+		matchView := bracketMatchView(matchID, templateMatch, state, template)
 		// Admin and overlays can request a slice of the full graph without changing bracket state.
 		if !bracketViewAllows(view, matchView, template) {
 			continue
@@ -228,10 +228,15 @@ func (builder *bracketProjectionBuilder) appendSortedRounds(section *BracketSect
 }
 
 // bracketMatchView resolves one template match into the admin/overlay shape.
-func bracketMatchView(matchID string, templateMatch TemplateMatch, state TournamentState) BracketMatchView {
+func bracketMatchView(matchID string, templateMatch TemplateMatch, state TournamentState, template BracketTemplate) BracketMatchView {
 	player1 := resolveParticipant(templateMatch.Player1, state)
 	player2 := resolveParticipant(templateMatch.Player2, state)
 	matchState := state.Matches[matchID]
+	if !resetMatchEligible(templateMatch, template, state) {
+		player1 = unresolvedParticipant(templateMatch.Player1, "", "Reset not required")
+		player2 = unresolvedParticipant(templateMatch.Player2, "", "Reset not required")
+		matchState = MatchState{}
+	}
 	// Older JSON may only have Winner. Derive Loser for display without rewriting here.
 	if matchState.Winner != "" && matchState.Loser == "" {
 		switch matchState.Winner {
@@ -328,6 +333,9 @@ func applyByeAdvancement(state *TournamentState, template BracketTemplate) {
 		changed = false
 		for _, matchID := range sortedTemplateMatchIDs(template) {
 			templateMatch := template.Matches[matchID]
+			if !resetMatchEligible(templateMatch, template, *state) {
+				continue
+			}
 			matchState := state.Matches[matchID]
 			if matchState.Winner != "" {
 				continue

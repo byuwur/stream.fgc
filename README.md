@@ -98,7 +98,7 @@ OBS overlays live only in `overlays/`. They are a separate static mini-site that
 - **overlays/scoreboard.html:** Current match score overlay.
 - **overlays/versus.html:** Current match versus screen.
 - **overlays/winner.html:** Current match winner overlay.
-- **overlays/champion.html:** Tournament champion screen using the latest completed finals winner.
+- **overlays/champion.html:** Tournament champion screen using the decisive final winner, waiting for a required reset.
 - **overlays/bracket.html:** Bracket overlay that reads the stored overlay view.
 - **overlays/intro.html:** Event intro/standby screen.
 
@@ -184,6 +184,8 @@ Ordinary match winners never appear as champions. When no final has completed, t
 Corrections and clears reject when any dependent match has recorded results or scores, including loser edges and later rounds. Clear affected results and zero their scores from the latest round backward, then correct the ancestor. Unrelated results and display-side swaps are preserved. BYE changes also reject recorded affected history; repeated toggles preserve the current result.
 
 Seed swaps and format/size changes reject while recorded history exists; reset the bracket explicitly before reconfiguring it. Generated setup BYEs do not block these operations. Display-side swaps preserve legitimate results and scores.
+
+Bundled double-elimination templates mark the first final with `reset: true` and the reset match with both `reset: true` and `optional: true`. The reset is eligible only if the undefeated finalist, identified by its winners-bracket source, loses the first final. Until that reset finishes there is no champion. An undefeated-side first-final win is decisive, and stale ineligible reset results are ignored by projections. Formats with one final use its winner. Ordinary match winners never appear as champions.
 
 ## Coding Conventions
 
