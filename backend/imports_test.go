@@ -90,3 +90,26 @@ func TestImportedCountryAliases(t *testing.T) {
 		}
 	}
 }
+
+// TestImportHostPolicy checks normalization and the real provider dispatch without network calls.
+func TestImportHostPolicy(t *testing.T) {
+	for _, raw := range []string{"start.gg/tournament/a", "https://WWW.START.GG/tournament/a", "http://smash.gg/a", "https://www.smash.gg/a"} {
+		_, parsed, err := normalizeImportURL(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		provider, ok := detectTournamentImportProvider(parsed)
+		if !ok || provider.key() != "startgg" {
+			t.Fatalf("rejected official URL %s", raw)
+		}
+	}
+	for _, raw := range []string{"https://start.gg.evil.example/a", "https://evilstart.gg/a", "https://evil.example/start.gg", "https://evil.example/?site=start.gg", "ftp://start.gg/a", "https://user@start.gg/a", "https://%zz", "https://api.start.gg/a"} {
+		_, parsed, err := normalizeImportURL(raw)
+		if err != nil {
+			continue
+		}
+		if _, ok := detectTournamentImportProvider(parsed); ok {
+			t.Fatalf("accepted unsupported URL %s", raw)
+		}
+	}
+}

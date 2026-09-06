@@ -209,7 +209,7 @@ func (provider startGGImportProvider) name() string { return "start.gg" }
 // canHandle recognizes start.gg and legacy smash.gg links.
 func (provider startGGImportProvider) canHandle(parsedURL *url.URL) bool {
 	host := strings.ToLower(parsedURL.Hostname())
-	return strings.Contains(host, "start.gg") || strings.Contains(host, "smash.gg")
+	return (parsedURL.Scheme == "http" || parsedURL.Scheme == "https") && (host == "start.gg" || host == "www.start.gg" || host == "smash.gg" || host == "www.smash.gg")
 }
 
 // preview loads event metadata, entrants, and sets from the start.gg GraphQL API.

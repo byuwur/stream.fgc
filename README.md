@@ -129,6 +129,8 @@ The Import page accepts tournament links and keeps Stream.FGC as the local sourc
 
 Imports currently bring event metadata and player slots into `data/tournament.json`. Provider matches are previewed only; bracket control remains local and template-driven.
 
+Supported start.gg hosts are `start.gg`, `www.start.gg`, `smash.gg`, and `www.smash.gg`, using HTTP(S); provider names in unrelated hosts, paths, or queries do not select that provider.
+
 The import parser is covered by `backend/imports_test.go`. Its live start.gg test uses the app's real import path and stays skipped during ordinary test runs. To run it against the official Blink Respawn SF6 event, save a start.gg API key in the Import page and use:
 
 ```powershell

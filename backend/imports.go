@@ -125,6 +125,9 @@ func normalizeImportURL(rawURL string) (string, *url.URL, error) {
 	if parsedURL.Host == "" {
 		return "", nil, fmt.Errorf("tournament link must include a host")
 	}
+	if (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") || parsedURL.User != nil || parsedURL.Hostname() == "" {
+		return "", nil, fmt.Errorf("tournament link must use HTTP or HTTPS without credentials")
+	}
 	// Fragments are browser-only state and should not affect provider detection/cache keys.
 	parsedURL.Fragment = ""
 	return parsedURL.String(), parsedURL, nil
@@ -159,14 +162,17 @@ func (provider unsupportedImportProvider) name() string {
 
 // canHandle recognizes providers that are planned but not implemented yet.
 func (provider unsupportedImportProvider) canHandle(parsedURL *url.URL) bool {
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return false
+	}
 	host := strings.ToLower(parsedURL.Hostname())
 	switch provider.providerKey {
 	case "challonge":
-		return strings.Contains(host, "challonge.com")
+		return host == "challonge.com" || strings.HasSuffix(host, ".challonge.com")
 	case "tonamel":
-		return strings.Contains(host, "tonamel.com")
+		return host == "tonamel.com" || host == "www.tonamel.com"
 	case "parry":
-		return strings.Contains(host, "parry.gg")
+		return host == "parry.gg" || host == "www.parry.gg"
 	default:
 		return false
 	}
