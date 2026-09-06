@@ -385,6 +385,16 @@ func recordedMatchHistory(match MatchState) bool {
 	return match.Player1Score != 0 || match.Player2Score != 0 || (match.Reason != matchReasonBye && (match.Winner != "" || match.Loser != ""))
 }
 
+// bracketHasRecordedHistory protects topology changes even when template IDs are reused.
+func bracketHasRecordedHistory(state TournamentState) bool {
+	for _, match := range state.Matches {
+		if recordedMatchHistory(match) {
+			return true
+		}
+	}
+	return false
+}
+
 // normalizeMatchReason converts UI/backend aliases into persisted result reason keys.
 func normalizeMatchReason(reason string) string {
 	switch strings.ToLower(strings.TrimSpace(reason)) {

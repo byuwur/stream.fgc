@@ -183,6 +183,8 @@ Ordinary match winners never appear as champions. When no final has completed, t
 
 Corrections and clears reject when any dependent match has recorded results or scores, including loser edges and later rounds. Clear affected results and zero their scores from the latest round backward, then correct the ancestor. Unrelated results and display-side swaps are preserved. BYE changes also reject recorded affected history; repeated toggles preserve the current result.
 
+Seed swaps and format/size changes reject while recorded history exists; reset the bracket explicitly before reconfiguring it. Generated setup BYEs do not block these operations. Display-side swaps preserve legitimate results and scores.
+
 ## Coding Conventions
 
 **SIMPLE IS COMPLICATED ENOUGH.** Prefer code that can be followed from top to bottom without discovering a framework inside the project.

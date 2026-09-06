@@ -194,3 +194,36 @@ func TestWinnerAfterByeAndRepeatedToggle(t *testing.T) {
 		t.Fatal("no-op BYE toggle erased real history", err)
 	}
 }
+
+// TestReconfigurationHistory verifies setup changes reject history while display swaps remain allowed.
+func TestReconfigurationHistory(t *testing.T) {
+	app := tournamentTestApp(t)
+	for _, event := range []EventInfo{{Format: "single_elimination", Size: 4}, {Format: "double_elimination", Size: 4}} {
+		if _, err := app.UpdateEvent(event); err != nil {
+			t.Fatal("unplayed reconfiguration rejected", err)
+		}
+	}
+	if _, err := app.SwapBracketSeeds(1, 2); err != nil {
+		t.Fatal(err)
+	}
+	before, err := app.SetMatchWinner("A", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.SwapBracketSeeds(1, 2); err == nil {
+		t.Fatal("accepted seed swap with history")
+	}
+	for _, event := range []EventInfo{{Format: "single_elimination", Size: 4}, {Format: "double_elimination", Size: 8}} {
+		if _, err := app.UpdateEvent(event); err == nil {
+			t.Fatal("accepted topology change with history")
+		}
+	}
+	got, err := app.LoadTournament()
+	if err != nil || !reflect.DeepEqual(before, got) {
+		t.Fatal("reconfiguration rejection mutated state", err)
+	}
+	got, err = app.SwapMatchSides("A")
+	if err != nil || got.Matches["A"].Winner != "1" {
+		t.Fatal("display swap changed result", err)
+	}
+}

@@ -53,6 +53,13 @@ func (a *App) UpdateEvent(event EventInfo) (TournamentState, error) {
 		return TournamentState{}, err
 	}
 	gameChanged := a.gameIdentity(state.Event.Game) != a.gameIdentity(event.Game)
+	topologyChanged := normalizeTournamentFormat(event.Format) != state.Event.Format || normalizeTournamentSize(event.Size) != state.Event.Size
+	if topologyChanged && bracketHasRecordedHistory(state) {
+		return TournamentState{}, fmt.Errorf("reset bracket results and scores before changing format or size")
+	}
+	if topologyChanged {
+		clearSetupMatchResults(&state)
+	}
 	state.Event = event
 	if gameChanged {
 		// Characters are game-specific keys, so changing games invalidates all choices.
@@ -379,6 +386,9 @@ func (a *App) SwapBracketSeeds(seed int, targetSeed int) (TournamentState, error
 	}
 	if seed == targetSeed {
 		return state, nil
+	}
+	if bracketHasRecordedHistory(state) {
+		return TournamentState{}, fmt.Errorf("reset bracket results and scores before swapping seeds")
 	}
 
 	ensureBracketSeedAssignments(&state)
