@@ -83,10 +83,7 @@ func writeImportIntegrations(settings ImportIntegrations) error {
 		return err
 	}
 
-	if err := os.MkdirAll(externalWriteDirPath(dataDirPath), 0755); err != nil {
-		return err
-	}
-	return os.WriteFile(externalWriteFilePath(dataDirPath, integrationsJSONFile), append(data, '\n'), 0600)
+	return replaceFile(externalWriteFilePath(dataDirPath, integrationsJSONFile), append(data, '\n'), 0600)
 }
 
 // normalizeImportIntegrations trims tokens before they are returned or saved.

@@ -91,16 +91,21 @@ func writeTournamentState(state TournamentState) error {
 
 // writeTournamentStateFile writes a complete temporary file before replacing the live JSON.
 func writeTournamentStateFile(cleanPath string, state TournamentState) error {
-	dirPath := filepath.Dir(cleanPath)
-	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		return err
-	}
-
 	data, err := json.MarshalIndent(normalizeTournamentState(state), "", "  ")
 	if err != nil {
 		return err
 	}
 	data = append(data, '\n')
+	return replaceFile(cleanPath, data, 0644)
+}
+
+// replaceFile publishes complete bytes after sync/close; failures preserve the previous file.
+// Callers own mutation ordering. This does not promise directory power-loss durability.
+func replaceFile(cleanPath string, data []byte, mode os.FileMode) error {
+	dirPath := filepath.Dir(cleanPath)
+	if err := os.MkdirAll(dirPath, 0755); err != nil {
+		return err
+	}
 
 	temporary, err := os.CreateTemp(dirPath, ".tournament-*.tmp")
 	if err != nil {
@@ -109,7 +114,7 @@ func writeTournamentStateFile(cleanPath string, state TournamentState) error {
 	temporaryPath := temporary.Name()
 	defer os.Remove(temporaryPath)
 
-	if err := temporary.Chmod(0644); err != nil {
+	if err := temporary.Chmod(mode); err != nil {
 		temporary.Close()
 		return err
 	}

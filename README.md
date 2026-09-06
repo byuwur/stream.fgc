@@ -191,6 +191,8 @@ Bundled double-elimination templates mark the first final with `reset: true` and
 
 Portraits accept up to 10 MiB of compressed image data; event logos/backgrounds accept up to 20 MiB. PNG, JPEG, and GIF inputs must be at most 8192 pixels on either side and 32 million pixels total. Base64 length and image headers are checked before full decode. Oversize sources are rejected, not resized. Portraits and logos are re-encoded as PNG; backgrounds become JPEG.
 
+Tournament JSON, credentials, portraits, and event assets use temporary-file replacement after writing, syncing, and closing complete bytes. The app mutex orders writes/removals; image decoding happens before that lock. Failed replacement preserves the prior file and removes its temporary file. Windows readers that do not allow delete sharing can temporarily prevent replacement/removal; these failures are returned to the operator. Credential files request mode `0600`; on Windows this mode does not establish a private ACL, so access follows the containing folder's Windows permissions. Directory power-loss durability is not promised.
+
 ## Coding Conventions
 
 **SIMPLE IS COMPLICATED ENOUGH.** Prefer code that can be followed from top to bottom without discovering a framework inside the project.

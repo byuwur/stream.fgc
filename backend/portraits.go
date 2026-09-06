@@ -49,10 +49,9 @@ func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, err
 	}
 
 	targetPath := playerPortraitWritePath(playerKey)
-	if err := os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
-		return "", err
-	}
-	if err := os.WriteFile(targetPath, pngBuffer.Bytes(), 0644); err != nil {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if err := replaceFile(targetPath, pngBuffer.Bytes(), 0644); err != nil {
 		return "", err
 	}
 
@@ -61,6 +60,8 @@ func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, err
 
 // RemovePlayerPortrait deletes players/{id}.png from every allowed lookup path.
 func (a *App) RemovePlayerPortrait(playerID string) (string, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	playerKey, err := cleanPlayerPortraitKey(playerID)
 	if err != nil {
 		return "", err

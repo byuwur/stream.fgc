@@ -21,26 +21,26 @@ const (
 
 // SaveEventLogo validates and stores the tournament logo preview as players/_logo.png.
 func (a *App) SaveEventLogo(imageData string) (string, error) {
-	return saveTournamentAsset("logo", imageData)
+	return a.saveTournamentAsset("logo", imageData)
 }
 
 // RemoveEventLogo deletes players/_logo.png from all portable lookup folders.
 func (a *App) RemoveEventLogo() (string, error) {
-	return removeTournamentAsset("logo")
+	return a.removeTournamentAsset("logo")
 }
 
 // SaveEventBackground validates and stores the tournament background as players/_bg.jpg.
 func (a *App) SaveEventBackground(imageData string) (string, error) {
-	return saveTournamentAsset("background", imageData)
+	return a.saveTournamentAsset("background", imageData)
 }
 
 // RemoveEventBackground deletes players/_bg.jpg from all portable lookup folders.
 func (a *App) RemoveEventBackground() (string, error) {
-	return removeTournamentAsset("background")
+	return a.removeTournamentAsset("background")
 }
 
 // saveTournamentAsset validates browser image data and writes the normalized overlay asset.
-func saveTournamentAsset(key string, imageData string) (string, error) {
+func (a *App) saveTournamentAsset(key string, imageData string) (string, error) {
 	fileName, err := tournamentAssetFileName(key)
 	if err != nil {
 		return "", err
@@ -70,10 +70,9 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 	}
 
 	targetPath := tournamentAssetWritePath(fileName)
-	if err := os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
-		return "", err
-	}
-	if err := os.WriteFile(targetPath, output.Bytes(), 0644); err != nil {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if err := replaceFile(targetPath, output.Bytes(), 0644); err != nil {
 		return "", err
 	}
 
@@ -81,7 +80,9 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 }
 
 // removeTournamentAsset deletes the named overlay asset from every portable lookup folder.
-func removeTournamentAsset(key string) (string, error) {
+func (a *App) removeTournamentAsset(key string) (string, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	fileName, err := tournamentAssetFileName(key)
 	if err != nil {
 		return "", err

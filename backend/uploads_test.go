@@ -5,13 +5,17 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/binary"
+	"errors"
 	"hash/crc32"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"sync"
+	"syscall"
 	"testing"
 )
 
@@ -79,4 +83,136 @@ func TestAcceptedUploadFormats(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+}
+
+// TestReplaceFileFailureAndPermissions exercises rename failure and temporary-file cleanup on Windows too.
+func TestReplaceFileFailureAndPermissions(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "credentials.json")
+	if err := replaceFile(target, []byte("old"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := replaceFile(target, []byte("new"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runtime.GOOS != "windows" && info.Mode().Perm() != 0600 {
+		t.Fatal("credential mode is not private")
+	}
+	if runtime.GOOS == "windows" {
+		if err := os.Chmod(target, 0400); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = os.Chmod(target, 0600) })
+		if err := replaceFile(target, []byte("damaged"), 0600); err == nil {
+			t.Fatal("expected read-only replacement failure")
+		}
+		data, err := os.ReadFile(target)
+		if err != nil || string(data) != "new" {
+			t.Fatal("failed replacement damaged old bytes", err)
+		}
+		if err := os.Chmod(target, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	blocked := filepath.Join(dir, "blocked")
+	if err := os.Mkdir(blocked, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(blocked, "old"), []byte("preserved"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := replaceFile(blocked, []byte("new"), 0600); err == nil {
+		t.Fatal("expected rename failure")
+	}
+	data, err := os.ReadFile(filepath.Join(blocked, "old"))
+	if err != nil || string(data) != "preserved" {
+		t.Fatal("failed replacement damaged prior content", err)
+	}
+	leftovers, err := filepath.Glob(filepath.Join(dir, ".tournament-*.tmp"))
+	if err != nil || len(leftovers) != 0 {
+		t.Fatal("temporary files leaked", err)
+	}
+}
+
+// TestConcurrentAssetSaveRemove checks readers see complete files or deliberate absence.
+func TestConcurrentAssetSaveRemove(t *testing.T) {
+	app := tournamentTestApp(t)
+	var buffer bytes.Buffer
+	if err := png.Encode(&buffer, image.NewRGBA(image.Rect(0, 0, 2, 2))); err != nil {
+		t.Fatal(err)
+	}
+	payload := base64.StdEncoding.EncodeToString(buffer.Bytes())
+	operationErrors := make(chan error, 100)
+	var workers sync.WaitGroup
+	for worker := 0; worker < 3; worker++ {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			for i := 0; i < 10; i++ {
+				if _, err := app.SavePlayerPortrait("1", payload); err != nil {
+					if !windowsSharingFailure(err) {
+						operationErrors <- err
+					}
+				}
+				data, err := os.ReadFile(filepath.Join("players", "1.png"))
+				if err == nil {
+					if _, _, err := image.Decode(bytes.NewReader(data)); err != nil {
+						operationErrors <- err
+					}
+				} else if !os.IsNotExist(err) {
+					operationErrors <- err
+				}
+				if _, err := app.RemovePlayerPortrait("1"); err != nil {
+					if !windowsSharingFailure(err) {
+						operationErrors <- err
+					}
+				}
+			}
+		}()
+	}
+	workers.Wait()
+	close(operationErrors)
+	for err := range operationErrors {
+		t.Error(err)
+	}
+	if _, err := app.SavePlayerPortrait("1", payload); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.RemovePlayerPortrait("1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join("players", "1.png")); !os.IsNotExist(err) {
+		t.Fatal("completed remove did not win", err)
+	}
+}
+
+// TestCredentialReplacement checks the public credential writer and its requested file mode.
+func TestCredentialReplacement(t *testing.T) {
+	app := tournamentTestApp(t)
+	for _, token := range []string{"first-test-token", "replacement-test-token"} {
+		settings := ImportIntegrations{StartGG: ImportProviderIntegration{APIKey: token}}
+		if _, err := app.SaveImportIntegrations(settings); err != nil {
+			t.Fatal(err)
+		}
+		loaded, err := app.LoadImportIntegrations()
+		if err != nil || loaded != settings {
+			t.Fatal("credential replacement did not persist", err)
+		}
+	}
+	info, err := os.Stat(filepath.Join("data", integrationsJSONFile))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runtime.GOOS != "windows" && info.Mode().Perm() != 0600 {
+		t.Fatal("credential permissions changed")
+	}
+}
+
+// windowsSharingFailure identifies surfaced sharing/access errors from an open Windows reader.
+func windowsSharingFailure(err error) bool {
+	return runtime.GOOS == "windows" && (errors.Is(err, syscall.Errno(32)) || errors.Is(err, syscall.Errno(5)))
 }
