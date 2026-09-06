@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -107,5 +108,89 @@ func TestPublicByeLoserPropagation(t *testing.T) {
 				t.Fatal("undo left generated history or erased real result")
 			}
 		})
+	}
+}
+
+// TestCorrectionsPreserveHistory verifies rejected edits leave the saved document unchanged.
+func TestCorrectionsPreserveHistory(t *testing.T) {
+	app := tournamentTestApp(t)
+	for id, winner := range map[string]string{"A": "1", "B": "3"} {
+		if _, err := app.SetMatchWinner(id, winner); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := app.UpdateMatchScore("C", 1, 0); err != nil {
+		t.Fatal(err)
+	}
+	before, err := app.SetMatchWinner("C", "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, winner := range []string{"2", ""} {
+		if _, err := app.SetMatchWinner("A", winner); err == nil {
+			t.Fatal("accepted incompatible correction")
+		}
+		got, err := app.LoadTournament()
+		if err != nil || !reflect.DeepEqual(before, got) {
+			t.Fatal("rejection mutated state", err)
+		}
+	}
+	if _, err := app.SetMatchWinner("C", ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.SetMatchWinner("A", "2"); err == nil {
+		t.Fatal("retained dependent score")
+	}
+	if _, err := app.UpdateMatchScore("C", 0, 0); err != nil {
+		t.Fatal(err)
+	}
+	state, err := app.SetMatchWinner("A", "2")
+	if err != nil || state.Matches["B"].Winner != "3" {
+		t.Fatal("correction damaged unrelated branch", err)
+	}
+}
+
+// TestCorrectionLoserDescendants guards scores reached through immediate and later loser edges.
+func TestCorrectionLoserDescendants(t *testing.T) {
+	for _, descendant := range []string{"D", "E"} {
+		t.Run(descendant, func(t *testing.T) {
+			app := tournamentTestApp(t)
+			if _, err := app.SetMatchWinner("A", "1"); err != nil {
+				t.Fatal(err)
+			}
+			before, err := app.UpdateMatchScore(descendant, 1, 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := app.SetMatchWinner("A", "2"); err == nil {
+				t.Fatal("accepted correction with dependent score")
+			}
+			after, err := app.LoadTournament()
+			if err != nil || !reflect.DeepEqual(before, after) {
+				t.Fatal("rejection mutated state", err)
+			}
+		})
+	}
+}
+
+// TestWinnerAfterByeAndRepeatedToggle protects correction recalculation's upstream dependencies.
+func TestWinnerAfterByeAndRepeatedToggle(t *testing.T) {
+	app := tournamentTestApp(t)
+	if _, err := app.SetMatchParticipantBye("A", 2, true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.SetMatchWinner("B", "3"); err != nil {
+		t.Fatal(err)
+	}
+	before, err := app.SetMatchWinner("C", "1")
+	if err != nil {
+		t.Fatal("BYE upstream became pending", err)
+	}
+	if _, err := app.SetMatchParticipantBye("B", 1, false); err != nil {
+		t.Fatal(err)
+	}
+	after, err := app.LoadTournament()
+	if err != nil || !reflect.DeepEqual(before, after) {
+		t.Fatal("no-op BYE toggle erased real history", err)
 	}
 }

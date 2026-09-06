@@ -186,7 +186,13 @@ func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason strin
 
 	matchState := state.Matches[matchID]
 	winnerPlayerID = strings.TrimSpace(winnerPlayerID)
+	if winnerPlayerID != matchState.Winner || normalizeMatchReason(reason) != matchState.Reason {
+		if err := rejectRecordedDescendants(state, template, matchID); err != nil {
+			return TournamentState{}, err
+		}
+	}
 	if winnerPlayerID == "" {
+		clearSetupMatchResults(&state)
 		// Empty winner is the clear action used when an operator fixes a bracket mistake.
 		matchState.Winner = ""
 		matchState.Loser = ""
@@ -203,6 +209,7 @@ func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason strin
 	if err != nil {
 		return TournamentState{}, err
 	}
+	clearSetupMatchResults(&state)
 	matchState.Winner = winnerID
 	matchState.Loser = loserID
 	matchState.Reason = normalizeMatchReason(reason)
@@ -241,6 +248,15 @@ func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (Tourna
 		return TournamentState{}, fmt.Errorf("only seeded participants can be marked as BYE")
 	}
 
+	if bracketSeedBye(state, participant.Seed) == bye {
+		return state, nil
+	}
+	if recordedMatchHistory(state.Matches[matchID]) {
+		return TournamentState{}, fmt.Errorf("clear result and scores for match %s before changing BYE", matchID)
+	}
+	if err := rejectRecordedDescendants(state, template, matchID); err != nil {
+		return TournamentState{}, err
+	}
 	ensureBracketSeedAssignments(&state)
 	setBracketSeedBye(&state, participant.Seed, bye)
 	clearSetupMatchResults(&state)

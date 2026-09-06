@@ -181,6 +181,8 @@ Detached autosave forms release timers, handlers, and registrations and cannot e
 
 Ordinary match winners never appear as champions. When no final has completed, the champion screen clears its previous name and hides its panel.
 
+Corrections and clears reject when any dependent match has recorded results or scores, including loser edges and later rounds. Clear affected results and zero their scores from the latest round backward, then correct the ancestor. Unrelated results and display-side swaps are preserved. BYE changes also reject recorded affected history; repeated toggles preserve the current result.
+
 ## Coding Conventions
 
 **SIMPLE IS COMPLICATED ENOUGH.** Prefer code that can be followed from top to bottom without discovering a framework inside the project.

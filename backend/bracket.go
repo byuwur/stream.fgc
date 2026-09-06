@@ -357,6 +357,34 @@ func applyByeAdvancement(state *TournamentState, template BracketTemplate) {
 	}
 }
 
+// rejectRecordedDescendants protects results and scores from a changed participant source.
+func rejectRecordedDescendants(state TournamentState, template BracketTemplate, sourceID string) error {
+	affected := map[string]bool{sourceID: true}
+	for changed := true; changed; {
+		changed = false
+		for id, match := range template.Matches {
+			if affected[id] {
+				continue
+			}
+			if affected[match.Player1.Match] || affected[match.Player2.Match] {
+				affected[id] = true
+				changed = true
+			}
+		}
+	}
+	for _, id := range sortedTemplateMatchIDs(template) {
+		if id != sourceID && affected[id] && recordedMatchHistory(state.Matches[id]) {
+			return fmt.Errorf("clear result and scores for dependent match %s before changing %s", id, sourceID)
+		}
+	}
+	return nil
+}
+
+// recordedMatchHistory excludes generated setup BYEs but includes any recorded score.
+func recordedMatchHistory(match MatchState) bool {
+	return match.Player1Score != 0 || match.Player2Score != 0 || (match.Reason != matchReasonBye && (match.Winner != "" || match.Loser != ""))
+}
+
 // normalizeMatchReason converts UI/backend aliases into persisted result reason keys.
 func normalizeMatchReason(reason string) string {
 	switch strings.ToLower(strings.TrimSpace(reason)) {
