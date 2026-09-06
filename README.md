@@ -229,7 +229,11 @@ go test ./...
 go vet ./...
 node --check frontend/_app.js
 node --check overlays/js/overlay.js
+node --test tests/*.test.js
+node --test frontend/spa.js/tests/*.test.js
 ```
+
+The quality workflow runs Go test/vet, app and overlay behavioral tests, the pinned SPA.js suite, and JavaScript syntax checks on Ubuntu and Windows. Tests use temporary tournament folders and deterministic provider responses; the live provider test remains opt-in. These checks do not establish a packaged Wails/OBS journey.
 
 In development, writable `assets/`, `data/`, `overlays/`, `players/`, and `templates/` paths resolve from the project directory. In a production build, the same folders resolve beside the portable executable. Only the static controller frontend is embedded in the `.exe`.
 

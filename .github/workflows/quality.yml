@@ -10,7 +10,10 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out project and SPA.js
         uses: actions/checkout@v4
@@ -28,6 +31,17 @@ jobs:
 
       - name: Vet Go packages
         run: go vet ./...
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test app and overlay behavior
+        run: node --test tests/*.test.js
+
+      - name: Test pinned SPA.js behavior
+        run: node --test frontend/spa.js/tests/*.test.js
 
       - name: Check project JavaScript syntax
         shell: bash
