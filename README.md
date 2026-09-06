@@ -187,6 +187,10 @@ Seed swaps and format/size changes reject while recorded history exists; reset t
 
 Bundled double-elimination templates mark the first final with `reset: true` and the reset match with both `reset: true` and `optional: true`. The reset is eligible only if the undefeated finalist, identified by its winners-bracket source, loses the first final. Until that reset finishes there is no champion. An undefeated-side first-final win is decisive, and stale ineligible reset results are ignored by projections. Formats with one final use its winner. Ordinary match winners never appear as champions.
 
+### Upload limits
+
+Portraits accept up to 10 MiB of compressed image data; event logos/backgrounds accept up to 20 MiB. PNG, JPEG, and GIF inputs must be at most 8192 pixels on either side and 32 million pixels total. Base64 length and image headers are checked before full decode. Oversize sources are rejected, not resized. Portraits and logos are re-encoded as PNG; backgrounds become JPEG.
+
 ## Coding Conventions
 
 **SIMPLE IS COMPLICATED ENOUGH.** Prefer code that can be followed from top to bottom without discovering a framework inside the project.

@@ -36,11 +36,8 @@ func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, err
 	if err != nil {
 		return "", err
 	}
-	if len(rawImage) > playerPortraitMaxBytes {
-		return "", fmt.Errorf("player portrait is too large")
-	}
 
-	imageValue, _, err := image.Decode(bytes.NewReader(rawImage))
+	imageValue, err := decodeBoundedImage(rawImage)
 	if err != nil {
 		return "", fmt.Errorf("player portrait must be a PNG, JPEG, or GIF image: %w", err)
 	}
@@ -83,12 +80,20 @@ func (a *App) RemovePlayerPortrait(playerID string) (string, error) {
 
 // decodePlayerPortraitData accepts plain base64 or a browser data URL.
 func decodePlayerPortraitData(imageData string) ([]byte, error) {
+	return decodeImageData(imageData, playerPortraitMaxBytes)
+}
+
+// decodeImageData bounds encoded input before allocating decoded image bytes.
+func decodeImageData(imageData string, maxBytes int) ([]byte, error) {
+	if len(imageData) > base64.StdEncoding.EncodedLen(maxBytes)+256 {
+		return nil, fmt.Errorf("image data is too large")
+	}
 	payload := strings.TrimSpace(imageData)
 	if payload == "" {
 		return nil, fmt.Errorf("empty player portrait")
 	}
 
-	if strings.HasPrefix(strings.ToLower(payload), "data:") {
+	if len(payload) >= 5 && strings.EqualFold(payload[:5], "data:") {
 		// Dropzone/FileReader produces data URLs; manual tests may send raw base64.
 		commaIndex := strings.Index(payload, ",")
 		if commaIndex < 0 {
@@ -102,11 +107,30 @@ func decodePlayerPortraitData(imageData string) ([]byte, error) {
 		payload = payload[commaIndex+1:]
 	}
 
+	if len(payload) > base64.StdEncoding.EncodedLen(maxBytes) {
+		return nil, fmt.Errorf("image data is too large")
+	}
 	rawImage, err := base64.StdEncoding.DecodeString(strings.TrimSpace(payload))
 	if err != nil {
 		return nil, err
 	}
+	if len(rawImage) > maxBytes {
+		return nil, fmt.Errorf("image data is too large")
+	}
 	return rawImage, nil
+}
+
+// decodeBoundedImage rejects excessive allocation before decompressing image pixels.
+func decodeBoundedImage(data []byte) (image.Image, error) {
+	config, _, err := image.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	if config.Width <= 0 || config.Height <= 0 || config.Width > 8192 || config.Height > 8192 || config.Width > 32000000/config.Height {
+		return nil, fmt.Errorf("image exceeds 8192 pixels per side or 32 megapixels")
+	}
+	decoded, _, err := image.Decode(bytes.NewReader(data))
+	return decoded, err
 }
 
 // cleanPlayerPortraitKey limits portrait names to safe filesystem keys.

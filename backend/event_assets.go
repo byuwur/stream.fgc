@@ -9,7 +9,6 @@ package backend
 import (
 	"bytes"
 	"fmt"
-	"image"
 	"image/jpeg"
 	"image/png"
 	"os"
@@ -48,15 +47,12 @@ func saveTournamentAsset(key string, imageData string) (string, error) {
 	}
 
 	// Reuse the browser data-URL decoder used by player portraits; validation follows here.
-	rawImage, err := decodePlayerPortraitData(imageData)
+	rawImage, err := decodeImageData(imageData, tournamentAssetMaxBytes)
 	if err != nil {
 		return "", err
 	}
-	if len(rawImage) > tournamentAssetMaxBytes {
-		return "", fmt.Errorf("tournament asset is too large")
-	}
 
-	imageValue, _, err := image.Decode(bytes.NewReader(rawImage))
+	imageValue, err := decodeBoundedImage(rawImage)
 	if err != nil {
 		return "", fmt.Errorf("tournament asset must be a PNG, JPEG, or GIF image: %w", err)
 	}
