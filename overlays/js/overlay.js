@@ -244,7 +244,7 @@
 	}
 
 	/** Finds the latest completed finals winner for the champion screen. */
-	function championFromBracket(matches, currentWinner) {
+	function championFromBracket(matches) {
 		const finals = matches
 			.filter(function (match) {
 				return match.group === "finals" && winnerFromMatch(match);
@@ -252,7 +252,7 @@
 			.sort(function (left, right) {
 				return right.order - left.order;
 			});
-		return finals.length ? winnerFromMatch(finals[0]) : currentWinner;
+		return finals.length ? winnerFromMatch(finals[0]) : null;
 	}
 
 	/** Builds all display-ready data required by every overlay page. */
@@ -280,7 +280,7 @@
 		context.player1 = context.match.player1;
 		context.player2 = context.match.player2;
 		context.winner = winnerFromMatch(context.match);
-		context.champion = championFromBracket(context.matches, context.winner);
+		context.champion = championFromBracket(context.matches);
 		return context;
 	}
 
@@ -475,7 +475,10 @@
 	/** Renders the latest completed finals winner as tournament champion. */
 	function renderChampion(context) {
 		setVisible("[data-champion-panel]", Boolean(context.champion));
-		if (!context.champion) return;
+		if (!context.champion) {
+			swapText("[data-champion-name]", "");
+			return;
+		}
 		swapText("[data-champion-name]", context.champion.name);
 		swapText("[data-event-name]", context.event.name);
 		swapImage("[data-champion-portrait]", [context.champion.portrait_url, context.nopic]);
