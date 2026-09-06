@@ -71,6 +71,7 @@
 	function renderPlayers(page) {
 		const list = page.querySelector("[data-player-list]");
 		if (!list) return;
+		list.querySelectorAll("[data-player-form]").forEach(fgc.disposeAutosave);
 		destroySelects(list);
 		const rows = playerEntriesForEvent(fgc.currentState).map(function ([playerID, player]) {
 			return playerCard(playerID, player);

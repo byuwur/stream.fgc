@@ -476,6 +476,29 @@
 
   // --- Autosave ---
 
+  /** Ends a form's write lifetime and releases its timers and listeners. */
+  function disposeAutosave(form) {
+    const state = autosaveForms.get(form);
+    if (state) {
+      state.disposed = true;
+      state.pending = false;
+      if (state.timer) global.clearTimeout(state.timer);
+      form.removeEventListener("input", state.schedule);
+      form.removeEventListener("change", state.schedule);
+      global.jQuery?.(form).off(".streamFgcAutosave");
+    }
+    autosaveForms.delete(form);
+    autosaveFormSet.delete(form);
+    delete form.dataset.autosaveBound;
+  }
+
+  /** Prunes forms whose document lifetime has ended. */
+  function pruneAutosaveForms() {
+    autosaveFormSet.forEach(function (form) {
+      if (!form.isConnected) disposeAutosave(form);
+    });
+  }
+
   /** Returns or initializes the autosave bookkeeping for a form. */
   function autosaveState(form) {
     let state = autosaveForms.get(form);
@@ -494,6 +517,7 @@
 
   /** Marks the current form signature as already persisted. */
   function markAutosaved(form, signature) {
+    if (!form.isConnected) return;
     autosaveState(form).lastSaved = signature;
   }
 
@@ -575,6 +599,7 @@
 
   /** Cancels delayed autosaves when manual mode is enabled. */
   function clearAutosaveTimers() {
+    pruneAutosaveForms();
     autosaveFormSet.forEach(function (form) {
       const state = autosaveForms.get(form);
       if (!state?.timer) return;
@@ -585,6 +610,7 @@
 
   /** Applies autosave preference to toggles, page attributes, and dirty forms. */
   function applyAutosavePreference(scheduleDirty = false) {
+    pruneAutosaveForms();
     const enabled = isAutosaveEnabled();
     document.querySelectorAll("[data-autosave-toggle]").forEach(function (toggle) {
       if (toggle instanceof HTMLInputElement) toggle.checked = enabled;
@@ -1006,7 +1032,13 @@
 
   /** Saves immediately and repeats if edits arrived while the save was running. */
   async function flushAutosave(form, options) {
+    if (!form.isConnected) {
+      disposeAutosave(form);
+      return;
+    }
+    if (form.dataset.autosaveBound !== "true") return;
     const state = autosaveState(form);
+    if (state.disposed) return;
     if (state.timer) {
       global.clearTimeout(state.timer);
       state.timer = 0;
@@ -1027,15 +1059,21 @@
         const savedSignature = await options.save();
         if (!savedSignature) break;
         state.lastSaved = savedSignature;
-      } while (state.pending || options.signature() !== state.lastSaved);
+      } while (!state.disposed && form.isConnected && (state.pending || options.signature() !== state.lastSaved));
     } finally {
       state.saving = false;
       setButtonsEnabled(form, true);
+      if (!form.isConnected) disposeAutosave(form);
     }
   }
 
   /** Debounces autosave or marks the form as dirty in manual mode. */
   function scheduleAutosave(form, options) {
+    if (!form.isConnected) {
+      disposeAutosave(form);
+      return;
+    }
+    if (form.dataset.autosaveBound !== "true") return;
     const state = autosaveState(form);
     const signature = options.signature();
     if (signature === state.lastSaved && !state.saving) return;
@@ -1063,6 +1101,7 @@
     const schedule = function () {
       scheduleAutosave(form, options);
     };
+    state.schedule = schedule;
 
     form.addEventListener("input", schedule);
     form.addEventListener("change", schedule);
@@ -2104,6 +2143,7 @@
     autosaveOptions,
     autosaveForms,
     bindAutosave,
+    disposeAutosave,
     bindKeyboardClick,
     bracketParticipantMediaHTML,
     bracketSwapSeedFromTarget,
