@@ -131,6 +131,8 @@ Imports currently bring event metadata and player slots into `data/tournament.js
 
 Supported start.gg hosts are `start.gg`, `www.start.gg`, `smash.gg`, and `www.smash.gg`, using HTTP(S); provider names in unrelated hosts, paths, or queries do not select that provider.
 
+start.gg previews request one page of up to 512 entrants and 256 matches, with an 8 MiB response limit. Every preview labels this bound; entrant shortfalls and the local 64-player capacity are reported separately. Import uses the first players in response order, which is not a claim of provider seeding. Provider bracket completeness is never promised.
+
 The import parser is covered by `backend/imports_test.go`. Its live start.gg test uses the app's real import path and stays skipped during ordinary test runs. To run it against the official Blink Respawn SF6 event, save a start.gg API key in the Import page and use:
 
 ```powershell

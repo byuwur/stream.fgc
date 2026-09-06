@@ -8,11 +8,65 @@ package backend
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"testing"
 )
+
+type importTestTransport func(*http.Request) (*http.Response, error)
+
+// RoundTrip supplies deterministic provider responses through the real HTTP boundary.
+func (f importTestTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	return f(request)
+}
+
+// TestBoundedStartGGPreview verifies the first-page contract, fixed destination, and response limits.
+func TestBoundedStartGGPreview(t *testing.T) {
+	previous := http.DefaultClient
+	t.Cleanup(func() { http.DefaultClient = previous })
+	for _, body := range []string{
+		`{"data":{"event":{"numEntrants":1,"entrants":{"nodes":[{"id":"1","name":"One"}]}}}}`,
+		`{"data":{"event":{"numEntrants":700,"entrants":{"nodes":[{"id":"1","name":"One"}]}}}}`,
+	} {
+		calls := 0
+		http.DefaultClient = &http.Client{Transport: importTestTransport(func(request *http.Request) (*http.Response, error) {
+			calls++
+			if request.URL.String() != startGGGraphQLEndpoint {
+				t.Fatal("credential destination changed")
+			}
+			data, err := io.ReadAll(request.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(data), "page: 1") || !strings.Contains(string(data), "perPage: 512") {
+				t.Fatal("unexpected fetch policy")
+			}
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: make(http.Header)}, nil
+		})}
+		event, err := fetchStartGGEvent("tournament/a/event/b", "test-token")
+		if err != nil {
+			t.Fatal(err)
+		}
+		preview := startGGExternalTournament(NewApp(), "", "", event)
+		if calls != 1 || !strings.Contains(strings.Join(preview.Warnings, " "), "Bounded preview") {
+			t.Fatal("preview claimed completeness or paginated")
+		}
+		if event.NumEntrants.Int() == 700 && !strings.Contains(strings.Join(preview.Warnings, " "), "1 of 700") {
+			t.Fatal("missing entrant shortfall")
+		}
+	}
+	for _, body := range []string{`{`, `{"errors":[{"message":"provider failed"}]}`, strings.Repeat(" ", 8*1024*1024+1)} {
+		http.DefaultClient = &http.Client{Transport: importTestTransport(func(*http.Request) (*http.Response, error) {
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: make(http.Header)}, nil
+		})}
+		if _, err := fetchStartGGEvent("tournament/a/event/b", "test-token"); err == nil {
+			t.Fatal("invalid response reported success")
+		}
+	}
+}
 
 const blinkRespawnStartGGURL = "https://www.start.gg/tournament/blink-respawn-2026/event/street-fighter-6-capcom-pro-tour-offline-premier-event/overview"
 

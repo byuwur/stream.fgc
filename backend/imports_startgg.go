@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -308,9 +309,17 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 		return startGGEvent{}, err
 	}
 	defer response.Body.Close()
+	const maxResponseBytes = 8 * 1024 * 1024
+	data, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	if err != nil {
+		return startGGEvent{}, err
+	}
+	if len(data) > maxResponseBytes {
+		return startGGEvent{}, fmt.Errorf("start.gg preview response exceeds 8 MiB")
+	}
 
 	var graphResponse startGGGraphQLResponse
-	if err := json.NewDecoder(response.Body).Decode(&graphResponse); err != nil {
+	if err := json.Unmarshal(data, &graphResponse); err != nil {
 		return startGGEvent{}, err
 	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
@@ -402,7 +411,7 @@ func startGGExternalMatch(order int, set startGGSet) ExternalMatch {
 
 // startGGImportWarnings returns operator-facing warnings for partial provider data.
 func startGGImportWarnings(event startGGEvent, playerCount int) []string {
-	warnings := []string{}
+	warnings := []string{"Bounded preview: only the first page (up to 512 entrants and 256 matches) is requested; provider bracket completeness is not guaranteed. Player slots follow response order, not provider seeding."}
 	if event.NumEntrants.Int() > playerCount {
 		warnings = append(warnings, fmt.Sprintf("start.gg returned %d of %d entrants on the first page.", playerCount, event.NumEntrants.Int()))
 	}
