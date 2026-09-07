@@ -6,6 +6,12 @@
 
 Stream.FGC is built on top of [byuwur/spa.js](https://github.com/byuwur/spa.js) as a static frontend shell, with a local Go backend provided by Wails.
 
+### SPA runtime upgrades
+
+The frontend pins the reviewed SPA.js revision `6b37270c852cd9393e645227df122523548ecd11` intentionally. `frontend/_init.js` is a copied, application-owned initializer: submodule updates do not propagate initializer changes, so every framework upgrade requires reviewing and reconciling the copy while preserving Stream.FGC's local path, environment, and configuration behavior. This copy adopts the repaired per-key storage fallback contract, including null tombstones for failed removals and explicit mutation recovery.
+
+Run both the pinned framework tests and the Stream.FGC integration tests after an upgrade (`node --test frontend/spa.js/tests/*.test.js` and `node --test tests/*.test.js`), along with the repository's normal quality checks.
+
 ## What's this about?
 
 This project is a local tournament control system for fighting game streams. It is meant for events such as Street Fighter 6 brackets where an operator needs to edit event data, player data, the current match, scores, bracket results, and visual assets without using a cloud service or a database.
