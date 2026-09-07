@@ -40,8 +40,10 @@ jobs:
       - name: Test app and overlay behavior
         run: node --test tests/*.test.js
 
-      - name: Test pinned SPA.js behavior
-        run: node --test frontend/spa.js/tests/*.test.js
+      # Deferred: framework browser tests require Playwright and Chromium.
+      # Keep CI focused on Stream.FGC business logic for now.
+      # - name: Test pinned SPA.js behavior
+      #   run: node --test frontend/spa.js/tests/*.test.js
 
       - name: Check project JavaScript syntax
         shell: bash
