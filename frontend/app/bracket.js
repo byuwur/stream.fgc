@@ -179,7 +179,7 @@
 		const flag = participant?.resolved && isISO2Code(country) && status !== "bye"
 			? [
 					`<span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country>`,
-					`<img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.88rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />`,
+					`<img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.9rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />`,
 					`<span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>`,
 					`</span>`,
 				].join("")

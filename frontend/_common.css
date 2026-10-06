@@ -126,7 +126,7 @@ body {
 .fgc-kicker {
   margin: 0 0 0.25rem;
   color: var(--fgc-brand-soft);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -198,16 +198,16 @@ body {
   transform: translateY(-50%);
   border-radius: var(--fgc-radius-pill);
   background: var(--bs-gray-300);
-  box-shadow: 0 0.12rem 0.28rem rgba(var(--fgc-dark-rgb), 0.35);
+  box-shadow: 0 0.1rem 0.3rem rgba(var(--fgc-dark-rgb), 0.35);
   transition: 180ms ease;
 }
 .fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::before {
   border-color: var(--fgc-control-active);
   background: var(--fgc-control-active);
-  box-shadow: 0 0 0 0.12rem rgba(var(--fgc-control-active-rgb), 0.18);
+  box-shadow: 0 0 0 0.1rem rgba(var(--fgc-control-active-rgb), 0.18);
 }
 .fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::after {
-  left: 2.48rem;
+  left: 2.5rem;
   background: var(--fgc-light);
   transform: translateY(-50%);
 }
@@ -220,7 +220,7 @@ body {
 }
 .fgc-toggle .custom-control-input:focus ~ .custom-control-label::before {
   box-shadow:
-    0 0 0 0.12rem rgba(var(--fgc-control-active-rgb), 0.18),
+    0 0 0 0.1rem rgba(var(--fgc-control-active-rgb), 0.18),
     inset 0 0 0 0.0625rem rgba(var(--fgc-dark-rgb), 0.24);
 }
 .fgc-page[data-autosave="on"] [data-manual-save] {
@@ -242,7 +242,7 @@ body {
 .fgc-panel {
   border-color: var(--fgc-border-soft) !important;
   background: var(--fgc-surface-strong);
-  box-shadow: 0 1.125rem 2.8125rem var(--fgc-shadow);
+  box-shadow: 0 1.125rem 2.8rem var(--fgc-shadow);
 }
 .fgc-panel > .row:first-child:not(.align-items-center),
 .fgc-panel > form.row:first-child {
@@ -326,7 +326,7 @@ body {
 .fgc-panel .form-control:focus,
 .fgc-panel .form-select:focus {
   border-color: var(--fgc-control-active);
-  box-shadow: 0 0 0 0.18rem rgba(var(--fgc-control-active-rgb), 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(var(--fgc-control-active-rgb), 0.25);
 }
 [data-score-stepper] {
   --fgc-score-control-size: 2.75rem;
@@ -449,7 +449,7 @@ body {
 [data-player-dropzone] .dz-message,
 [data-event-asset-dropzone] .dz-message {
   color: var(--fgc-text-soft);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 [data-player-dropzone] .dz-message i,
 [data-event-asset-dropzone] .dz-message i,
@@ -466,7 +466,7 @@ body {
 [data-event-asset-remove],
 [data-player-form] [data-manual-save] {
   min-height: 2.45rem;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 [data-bracket-board] {
   overflow: hidden;
@@ -575,7 +575,7 @@ body {
 }
 [data-bracket-country-code] {
   color: var(--fgc-text-soft);
-  font-size: 0.62rem;
+  font-size: 0.6rem;
 }
 [data-bracket-player-controls] {
   min-width: max-content;
