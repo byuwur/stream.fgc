@@ -154,12 +154,12 @@
 	function importSummaryTile(label, value, options) {
 		const body = options?.html ? String(value || "") : escapeHtml(value);
 		return [
-			`<div class="col-12 col-sm-6 col-lg-4 col-xl">`,
-			`<div class="border rounded p-3 h-100">`,
-			`<span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>`,
-			`<strong>${body}</strong>`,
-			`</div>`,
-			`</div>`,
+			/* HTML */ `<div class="col-12 col-sm-6 col-lg-4 col-xl">`,
+			/* HTML */ `<div class="border rounded p-3 h-100">`,
+			/* HTML */ `<span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>`,
+			/* HTML */ `<strong>${body}</strong>`,
+			/* HTML */ `</div>`,
+			/* HTML */ `</div>`,
 		].join("");
 	}
 
@@ -172,10 +172,10 @@
 		const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
 		const suffix = supported ? "" : ` ${t("import.not_supported", "(not supported)")}`;
 		return [
-			`<span class="d-inline-flex gap-2 align-items-center mw-100">`,
-			`<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
-			`<span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>`,
-			`</span>`,
+			/* HTML */ `<span class="d-inline-flex gap-2 align-items-center mw-100">`,
+			/* HTML */ `<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
+			/* HTML */ `<span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>`,
+			/* HTML */ `</span>`,
 		].join("");
 	}
 
@@ -185,47 +185,47 @@
 		if (!code) return "";
 		if (!isISO2Code(code)) return escapeHtml(code);
 		return [
-			`<span class="d-inline-flex gap-2 align-items-center">`,
-			`<img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />`,
-			`<span>${escapeHtml(countryLabel(code))}</span>`,
-			`</span>`,
+			/* HTML */ `<span class="d-inline-flex gap-2 align-items-center">`,
+			/* HTML */ `<img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />`,
+			/* HTML */ `<span>${escapeHtml(countryLabel(code))}</span>`,
+			/* HTML */ `</span>`,
 		].join("");
 	}
 
 	/** Builds the imported player preview table. */
 	function importPlayersTable(players) {
 		if (!players.length) {
-			return `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div>`;
+			return /* HTML */ `<div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div>`;
 		}
 		const rows = players
 			.slice(0, 64)
 			.map(function (player, index) {
 				return [
-					`<tr>`,
-					`<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
-					`<td>${escapeHtml(player.name || "")}</td>`,
-					`<td>${escapeHtml(player.team || "")}</td>`,
-					`<td>${importCountryHTML(player.country)}</td>`,
-					`</tr>`,
+					/* HTML */ `<tr>`,
+					/* HTML */ `<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
+					/* HTML */ `<td>${escapeHtml(player.name || "")}</td>`,
+					/* HTML */ `<td>${escapeHtml(player.team || "")}</td>`,
+					/* HTML */ `<td>${importCountryHTML(player.country)}</td>`,
+					/* HTML */ `</tr>`,
 				].join("");
 			})
 			.join("");
 		const hiddenCount = Math.max(0, players.length - 64);
 		const hiddenNote = hiddenCount
-			? `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
+			? /* HTML */ `<p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p>`
 			: "";
 		return [
-			`<div class="table-responsive border rounded p-2" data-import-preview-table>`,
-			`<table class="table table-dark align-middle m-0">`,
-			`<thead><tr>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>`,
-			`<th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>`,
-			`</tr></thead>`,
-			`<tbody>${rows}</tbody>`,
-			`</table>`,
-			`</div>`,
+			/* HTML */ `<div class="table-responsive border rounded p-2" data-import-preview-table>`,
+			/* HTML */ `<table class="table table-dark align-middle m-0">`,
+			/* HTML */ `<thead><tr>`,
+			/* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>`,
+			/* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>`,
+			/* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>`,
+			/* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>`,
+			/* HTML */ `</tr></thead>`,
+			/* HTML */ `<tbody>${rows}</tbody>`,
+			/* HTML */ `</table>`,
+			/* HTML */ `</div>`,
 			hiddenNote,
 		].join("");
 	}
@@ -245,16 +245,16 @@
 			importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true }),
 			importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players.title", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
 			warnings.length
-				? `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
+				? /* HTML */ `<div class="col-12"><div class="border border-warning rounded p-3">${warnings
 						.map(function (warning) {
-							return `<p class="m-0 small">${escapeHtml(warning)}</p>`;
+							return /* HTML */ `<p class="m-0 small">${escapeHtml(warning)}</p>`;
 						})
 						.join("")}</div></div>`
 				: "",
-			`<div class="col-12">`,
-			`<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>`,
+			/* HTML */ `<div class="col-12">`,
+			/* HTML */ `<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>`,
 			importPlayersTable(players),
-			`</div>`,
+			/* HTML */ `</div>`,
 		].join("");
 		applyLanguage(body);
 	}

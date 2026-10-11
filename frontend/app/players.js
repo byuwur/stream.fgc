@@ -76,7 +76,7 @@
 		const rows = playerEntriesForEvent(fgc.currentState).map(function ([playerID, player]) {
 			return playerCard(playerID, player);
 		});
-		list.innerHTML = rows.length ? rows.join("") : `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players.empty">No players found.</div></div>`;
+		list.innerHTML = rows.length ? rows.join("") : /* HTML */ `<div class="col-12"><div class="${EMPTY_STATE_CLASS}" data-i18n="players.empty">No players found.</div></div>`;
 		list.querySelectorAll("[data-player-form]").forEach(function (form) {
 			if (!(form instanceof HTMLFormElement)) return;
 			bindPlayerForm(form, page);

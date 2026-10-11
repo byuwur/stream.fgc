@@ -550,37 +550,37 @@
 		const winner = Boolean(participant.id && participant.id === winnerID);
 		const loser = Boolean(participant.id && (participant.id === loserID || (winnerID && participant.id !== winnerID)));
 		const score = side === 1 ? match.state.player1_score : match.state.player2_score;
-		const reason = (winner || loser) && match.state.reason ? `<span class="fgc-bracket-reason">${escapeHTML(match.state.reason.toUpperCase())}</span>` : "";
-		const flag = participant.flag_url ? `<img class="fgc-bracket-flag" src="${escapeHTML(participant.flag_url)}" alt="${escapeHTML(participant.country)}" />` : "";
+		const reason = (winner || loser) && match.state.reason ? /* HTML */ `<span class="fgc-bracket-reason">${escapeHTML(match.state.reason.toUpperCase())}</span>` : "";
+		const flag = participant.flag_url ? /* HTML */ `<img class="fgc-bracket-flag" src="${escapeHTML(participant.flag_url)}" alt="${escapeHTML(participant.country)}" />` : "";
 		return [
-			`<div class="fgc-bracket-player${winner ? " is-winner" : ""}${loser ? " is-loser" : ""}">`,
+			/* HTML */ `<div class="fgc-bracket-player${winner ? " is-winner" : ""}${loser ? " is-loser" : ""}">`,
 			flag,
-			`<span class="fgc-bracket-player-copy">`,
-			`<strong>${escapeHTML(participant.name)}</strong>`,
-			participant.team ? `<small>${escapeHTML(participant.team)}</small>` : "",
-			`</span>`,
+			/* HTML */ `<span class="fgc-bracket-player-copy">`,
+			/* HTML */ `<strong>${escapeHTML(participant.name)}</strong>`,
+			participant.team ? /* HTML */ `<small>${escapeHTML(participant.team)}</small>` : "",
+			/* HTML */ `</span>`,
 			reason,
-			`<strong class="fgc-bracket-score">${integer(score, 0)}</strong>`,
-			`</div>`,
+			/* HTML */ `<strong class="fgc-bracket-score">${integer(score, 0)}</strong>`,
+			/* HTML */ `</div>`,
 		].join("");
 	}
 
 	/** Builds one resolved match card for the static bracket overlay. */
 	function bracketMatchHTML(match, currentMatchID) {
 		return [
-			`<article class="fgc-bracket-match${match.id === text(currentMatchID) ? " is-current" : ""}">`,
-			`<header><span>${escapeHTML(match.id)}</span><strong>${escapeHTML(match.name)}</strong></header>`,
+			/* HTML */ `<article class="fgc-bracket-match${match.id === text(currentMatchID) ? " is-current" : ""}">`,
+			/* HTML */ `<header><span>${escapeHTML(match.id)}</span><strong>${escapeHTML(match.name)}</strong></header>`,
 			bracketParticipantHTML(match.player1, match, 1),
 			bracketParticipantHTML(match.player2, match, 2),
-			`</article>`,
+			/* HTML */ `</article>`,
 		].join("");
 	}
 
 	/** Builds a proper round-by-round bracket from the selected projection slice. */
 	function bracketHTML(context, view) {
-		if (context.template?.error) return `<div class="fgc-overlay-empty">${escapeHTML(context.template.error)}</div>`;
+		if (context.template?.error) return /* HTML */ `<div class="fgc-overlay-empty">${escapeHTML(context.template.error)}</div>`;
 		const matches = context.matches.filter((match) => bracketViewAllows(match, view, context));
-		if (!matches.length) return `<div class="fgc-overlay-empty">No bracket matches found.</div>`;
+		if (!matches.length) return /* HTML */ `<div class="fgc-overlay-empty">No bracket matches found.</div>`;
 
 		const groups = [];
 		for (const match of matches) {
@@ -603,22 +603,22 @@
 				const rounds = group.rounds
 					.map(function (round) {
 						return [
-							`<section class="fgc-bracket-round">`,
-							`<h3>${escapeHTML(round.name)}</h3>`,
-							`<div class="fgc-bracket-round-matches">${round.matches
+							/* HTML */ `<section class="fgc-bracket-round">`,
+							/* HTML */ `<h3>${escapeHTML(round.name)}</h3>`,
+							/* HTML */ `<div class="fgc-bracket-round-matches">${round.matches
 								.map(function (match) {
 									return bracketMatchHTML(match, context.state.current);
 								})
 								.join("")}</div>`,
-							`</section>`,
+							/* HTML */ `</section>`,
 						].join("");
 					})
 					.join("");
 				return [
-					`<section class="fgc-bracket-section" data-bracket-group="${escapeHTML(group.key)}" style="--fgc-group-weight:${weight}">`,
-					`<h2>${escapeHTML(group.key)}</h2>`,
-					`<div class="fgc-bracket-rounds" style="--fgc-round-count:${Math.max(1, group.rounds.length)}">${rounds}</div>`,
-					`</section>`,
+					/* HTML */ `<section class="fgc-bracket-section" data-bracket-group="${escapeHTML(group.key)}" style="--fgc-group-weight:${weight}">`,
+					/* HTML */ `<h2>${escapeHTML(group.key)}</h2>`,
+					/* HTML */ `<div class="fgc-bracket-rounds" style="--fgc-round-count:${Math.max(1, group.rounds.length)}">${rounds}</div>`,
+					/* HTML */ `</section>`,
 				].join("");
 			})
 			.join("");
@@ -659,7 +659,7 @@
 	function scaleStage() {
 		const $stage = $(".fgc-stage").first();
 		if (!$stage.length) return;
-		if (!$stage.parent().hasClass("fgc-stage-shell")) $stage.wrap('<div class="fgc-stage-shell"></div>');
+		if (!$stage.parent().hasClass("fgc-stage-shell")) $stage.wrap(/* HTML */ `<div class="fgc-stage-shell"></div>`);
 		const scale = Math.min(global.innerWidth / STAGE_WIDTH, global.innerHeight / STAGE_HEIGHT);
 		$stage.css("transform", `scale(${scale})`);
 		$stage.parent().css({ height: STAGE_HEIGHT * scale, width: STAGE_WIDTH * scale });
@@ -682,9 +682,9 @@
 		const hint = browserHTTPHint();
 		let $warning = $("[data-fgc-runtime-warning]");
 		if (!$warning.length) {
-			$warning = $('<aside class="fgc-runtime-warning" data-fgc-runtime-warning></aside>').appendTo(document.body);
+			$warning = $(/* HTML */ `<aside class="fgc-runtime-warning" data-fgc-runtime-warning></aside>`).appendTo(document.body);
 		}
-		$warning.html(`Browser security blocked local JSON. Open this overlay through HTTP.<code>${escapeHTML(hint)}</code>`);
+		$warning.html(/* HTML */ `Browser security blocked local JSON. Open this overlay through HTTP.<code>${escapeHTML(hint)}</code>`);
 	}
 
 	/** Reads runtime paths and polling frequency from body data attributes. */

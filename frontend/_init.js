@@ -140,8 +140,8 @@
   bySPA.HOME_PATH = bySPA.THIS_PATH;
 
   const currentDir = dirname(global.location.href);
-  const homeURL = new URL(bySPA.HOME_PATH + "/");
-  const currentURL = new URL(currentDir + "/");
+  const homeURL = new URL(`${bySPA.HOME_PATH}/`);
+  const currentURL = new URL(`${currentDir}/`);
 
   const homeParts = homeURL.pathname.split("/").filter(Boolean);
   const currentParts = currentURL.pathname.split("/").filter(Boolean);
