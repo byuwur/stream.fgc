@@ -15,10 +15,6 @@ Read [README.md](./README.md), the coding standards, and relevant project docume
 
 Check repository-specific requirements and preserve unrelated work. If the implementation differs intentionally from a general convention, understand the reason before changing it.
 
-## Repository workflow
-
-Use the README's [Development section](./README.md#development) for setup, Wails development, builds, and local checks. The [quality workflow](./.github/workflows/quality.yml) defines the Go tests, Go vet, and project JavaScript syntax checks used in CI.
-
 ## Make a focused change
 
 Keep the contribution centered on one conceptual outcome. Preserve public contracts unless changing them is part of the agreed scope. Include the tests and documentation needed to explain and validate that outcome.
@@ -41,9 +37,9 @@ A review description should explain what changed, why it was needed, any compati
 
 Before submitting:
 
-- [ ] The change addresses the requested outcome without unrelated work.
-- [ ] Ownership, state transitions, and affected entry paths were checked.
-- [ ] Public contracts are preserved or intentional changes are explained.
-- [ ] Relevant tests and documentation reflect the final behavior.
-- [ ] Validation results and limitations are recorded.
-- [ ] The final diff was reviewed for mistakes and unnecessary complexity.
+- [ ] The change addresses the requested outcome without unrelated work?
+- [ ] Ownership, state transitions, and affected entry paths were checked?
+- [ ] Public contracts are preserved or intentional changes are explained?
+- [ ] Relevant tests and documentation reflect the final behavior?
+- [ ] Validation results and limitations are recorded?
+- [ ] The final diff was reviewed for mistakes and unnecessary complexity?
