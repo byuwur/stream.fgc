@@ -200,15 +200,15 @@ Use:
 
 Use a specific area and a subject that remains useful years later. The primary types are:
 
-| Type | Use |
-| --- | --- |
-| Feature | Add supported behavior. |
-| Fix | Correct defective behavior. |
-| Refactor | Improve structure while preserving behavior. |
-| Security | Correct or strengthen a concrete security boundary. |
-| Test | Change validation without changing production behavior. |
-| Docs | Change documentation. |
-| Update | Maintain dependencies, tooling, or other existing support. |
+| Type     | Use                                                            |
+| -------- | -------------------------------------------------------------- |
+| Feature  | Add supported behavior.                                        |
+| Fix      | Correct defective behavior.                                    |
+| Refactor | Improve structure while preserving behavior.                   |
+| Security | Correct or strengthen a concrete security boundary.            |
+| Test     | Change validation without changing production behavior.        |
+| Docs     | Change documentation.                                          |
+| Update   | Maintain dependencies, tooling, or other existing support.     |
 | Breaking | Intentionally change a supported public contract incompatibly. |
 
 Reserve `Hotfix` for an urgent regression in released behavior, not routine fixes, cleanup, or formatting. `DX` is optional when developer experience is the primary outcome and the main types describe it poorly.

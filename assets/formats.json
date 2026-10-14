@@ -1,6 +1,6 @@
 {
-	"single_elimination": "Single Elimination",
-	"double_elimination": "Double Elimination",
-	"robin": "Round Robin",
-	"swiss": "Swiss"
+  "single_elimination": "Single Elimination",
+  "double_elimination": "Double Elimination",
+  "robin": "Round Robin",
+  "swiss": "Swiss"
 }

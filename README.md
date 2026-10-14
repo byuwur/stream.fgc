@@ -51,14 +51,14 @@ Only Go writes files. Save, upload, remove, reset, randomize, and swap actions g
 
 ## OBS overlays
 
-| Page | View |
-| --- | --- |
-| `overlays/scoreboard.html` | Current match scores. |
-| `overlays/versus.html` | Current match versus screen. |
-| `overlays/winner.html` | Current match winner. |
-| `overlays/champion.html` | Tournament champion after a decisive final. |
-| `overlays/bracket.html` | Stored bracket slice. |
-| `overlays/intro.html` | Event intro/standby screen. |
+| Page                       | View                                        |
+| -------------------------- | ------------------------------------------- |
+| `overlays/scoreboard.html` | Current match scores.                       |
+| `overlays/versus.html`     | Current match versus screen.                |
+| `overlays/winner.html`     | Current match winner.                       |
+| `overlays/champion.html`   | Tournament champion after a decisive final. |
+| `overlays/bracket.html`    | Stored bracket slice.                       |
+| `overlays/intro.html`      | Event intro/standby screen.                 |
 
 Use a **1920 × 1080** source. Pages scale that canvas to fit the browser viewport and read `../data/tournament.json` plus sibling asset folders. They poll every 1 or 2.5 seconds, depending on the page. Changed values fade out, update, then return with `fadeInUp`.
 
@@ -107,14 +107,14 @@ go test ./backend -run TestStartGGLivePreview -count=1 -v
 
 `data/tournament.json` is the source of truth.
 
-| Key | Contents |
-| --- | --- |
-| `version` | Schema version. |
-| `event` | Name, phase, rule, game, format, and size. |
-| `current` | Current match ID. |
-| `players` | Records keyed by stable player slot ID. |
-| `matches` | State keyed by template match ID. |
-| `bracket` | Overlay view, seed assignments, and BYEs. |
+| Key       | Contents                                   |
+| --------- | ------------------------------------------ |
+| `version` | Schema version.                            |
+| `event`   | Name, phase, rule, game, format, and size. |
+| `current` | Current match ID.                          |
+| `players` | Records keyed by stable player slot ID.    |
+| `matches` | State keyed by template match ID.          |
+| `bracket` | Overlay view, seed assignments, and BYEs.  |
 
 `event.size` is bracket capacity, not necessarily the real player count. Reducing it trims unused player slots. `event.rule` is numeric (`3` means FT3); scores stay between zero and the active first-to limit.
 
@@ -124,12 +124,12 @@ Player records do not store portrait paths. Portraits come from `players/{player
 
 Templates define bracket shape. Participants come from a seed assignment, another match's winner, or another match's loser.
 
-| Participant state | Meaning |
-| --- | --- |
-| `player` | A real player is resolved. |
-| `tbd` | The seed exists but has no player yet. |
-| `bye` | The seed slot is intentionally a BYE. |
-| `pending` | The source match has not been decided. |
+| Participant state | Meaning                                |
+| ----------------- | -------------------------------------- |
+| `player`          | A real player is resolved.             |
+| `tbd`             | The seed exists but has no player yet. |
+| `bye`             | The seed slot is intentionally a BYE.  |
+| `pending`         | The source match has not been decided. |
 
 Format and size select a template: `double_elimination` with `8` uses `templates/double8.json`; `robin` with `8` uses `templates/robin8.json`. A catalog size without a matching file produces `[template] template missing`; Go does not generate a substitute bracket.
 
@@ -162,23 +162,23 @@ Windows readers can block replacement/removal if they do not allow delete sharin
 
 The backend is one Go package split by responsibility. The frontend uses SPA.js, Bootstrap, Shards, Select2, and jQuery.
 
-| Files | Responsibility |
-| --- | --- |
-| `main.go`, `backend/app.go` | Wails startup/bindings, embedded frontend, external folders, serialized mutations. |
-| `backend/models.go`, `backend/normalization.go` | Data shapes, migration, defaults, score limits, and cleanup. |
-| `backend/storage.go`, `backend/paths.go` | Atomic persistence and development/release paths. |
-| `backend/tournament.go`, `backend/templates.go` | Mutations, template selection, and participant sources. |
-| `backend/seeding.go`, `backend/bracket.go` | Seeds, BYEs, randomization, and bracket projections. |
-| `backend/assets.go`, `backend/portraits.go`, `backend/event_assets.go` | Catalogs and validated image uploads. |
-| `backend/integrations.go`, `backend/imports.go`, `backend/imports_startgg.go` | Local credentials, import flow, and start.gg adapter. |
-| `backend/overlays.go` | Open the overlay folder in the OS explorer. |
-| `frontend/index.html`, `frontend/_init.js`, `frontend/_routes.js` | Application shell, initialization, and hash routes. |
-| `frontend/_app.js` | Wails calls, status, autosave, catalogs, Select2, assets, event/current-match behavior. |
-| `frontend/app/import.js`, `players.js`, `bracket.js` | Page controllers under `frontend/app/`. |
-| `frontend/import.html`, `main.html`, `players.html`, `brackets.html` | Routed fragments under `frontend/`. |
-| `frontend/_common.css`, `sidebar.html`, `lang/` | Visual overrides, navigation, en/es/ja dictionaries, and localized flag names. |
-| `overlays/js/overlay.js`, `overlays/css/overlay.css` | Polling, template resolution, scaling, fallbacks, animation, and stage layout. |
-| `overlays/css/_common.css` | Overlay reset and Michroma font. |
+| Files                                                                         | Responsibility                                                                          |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `main.go`, `backend/app.go`                                                   | Wails startup/bindings, embedded frontend, external folders, serialized mutations.      |
+| `backend/models.go`, `backend/normalization.go`                               | Data shapes, migration, defaults, score limits, and cleanup.                            |
+| `backend/storage.go`, `backend/paths.go`                                      | Atomic persistence and development/release paths.                                       |
+| `backend/tournament.go`, `backend/templates.go`                               | Mutations, template selection, and participant sources.                                 |
+| `backend/seeding.go`, `backend/bracket.go`                                    | Seeds, BYEs, randomization, and bracket projections.                                    |
+| `backend/assets.go`, `backend/portraits.go`, `backend/event_assets.go`        | Catalogs and validated image uploads.                                                   |
+| `backend/integrations.go`, `backend/imports.go`, `backend/imports_startgg.go` | Local credentials, import flow, and start.gg adapter.                                   |
+| `backend/overlays.go`                                                         | Open the overlay folder in the OS explorer.                                             |
+| `frontend/index.html`, `frontend/_init.js`, `frontend/_routes.js`             | Application shell, initialization, and hash routes.                                     |
+| `frontend/_app.js`                                                            | Wails calls, status, autosave, catalogs, Select2, assets, event/current-match behavior. |
+| `frontend/app/import.js`, `players.js`, `bracket.js`                          | Page controllers under `frontend/app/`.                                                 |
+| `frontend/import.html`, `main.html`, `players.html`, `brackets.html`          | Routed fragments under `frontend/`.                                                     |
+| `frontend/_common.css`, `sidebar.html`, `lang/`                               | Visual overrides, navigation, en/es/ja dictionaries, and localized flag names.          |
+| `overlays/js/overlay.js`, `overlays/css/overlay.css`                          | Polling, template resolution, scaling, fallbacks, animation, and stage layout.          |
+| `overlays/css/_common.css`                                                    | Overlay reset and Michroma font.                                                        |
 
 Overlays carry their own Bootstrap/Animate.css and jQuery/Popper/Bootstrap files under `overlays/css/` and `overlays/js/`.
 
