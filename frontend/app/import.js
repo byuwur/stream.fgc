@@ -152,14 +152,14 @@
   /** Renders one small import summary tile. */
   function importSummaryTile(label, value, options) {
     const body = options?.html ? String(value || "") : escapeHtml(value);
-    return [
-      /* HTML */ `<div class="col-12 col-sm-6 col-lg-4 col-xl"></div>`,
-      /* HTML */ `<div class="border rounded p-3 h-100"></div>`,
-      /* HTML */ `<span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>`,
-      /* HTML */ `<strong>${body}</strong>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`
-    ].join("");
+    return /* HTML */ `
+      <div class="col-12 col-sm-6 col-lg-4 col-xl">
+        <div class="border rounded p-3 h-100">
+          <span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>
+          <strong>${body}</strong>
+        </div>
+      </div>
+    `;
   }
 
   /** Renders the imported game as full catalog name and logo when supported. */
@@ -170,12 +170,12 @@
     const name = supported ? entry.name : rawGame || t("import.unknown_game", "Unknown");
     const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
     const suffix = supported ? "" : ` ${t("import.not_supported", "(not supported)")}`;
-    return [
-      /* HTML */ `<span class="d-inline-flex gap-2 align-items-center mw-100"></span>`,
-      /* HTML */ `<img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />`,
-      /* HTML */ `<span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>`,
-      /* HTML */ `</span>`
-    ].join("");
+    return /* HTML */ `
+      <span class="d-inline-flex gap-2 align-items-center mw-100">
+        <img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />
+        <span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>
+      </span>
+    `;
   }
 
   /** Renders an imported ISO2 country with its flag and localized label. */
@@ -183,12 +183,12 @@
     const code = String(country || "").toUpperCase();
     if (!code) return "";
     if (!isISO2Code(code)) return escapeHtml(code);
-    return [
-      /* HTML */ `<span class="d-inline-flex gap-2 align-items-center"></span>`,
-      /* HTML */ ` <img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image /> `,
-      /* HTML */ `<span>${escapeHtml(countryLabel(code))}</span>`,
-      /* HTML */ `</span>`
-    ].join("");
+    return /* HTML */ `
+      <span class="d-inline-flex gap-2 align-items-center">
+        <img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />
+        <span>${escapeHtml(countryLabel(code))}</span>
+      </span>
+    `;
   }
 
   /** Builds the imported player preview table. */
@@ -199,36 +199,34 @@
     const rows = players
       .slice(0, 64)
       .map(function (player, index) {
-        return [
-          /* HTML */ `<tr></tr>`,
-          /* HTML */ `<td>${escapeHtml(String(player.seed || index + 1))}</td>`,
-          /* HTML */ `<td>${escapeHtml(player.name || "")}</td>`,
-          /* HTML */ `<td>${escapeHtml(player.team || "")}</td>`,
-          /* HTML */ `<td>${importCountryHTML(player.country)}</td>`,
-          /* HTML */ `</tr>`
-        ].join("");
+        return /* HTML */ `
+          <tr>
+            <td>${escapeHtml(String(player.seed || index + 1))}</td>
+            <td>${escapeHtml(player.name || "")}</td>
+            <td>${escapeHtml(player.team || "")}</td>
+            <td>${importCountryHTML(player.country)}</td>
+          </tr>
+        `;
       })
       .join("");
     const hiddenCount = Math.max(0, players.length - 64);
     const hiddenNote = hiddenCount ? /* HTML */ ` <p class="mt-2 mb-0 small" data-muted-text> ${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))} </p> ` : "";
-    return [
-      /* HTML */ `<div class="table-responsive border rounded p-2" data-import-preview-table></div>`,
-      /* HTML */ `<table class="table table-dark align-middle m-0"></table>`,
-      /* HTML */ `
-        <thead>
-          <tr></tr>
-        </thead>
-      `,
-      /* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>`,
-      /* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>`,
-      /* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>`,
-      /* HTML */ `<th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>`,
-      /* HTML */ `</tr></thead>`,
-      /* HTML */ ` <tbody> ${rows} </tbody> `,
-      /* HTML */ `</table>`,
-      /* HTML */ `</div>`,
-      hiddenNote
-    ].join("");
+    return /* HTML */ `
+      <div class="table-responsive border rounded p-2" data-import-preview-table>
+        <table class="table table-dark align-middle m-0">
+          <thead>
+            <tr>
+              <th class="small text-uppercase">${escapeHtml(t("import.seed", "Seed"))}</th>
+              <th class="small text-uppercase">${escapeHtml(t("import.player", "Player"))}</th>
+              <th class="small text-uppercase">${escapeHtml(t("import.team", "Team"))}</th>
+              <th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>
+            </tr>
+          </thead>
+          <tbody> ${rows} </tbody>
+        </table>
+      </div>
+      ${hiddenNote}
+    `;
   }
 
   /** Draws an import preview returned by the backend provider layer. */
@@ -239,13 +237,11 @@
     const matches = Array.isArray(preview?.matches) ? preview.matches : [];
     const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
     const event = preview?.event || {};
-    body.innerHTML = [
-      importSummaryTile(t("import.provider", "Provider"), importProviderName(preview)),
-      importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event")),
-      importSummaryTile(t("import.phase", "Phase"), event.phase || ""),
-      importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true }),
-      importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players.title", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`),
-      warnings.length
+    body.innerHTML = /* HTML */ `
+      ${importSummaryTile(t("import.provider", "Provider"), importProviderName(preview))} ${importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event"))}
+      ${importSummaryTile(t("import.phase", "Phase"), event.phase || "")} ${importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true })}
+      ${importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players.title", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`)}
+      ${warnings.length
         ? /* HTML */ `
             <div class="col-12">
               <div class="border border-warning rounded p-3">
@@ -257,12 +253,12 @@
               </div>
             </div>
           `
-        : "",
-      /* HTML */ `<div class="col-12"></div>`,
-      /* HTML */ `<h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>`,
-      importPlayersTable(players),
-      /* HTML */ `</div>`
-    ].join("");
+        : ""}
+      <div class="col-12">
+        <h3 class="fgc-title fs-6 lh-sm mb-2">${escapeHtml(t("import.players.title", "Players"))}</h3>
+        ${importPlayersTable(players)}
+      </div>
+    `;
     applyLanguage(body);
   }
 

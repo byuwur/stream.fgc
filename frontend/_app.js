@@ -971,7 +971,10 @@
       options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected> ${escapeHtml(selected)} </option> `);
     }
 
-    return [/* HTML */ `<option value=""></option>`].concat(options).join("");
+    return /* HTML */ `
+      <option value=""></option>
+      ${options.join("")}
+    `;
   }
 
   /** Builds simple key/value select options for rules and formats. */
@@ -989,7 +992,10 @@
       options.unshift(/* HTML */ `<option value="${escapeHtml(selected)}" selected>${escapeHtml(selected)}</option>`);
     }
 
-    return [/* HTML */ `<option value=""></option>`].concat(options).join("");
+    return /* HTML */ `
+      <option value=""></option>
+      ${options.join("")}
+    `;
   }
 
   /** Builds character select options with portrait metadata for Select2. */
@@ -1008,7 +1014,10 @@
       options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-portrait="${escapeHtml(FALLBACK_ASSET)}" selected> ${escapeHtml(selected)} </option> `);
     }
 
-    return [/* HTML */ `<option value=""></option>`].concat(options).join("");
+    return /* HTML */ `
+      <option value=""></option>
+      ${options.join("")}
+    `;
   }
 
   /** Replaces the game select options before Select2 is initialized. */
@@ -1435,26 +1444,18 @@
     const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
     const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
     const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
-    return [
-      /* HTML */ `<div class="d-flex gap-2 col-12 col-sm-6"></div>`,
-      /* HTML */ `<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame></div>`,
-      ...(side === 1
-        ? [
-            /* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image /> `,
-            /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`
-          ]
-        : [/* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image /> `]),
-      /* HTML */ `</div>`,
-      /* HTML */ `<div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame></div>`,
-      ...(side === 1
-        ? [/* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image /> `]
-        : [
-            /* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image /> `,
-            /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`
-          ]),
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`
-    ].join("");
+    return /* HTML */ `
+      <div class="d-flex gap-2 col-12 col-sm-6">
+        <div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>
+          <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(side === 1 ? character.portrait : playerImage)}" alt="${escapeHtml(side === 1 ? characterAlt : playerAlt)}" loading="lazy" data-fallback-image />
+          ${side === 1 ? /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>` : ""}
+        </div>
+        <div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>
+          <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(side === 1 ? playerImage : character.portrait)}" alt="${escapeHtml(side === 1 ? playerAlt : characterAlt)}" loading="lazy" data-fallback-image />
+          ${side === 1 ? "" : /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`}
+        </div>
+      </div>
+    `;
   }
 
   /** Returns the seed/player slot that can be swapped in the bracket graph. */
@@ -1499,21 +1500,19 @@
     const downLabel = t("match.score.down", "Decrease score");
     const scoreLabel = t("match.score.label", "Score");
     const upLabel = t("match.score.up", "Increase score");
-    return [
-      /* HTML */ `<div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}></div>`,
-      /* HTML */ `
+    return /* HTML */ `
+      <div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>
         <button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} title="${escapeHtml(downLabel)}" aria-label="${escapeHtml(downLabel)}">
           <i class="fas fa-minus" aria-hidden="true"></i>
         </button>
-      `,
-      /* HTML */ ` <input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${scoreValue}" ${inputAttr} title="${escapeHtml(scoreLabel)}" aria-label="${escapeHtml(scoreLabel)}" /> `,
-      /* HTML */ `
+
+        <input class="form-control text-center fw-bold" type="text" inputmode="none" readonly value="${scoreValue}" ${inputAttr} title="${escapeHtml(scoreLabel)}" aria-label="${escapeHtml(scoreLabel)}" />
+
         <button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${incAttrs} title="${escapeHtml(upLabel)}" aria-label="${escapeHtml(upLabel)}">
           <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
-      `,
-      /* HTML */ `</div>`
-    ].join("");
+      </div>
+    `;
   }
 
   /** Creates compact player and character media for bracket participant rows. */
@@ -1523,19 +1522,18 @@
     const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
     const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
     const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
-    return [
-      /* HTML */ `<div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media></div>`,
-      /* HTML */ `<div class="d-flex gap-2 align-items-center"></div>`,
-      /* HTML */ `<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-player-image></div>`,
-      /* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image /> `,
-      /* HTML */ `</div>`,
-      /* HTML */ `<div class="overflow-hidden rounded border flex-shrink-0" data-bracket-character-image></div>`,
-      /* HTML */ ` <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image /> `,
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`,
-      //`<span class="small fw-bold text-truncate d-inline-block text-center" data-bracket-character-label>${escapeHtml(character.name)}</span>`,
-      /* HTML */ `</div>`
-    ].join("");
+    return /* HTML */ `
+      <div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media>
+        <div class="d-flex gap-2 align-items-center">
+          <div class="overflow-hidden rounded border flex-shrink-0" data-bracket-player-image>
+            <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(playerImage)}" alt="${escapeHtml(playerAlt)}" loading="lazy" data-fallback-image />
+          </div>
+          <div class="overflow-hidden rounded border flex-shrink-0" data-bracket-character-image>
+            <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(character.portrait)}" alt="${escapeHtml(characterAlt)}" loading="lazy" data-fallback-image />
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   /** Creates one side of the current-match scoreboard. */
@@ -1552,46 +1550,29 @@
     const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
     const seed = swappableParticipantSeed(participant);
     const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}"` : "";
-    const swapLabel = t("match.swap_player", "Select player to swap");
-    const swapButton = seed
-      ? /* HTML */ `
-          <button
-            class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0"
-            type="button"
-            data-current-seed-swap="${seed}"
-            title="${escapeHtml(swapLabel)}"
-            aria-label="${escapeHtml(swapLabel)}"
-            style="width: 1.9rem; height: 1.9rem;">
-            <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-          </button>
-        `
-      : "";
-
-    return [
-      /* HTML */ `<article class="col-12 col-lg-5"></article>`,
-      /* HTML */ `<div class="h-100 border rounded p-3" ${opacity} data-match-card${swapAttrs}></div>`,
-      /* HTML */ `<div class="row g-3 align-items-stretch"></div>`,
-      /* HTML */ `<div class="col-12 d-flex flex-wrap gap-2 align-items-center justify-content-between"></div>`,
-      side === 1
-        ? /* HTML */ ` <p class="fgc-kicker m-0"> ${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))} </p> `
-        : /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`,
-      //swapButton,
-      side === 1
-        ? /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
-        : /* HTML */ ` <p class="fgc-kicker m-0"> ${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))} </p> `,
-      /* HTML */ `</div>`,
-      side === 1 ? matchMediaHTML(participant, side) : "",
-      /* HTML */ `<div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}"></div>`,
-      /* HTML */ `<h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>`,
-      /* HTML */ `<p class="mt-2 mb-0 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>`,
-      country,
-      complete ? /* HTML */ `<span class="fgc-title fs-4 mt-3">${score}</span>` : scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit }),
-      /* HTML */ `</div>`,
-      side === 1 ? "" : matchMediaHTML(participant, side),
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `</article>`
-    ].join("");
+    return /* HTML */ `
+      <article class="col-12 col-lg-5">
+        <div class="h-100 border rounded p-3" ${opacity} data-match-card${swapAttrs}>
+          <div class="row g-3 align-items-stretch">
+            <div class="col-12 d-flex flex-wrap gap-2 align-items-center justify-content-between">
+              ${side === 1
+                ? /* HTML */ ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `
+                : /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`}
+              ${side === 1
+                ? /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
+                : /* HTML */ ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `}
+            </div>
+            ${side === 1 ? matchMediaHTML(participant, side) : ""}
+            <div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}">
+              <h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>
+              <p class="mt-2 mb-0 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>
+              ${country} ${complete ? /* HTML */ `<span class="fgc-title fs-4 mt-3">${score}</span>` : scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit })}
+            </div>
+            ${side === 1 ? "" : matchMediaHTML(participant, side)}
+          </div>
+        </div>
+      </article>
+    `;
   }
 
   /** Draws a resolved current match into the event page. */
@@ -1613,29 +1594,28 @@
     const scoreLimit = eventRuleLimit(panel);
     const player1Score = clampScore(match?.state?.player1_score || 0, scoreLimit);
     const player2Score = clampScore(match?.state?.player2_score || 0, scoreLimit);
-    body.innerHTML = [
-      matchPlayerCard(match, 1),
-      /* HTML */ `<div class="col-12 col-lg-2 d-flex align-items-stretch"></div>`,
-      /* HTML */ ` <div class="w-100 border rounded d-flex flex-column gap-2 align-items-center justify-content-center text-center p-3" data-match-card> </div> `,
-      /* HTML */ `<div class="d-flex gap-2 align-items-center justify-content-center"></div>`,
-      /* HTML */ `<strong class="fgc-title fs-1 lh-1">${player1Score}</strong>`,
-      /* HTML */ `<span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match.vs", "VS"))}</span>`,
-      /* HTML */ `<strong class="fgc-title fs-1 lh-1">${player2Score}</strong>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `
-        <button
-          class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3"
-          type="button"
-          data-current-side-swap
-          title="${escapeHtml(t("match.swap_sides", "Swap sides"))}"
-          aria-label="${escapeHtml(t("match.swap_sides", "Swap sides"))}">
-          <i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match.swap_sides", "Swap sides"))}</span>
-        </button>
-      `,
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`,
-      matchPlayerCard(match, 2)
-    ].join("");
+    body.innerHTML = /* HTML */ `
+      ${matchPlayerCard(match, 1)}
+      <div class="col-12 col-lg-2 d-flex align-items-stretch">
+        <div class="w-100 border rounded d-flex flex-column gap-2 align-items-center justify-content-center text-center p-3" data-match-card>
+          <div class="d-flex gap-2 align-items-center justify-content-center">
+            <strong class="fgc-title fs-1 lh-1">${player1Score}</strong>
+            <span class="fw-bold small" style="color: var(--fgc-brand-soft);">${escapeHtml(t("match.vs", "VS"))}</span>
+            <strong class="fgc-title fs-1 lh-1">${player2Score}</strong>
+          </div>
+
+          <button
+            class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center justify-content-center mt-3"
+            type="button"
+            data-current-side-swap
+            title="${escapeHtml(t("match.swap_sides", "Swap sides"))}"
+            aria-label="${escapeHtml(t("match.swap_sides", "Swap sides"))}">
+            <i class="fas fa-exchange-alt" aria-hidden="true"></i><span>${escapeHtml(t("match.swap_sides", "Swap sides"))}</span>
+          </button>
+        </div>
+      </div>
+      ${matchPlayerCard(match, 2)}
+    `;
 
     body.querySelectorAll("[data-fallback-image]").forEach(function (image) {
       setImageFallback(image);
@@ -1878,14 +1858,15 @@
     const selected = String(selectedCountry || "").toUpperCase();
     const options = countryCodes.slice();
     if (selected && !options.includes(selected)) options.unshift(selected);
-    return [/* HTML */ `<option value=""></option>`]
-      .concat(
-        options.map(function (code) {
+    return /* HTML */ `
+      <option value=""></option>
+      ${options
+        .map(function (code) {
           const name = countryName(code);
-          return /* HTML */ ` <option value="${escapeHtml(code)}" data-country-name="${escapeHtml(name)}" ${code === selected ? " selected" : ""}> ${escapeHtml(countryLabel(code))} </option> `;
+          return /* HTML */ ` <option value="${escapeHtml(code)}" data-country-name="${escapeHtml(name)}" ${code === selected ? " selected" : ""}>${escapeHtml(countryLabel(code))}</option> `;
         })
-      )
-      .join("");
+        .join("")}
+    `;
   }
 
   /** Validates ISO2 country codes before rendering flag images. */
@@ -2005,121 +1986,113 @@
   function playerCard(playerID, player) {
     const playerName = player?.name || `${t("players.player", "Player")} ${playerID}`;
     const portraitAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", playerName);
-    return [
-      /* HTML */ `<div class="col-12 col-md-6"></div>`,
-      /* HTML */ `<form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}"></form>`,
-      /* HTML */ `<div class="row g-3 align-items-stretch"></div>`,
-      /* HTML */ `<section class="col-12 col-md-4 d-flex"></section>`,
-      /* HTML */ `
-        <div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame>
-          <img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="${escapeHtml(portraitAlt)}" loading="lazy" />
-        </div>
-      `,
-      /* HTML */ `</section>`,
-      /* HTML */ `<section class="col-12 col-md-8 d-flex flex-column"></section>`,
-      /* HTML */ `
-        <div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading>
-          <span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players.player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong>
-        </div>
-      `,
-      /* HTML */ `<div class="row g-3"></div>`,
-      /* HTML */ `
-        <label class="col-12 col-xl-6 m-0" ><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.name">Name</span
-          ><input
-            class="form-control"
-            type="text"
-            name="name"
-            autocomplete="off"
-            value="${escapeHtml(player?.name || "")}"
-            title="${escapeHtml(t("player.name.title", "Edit player name"))}"
-            aria-label="${escapeHtml(t("player.name.title", "Edit player name"))}"
-        /></label>
-      `,
-      /* HTML */ `
-        <label class="col-12 col-xl-6 m-0" ><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.team">Team</span
-          ><input
-            class="form-control"
-            type="text"
-            name="team"
-            autocomplete="off"
-            value="${escapeHtml(player?.team || "")}"
-            title="${escapeHtml(t("player.team.title", "Edit player team"))}"
-            aria-label="${escapeHtml(t("player.team.title", "Edit player team"))}"
-        /></label>
-      `,
-      /* HTML */ `
-        <label class="col-12 col-xl-6 m-0" ><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.country">Country</span
-          ><select
-            class="form-select"
-            name="country"
-            data-enhance="select2"
-            data-select-template="country"
-            title="${escapeHtml(t("player.country.title", "Choose player country"))}"
-            aria-label="${escapeHtml(t("player.country.title", "Choose player country"))}">
-            ${countryOptions(player?.country)}
-          </select></label
-        >
-      `,
-      /* HTML */ `
-        <label class="col-12 col-xl-6 m-0" ><span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.character">Character</span
-          ><select
-            class="form-select"
-            name="character"
-            data-enhance="select2"
-            data-select-template="character"
-            title="${escapeHtml(t("player.character.title", "Choose player character"))}"
-            aria-label="${escapeHtml(t("player.character.title", "Choose player character"))}">
-            ${characterOptions(player?.character)}
-          </select></label
-        >
-      `,
-      /* HTML */ `</div>`,
-      /* HTML */ `<div class="row g-2 align-items-stretch mt-auto pt-3"></div>`,
-      /* HTML */ `
-        <div class="col-12 col-sm-auto">
-          <div
-            class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2"
-            data-player-dropzone
-            role="button"
-            tabindex="0"
-            title="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}"
-            aria-label="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}">
-            <div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm">
-              <i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player.portrait.drop">Drop or click image</span>
-            </div>
+    return /* HTML */ `
+      <div class="col-12 col-md-6">
+        <form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}">
+          <div class="row g-3 align-items-stretch">
+            <section class="col-12 col-md-4 d-flex">
+              <div class="ratio ratio-1x1 overflow-hidden rounded border w-100 mx-auto mx-md-0" data-player-portrait-frame>
+                <img class="w-100 h-100 object-fit-cover" data-player-portrait src="${escapeHtml(playerPortraitPath(playerID))}" alt="${escapeHtml(portraitAlt)}" loading="lazy" />
+              </div>
+            </section>
+            <section class="col-12 col-md-8 d-flex flex-column">
+              <div class="d-inline-flex gap-2 align-items-baseline text-nowrap mb-3" data-section-heading>
+                <span class="fgc-kicker fgc-title fs-6 lh-1 m-0" data-i18n="players.player">Player</span><strong class="fgc-title d-inline-block fs-4 lh-1">${escapeHtml(playerID)}</strong>
+              </div>
+
+              <div class="row g-3">
+                <label class="col-12 col-xl-6 m-0">
+                  <span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.name">Name</span>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="name"
+                    autocomplete="off"
+                    value="${escapeHtml(player?.name || "")}"
+                    title="${escapeHtml(t("player.name.title", "Edit player name"))}"
+                    aria-label="${escapeHtml(t("player.name.title", "Edit player name"))}" />
+                </label>
+
+                <label class="col-12 col-xl-6 m-0">
+                  <span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.team">Team</span>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="team"
+                    autocomplete="off"
+                    value="${escapeHtml(player?.team || "")}"
+                    title="${escapeHtml(t("player.team.title", "Edit player team"))}"
+                    aria-label="${escapeHtml(t("player.team.title", "Edit player team"))}" />
+                </label>
+
+                <label class="col-12 col-xl-6 m-0">
+                  <span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.country">Country</span>
+                  <select
+                    class="form-select"
+                    name="country"
+                    data-enhance="select2"
+                    data-select-template="country"
+                    title="${escapeHtml(t("player.country.title", "Choose player country"))}"
+                    aria-label="${escapeHtml(t("player.country.title", "Choose player country"))}">
+                    ${countryOptions(player?.country)}
+                  </select>
+                </label>
+
+                <label class="col-12 col-xl-6 m-0">
+                  <span class="d-block mb-2 fw-bold" data-field-label data-i18n="player.character">Character</span>
+                  <select
+                    class="form-select"
+                    name="character"
+                    data-enhance="select2"
+                    data-select-template="character"
+                    title="${escapeHtml(t("player.character.title", "Choose player character"))}"
+                    aria-label="${escapeHtml(t("player.character.title", "Choose player character"))}">
+                    ${characterOptions(player?.character)}
+                  </select>
+                </label>
+              </div>
+              <div class="row g-2 align-items-stretch mt-auto pt-3">
+                <div class="col-12 col-sm-auto">
+                  <div
+                    class="dropzone d-inline-flex align-items-center justify-content-center rounded w-100 px-3 py-2"
+                    data-player-dropzone
+                    role="button"
+                    tabindex="0"
+                    title="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}"
+                    aria-label="${escapeHtml(t("player.portrait.drop.title", "Upload player portrait"))}">
+                    <div class="dz-message d-inline-flex gap-2 align-items-center justify-content-center m-0 text-center text-nowrap fw-bold lh-sm">
+                      <i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span data-i18n="player.portrait.drop">Drop or click image</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                  <button
+                    class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2"
+                    type="button"
+                    data-player-portrait-remove
+                    title="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}"
+                    aria-label="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}">
+                    <i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player.portrait.remove">Remove picture</span>
+                  </button>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                  <button
+                    class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2"
+                    type="submit"
+                    data-manual-save
+                    title="${escapeHtml(t("players.save.title", "Save this player now"))}"
+                    aria-label="${escapeHtml(t("players.save.title", "Save this player now"))}">
+                    <i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players.save">Save now</span>
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
-        </div>
-      `,
-      /* HTML */ `
-        <div class="col-12 col-sm-auto">
-          <button
-            class="btn btn-outline-danger d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2"
-            type="button"
-            data-player-portrait-remove
-            title="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}"
-            aria-label="${escapeHtml(t("player.portrait.remove.title", "Remove player portrait"))}">
-            <i class="fas fa-trash" aria-hidden="true"></i> <span data-i18n="player.portrait.remove">Remove picture</span>
-          </button>
-        </div>
-      `,
-      /* HTML */ `
-        <div class="col-12 col-sm-auto">
-          <button
-            class="btn btn-danger btn-sm d-inline-flex gap-2 align-items-center justify-content-center w-100 fw-bold py-2"
-            type="submit"
-            data-manual-save
-            title="${escapeHtml(t("players.save.title", "Save this player now"))}"
-            aria-label="${escapeHtml(t("players.save.title", "Save this player now"))}">
-            <i class="fas fa-save" aria-hidden="true"></i> <span data-i18n="players.save">Save now</span>
-          </button>
-        </div>
-      `,
-      /* HTML */ `</div>`,
-      /* HTML */ `</section>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `</form>`,
-      /* HTML */ `</div>`
-    ].join("");
+        </form>
+      </div>
+    `;
   }
 
   /** Initializes Select2 on every marked select inside root. */

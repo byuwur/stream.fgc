@@ -177,14 +177,12 @@
     const swapAttrs = admin && seed && !controlsLocked ? ` data-bracket-seed-player data-seed="${seed}"` : "";
     const flag =
       participant?.resolved && isISO2Code(country) && status !== "bye"
-        ? [
-            /* HTML */ `<span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country></span>`,
-            /* HTML */ `
+        ? /* HTML */ `
+            <span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country>
               <img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.9rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />
-            `,
-            /* HTML */ `<span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>`,
-            /* HTML */ `</span>`
-          ].join("")
+              <span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>
+            </span>
+          `
         : "";
     const scoreControl =
       admin && !controlsLocked
@@ -192,45 +190,40 @@
         : /* HTML */ `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
     const actionControls = controlsLocked ? "" : bracketParticipantActionsHTML(match, side, admin);
     const swapLabel = t("bracket.swap_player", "Select player to swap");
-    return [
-      /* HTML */ `
-        <div
-          class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}"
-          data-bracket-participant
-          data-status="${escapeHtml(status)}"
-          data-outcome="${winner ? "winner" : loser ? "loser" : ""}"
-          ${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>
+    return /* HTML */ `
+      <div
+        class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}"
+        data-bracket-participant
+        data-status="${escapeHtml(status)}"
+        data-outcome="${winner ? "winner" : loser ? "loser" : ""}"
+        ${winner ? ` data-winner="true"` : ""}${loser ? ` data-loser="true"` : ""}${swapAttrs}>
+        <div class="d-flex flex-nowrap gap-2 align-items-center">
+          <span class="small fw-bold flex-shrink-0" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>
+          ${flag} ${bracketParticipantMediaHTML(participant)}
+          <span class="min-w-0 flex-grow-1">
+            <span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>
+            ${team ? /* HTML */ `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : ""}
+          </span>
+          ${reason && (winner || loser) ? /* HTML */ `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : ""}
+          <div class="d-flex flex-nowrap gap-1 align-items-center justify-content-end flex-shrink-0 ms-2" data-bracket-player-controls>
+            ${scoreControl} ${actionControls}
+            ${swapAttrs && !controlsLocked
+              ? /* HTML */ `
+                  <button
+                    class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                    type="button"
+                    data-bracket-seed-swap="${seed}"
+                    title="${escapeHtml(swapLabel)}"
+                    aria-label="${escapeHtml(swapLabel)}"
+                    style="width: 1.9rem; height: 1.9rem;">
+                    <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                  </button>
+                `
+              : ""}
+          </div>
         </div>
-      `,
-      /* HTML */ `<div class="d-flex flex-nowrap gap-2 align-items-center"></div>`,
-      /* HTML */ `<span class="small fw-bold flex-shrink-0" style="color: var(--fgc-brand-soft);">${escapeHtml(playerID || "-")}</span>`,
-      flag,
-      bracketParticipantMediaHTML(participant),
-      /* HTML */ `<span class="min-w-0 flex-grow-1"></span>`,
-      /* HTML */ `<span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>`,
-      team ? /* HTML */ `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : "",
-      /* HTML */ `</span>`,
-      reason && (winner || loser) ? /* HTML */ `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : "",
-      /* HTML */ ` <div class="d-flex flex-nowrap gap-1 align-items-center justify-content-end flex-shrink-0 ms-2" data-bracket-player-controls> </div> `,
-      scoreControl,
-      actionControls,
-      swapAttrs && !controlsLocked
-        ? /* HTML */ `
-            <button
-              class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0"
-              type="button"
-              data-bracket-seed-swap="${seed}"
-              title="${escapeHtml(swapLabel)}"
-              aria-label="${escapeHtml(swapLabel)}"
-              style="width: 1.9rem; height: 1.9rem;">
-              <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-            </button>
-          `
-        : "",
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`
-    ].join("");
+      </div>
+    `;
   }
 
   /** Builds admin-only result controls for one bracket participant row, hidden after completion. */
@@ -247,8 +240,8 @@
     const winLabel = t("bracket.win.title", "Mark this player as the winner");
     const dqLabel = t("bracket.dq.title", "Disqualify this player");
     const byeLabel = bye ? t("bracket.live.title", "Remove BYE from this player") : t("bracket.bye.title", "Give this player a BYE");
-    return [
-      canDecide
+    return /* HTML */ `
+      ${canDecide
         ? /* HTML */ `
             <button
               class="btn btn-outline-success btn-sm"
@@ -261,8 +254,8 @@
               ${escapeHtml(t("bracket.win", "Win"))}
             </button>
           `
-        : "",
-      canDecide
+        : ""}
+      ${canDecide
         ? /* HTML */ `
             <button
               class="btn btn-outline-danger btn-sm"
@@ -276,8 +269,8 @@
               ${escapeHtml(t("bracket.dq", "DQ"))}
             </button>
           `
-        : "",
-      seedParticipant
+        : ""}
+      ${seedParticipant
         ? /* HTML */ `
             <button
               class="btn btn-outline-warning btn-sm"
@@ -291,8 +284,8 @@
               ${escapeHtml(bye ? t("bracket.live", "Live") : t("bracket.bye", "BYE"))}
             </button>
           `
-        : ""
-    ].join("");
+        : ""}
+    `;
   }
 
   /** Builds admin-only match-level controls that are not tied to one player. */
@@ -314,33 +307,18 @@
         <i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span>
       </button>
     `;
-    const complete = match?.status === "complete" || Boolean(match?.winner_id || match?.state?.winner);
-    if (complete) {
-      return [
-        /* HTML */ `<div class="d-flex flex-wrap gap-2 mt-2"></div>`,
-        currentButton,
-        match?.winner_id || match?.state?.winner
+    return /* HTML */ `
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        ${currentButton}
+        ${match?.winner_id || match?.state?.winner
           ? /* HTML */ `
               <button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">
                 ${escapeHtml(t("bracket.clear", "Clear"))}
               </button>
             `
-          : "",
-        /* HTML */ `</div>`
-      ].join("");
-    }
-    return [
-      /* HTML */ `<div class="d-flex flex-wrap gap-2 mt-2"></div>`,
-      currentButton,
-      match?.winner_id
-        ? /* HTML */ `
-            <button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">
-              ${escapeHtml(t("bracket.clear", "Clear"))}
-            </button>
-          `
-        : "",
-      /* HTML */ `</div>`
-    ].join("");
+          : ""}
+      </div>
+    `;
   }
 
   /** Builds one bracket match card. */
@@ -348,58 +326,53 @@
     const scoreLimit = parseRuleValue(projection?.event?.rule || fgc.currentState?.event?.rule || 3) || 3;
     const score1 = clampScore(match?.state?.player1_score || 0, scoreLimit);
     const score2 = clampScore(match?.state?.player2_score || 0, scoreLimit);
-    return [
-      /* HTML */ `<article class="w-100" data-bracket-match-wrap></article>`,
-      /* HTML */ ` <div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}"> </div> `,
-      /* HTML */ `<div class="d-flex gap-2 align-items-start justify-content-between mb-2"></div>`,
-      /* HTML */ `<div class="min-w-0"></div>`,
-      /* HTML */ `<p class="fgc-kicker m-0">${escapeHtml(match?.id || "")}</p>`,
-      /* HTML */ `<h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket.match", "Match"))}</h4>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `<span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `<div class="d-flex flex-column gap-2"></div>`,
-      bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection),
-      bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection),
-      /* HTML */ `</div>`,
-      bracketMatchActionsHTML(match, admin),
-      /* HTML */ `</div>`,
-      /* HTML */ `</article>`
-    ].join("");
+    return /* HTML */ `
+      <article class="w-100" data-bracket-match-wrap>
+        <div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}">
+          <div class="d-flex gap-2 align-items-start justify-content-between mb-2">
+            <div class="min-w-0">
+              <p class="fgc-kicker m-0">${escapeHtml(match?.id || "")}</p>
+              <h4 class="fgc-title fs-6 lh-sm m-0 text-truncate">${escapeHtml(match?.name || t("bracket.match", "Match"))}</h4>
+            </div>
+            <span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>
+          </div>
+          <div class="d-flex flex-column gap-2"> ${bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection)} ${bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection)} </div>
+          ${bracketMatchActionsHTML(match, admin)}
+        </div>
+      </article>
+    `;
   }
 
   /** Builds one bracket section with Bootstrap columns for rounds. */
   function bracketSectionHTML(section, admin, projection) {
     const rounds = section?.rounds || [];
-    return [
-      /* HTML */ `<section class="col-12 mb-3" data-bracket-section="${escapeHtml(section?.key || "")}"></section>`,
-      /* HTML */ `<div class="d-flex flex-column gap-3"></div>`,
-      /* HTML */ `<div class="d-flex gap-2 align-items-baseline"></div>`,
-      /* HTML */ `<p class="fgc-kicker m-0">${escapeHtml(section?.name || "")}</p>`,
-      /* HTML */ `<span class="small" style="color: var(--fgc-text-muted);">${rounds.length}</span>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `<div class="d-flex flex-nowrap overflow-auto pb-2" data-bracket-lane></div>`,
-      rounds
-        .map(function (round) {
-          const matches = (round.matches || []).map(function (match) {
-            return bracketMatchHTML(match, admin, projection);
-          });
-          return [
-            /* HTML */ `<div class="flex-shrink-0 pe-4" data-bracket-round></div>`,
-            /* HTML */ `<div class="w-100 d-flex flex-column gap-2"></div>`,
-            /* HTML */ `<h3 class="fgc-title fs-6 lh-sm m-0">${escapeHtml(round.name || "")}</h3>`,
-            /* HTML */ `<div class="d-flex flex-column gap-3" data-bracket-round-matches></div>`,
-            matches.join(""),
-            /* HTML */ `</div>`,
-            /* HTML */ `</div>`,
-            /* HTML */ `</div>`
-          ].join("");
-        })
-        .join(""),
-      /* HTML */ `</div>`,
-      /* HTML */ `</div>`,
-      /* HTML */ `</section>`
-    ].join("");
+    return /* HTML */ `
+      <section class="col-12 mb-3" data-bracket-section="${escapeHtml(section?.key || "")}">
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex gap-2 align-items-baseline">
+            <p class="fgc-kicker m-0">${escapeHtml(section?.name || "")}</p>
+            <span class="small" style="color: var(--fgc-text-muted);">${rounds.length}</span>
+          </div>
+          <div class="d-flex flex-nowrap overflow-auto pb-2" data-bracket-lane>
+            ${rounds
+              .map(function (round) {
+                const matches = (round.matches || []).map(function (match) {
+                  return bracketMatchHTML(match, admin, projection);
+                });
+                return /* HTML */ `
+                  <div class="flex-shrink-0 pe-4" data-bracket-round>
+                    <div class="w-100 d-flex flex-column gap-2">
+                      <h3 class="fgc-title fs-6 lh-sm m-0">${escapeHtml(round.name || "")}</h3>
+                      <div class="d-flex flex-column gap-3" data-bracket-round-matches>${matches.join("")}</div>
+                    </div>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   /** Draws a backend bracket projection into either admin or overlay root. */
