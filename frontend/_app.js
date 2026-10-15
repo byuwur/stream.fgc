@@ -71,7 +71,7 @@
   let charactersGame = null;
   let countryCodes = [];
   let countryNames = {};
-  let backgroundSyncing = false;
+  let backgroundSync = null;
   let generatedBackendPromise = null;
   const countryNameCache = {};
   const autosaveForms = new WeakMap();
@@ -936,21 +936,23 @@
     });
   }
 
-  /** Keeps #spa-bg aligned with the selected game on any SPA route. */
-  async function syncSpaBackground() {
-    if (backgroundSyncing) return;
-    backgroundSyncing = true;
-    try {
-      const app = await waitForBackend();
-      if (!app) return;
-      const state = currentState || (typeof app.LoadTournament === "function" ? await app.LoadTournament() : null);
-      await ensureGameCatalog(app);
-      applyGameBackgroundFromState(state);
-    } catch (error) {
-      console.warn("Could not sync SPA background", error);
-    } finally {
-      backgroundSyncing = false;
-    }
+  /** Shares pending background work so reloads wait and apply the latest tournament. */
+  function syncSpaBackground() {
+    if (backgroundSync) return backgroundSync;
+    backgroundSync = (async () => {
+      try {
+        const app = await waitForBackend();
+        if (!app) return;
+        const state = currentState || (typeof app.LoadTournament === "function" ? await app.LoadTournament() : null);
+        await ensureGameCatalog(app);
+        applyGameBackgroundFromState(currentState || state);
+      } catch (error) {
+        console.warn("Could not sync SPA background", error);
+      } finally {
+        backgroundSync = null;
+      }
+    })();
+    return backgroundSync;
   }
 
   /** Builds game select options with logo metadata for Select2. */
