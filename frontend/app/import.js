@@ -9,10 +9,13 @@
 /**
  * Registers this page controller on the shared Stream.FGC browser namespace.
  * @param {Window} global Browser window provided by Wails WebView or a regular browser.
+ * @returns {void}
+ * @throws {Error}
  */
 (function (global) {
   const fgc = global.StreamFGC;
   if (!fgc) throw new Error("StreamFGC core must load before app/import.js");
+  if (fgc.imports?.initialized) return;
 
   const {
     applyLanguage,
@@ -37,7 +40,11 @@
   const { FALLBACK_ASSET } = fgc.constants;
   const importUndoStates = new WeakMap();
 
-  /** Reads provider API keys from the import integrations form. */
+  /**
+   * Reads provider API keys from the import integrations form.
+   * @param {unknown} page Page.
+   * @returns {Object}
+   */
   function readImportIntegrationsForm(page) {
     const form = page.querySelector("[data-import-integrations-form]");
     if (!(form instanceof HTMLFormElement)) return { startgg: { api_key: "" } };
@@ -48,7 +55,12 @@
     };
   }
 
-  /** Fills provider API key fields from saved integration settings. */
+  /**
+   * Fills provider API key fields from saved integration settings.
+   * @param {unknown} page Page.
+   * @param {Object<string, unknown>} settings Validated resource values; helpers may read or update this shared object.
+   * @returns {void}
+   */
   function fillImportIntegrationsForm(page, settings) {
     const form = page.querySelector("[data-import-integrations-form]");
     if (!(form instanceof HTMLFormElement)) return;
@@ -56,7 +68,11 @@
     if (startGGInput) startGGInput.value = settings?.startgg?.api_key || "";
   }
 
-  /** Loads provider API keys from the backend into the Import page. */
+  /**
+   * Loads provider API keys from the backend into the Import page.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function loadImportIntegrations(page) {
     const app = await waitForBackend();
     if (!app || typeof app.LoadImportIntegrations !== "function") {
@@ -74,7 +90,11 @@
     }
   }
 
-  /** Loads provider options into the Import form's provider select. */
+  /**
+   * Loads provider options into the Import form's provider select.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function loadImportProviderSelect(page) {
     try {
       await ensureProviderCatalog();
@@ -85,7 +105,11 @@
     }
   }
 
-  /** Saves provider API keys through Go so the frontend never writes files directly. */
+  /**
+   * Saves provider API keys through Go so the frontend never writes files directly.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function saveImportIntegrations(page) {
     const app = await waitForBackend();
     if (!app || typeof app.SaveImportIntegrations !== "function") {
@@ -109,34 +133,57 @@
     }
   }
 
-  /** Reads the selected provider key from the import form. */
+  /**
+   * Reads the selected provider key from the import form.
+   * @param {unknown} page Page.
+   * @returns {string}
+   */
   function readImportProvider(page) {
     const form = page.querySelector("[data-import-form]");
     if (!(form instanceof HTMLFormElement)) return "";
     return formControl(form, "provider")?.value.trim() || "";
   }
 
-  /** Reads the tournament URL from the import form. */
+  /**
+   * Reads the tournament URL from the import form.
+   * @param {unknown} page Page.
+   * @returns {string}
+   */
   function readImportURL(page) {
     const form = page.querySelector("[data-import-form]");
     if (!(form instanceof HTMLFormElement)) return "";
     return formControl(form, "url")?.value.trim() || "";
   }
 
-  /** Enables undo only when the page has a saved pre-import tournament snapshot. */
+  /**
+   * Enables undo only when the page has a saved pre-import tournament snapshot.
+   * @param {unknown} page Page.
+   * @param {unknown} ready Ready.
+   * @returns {void}
+   */
   function setImportUndoReady(page, ready) {
     const button = page.querySelector("[data-import-undo]");
     if (button instanceof HTMLButtonElement) button.disabled = !ready;
   }
 
-  /** Enables import only after a successful preview of the current URL. */
+  /**
+   * Enables import only after a successful preview of the current URL.
+   * @param {unknown} page Page.
+   * @param {unknown} ready Ready.
+   * @param {string} [url=""] URL to inspect, request, or display.
+   * @returns {void}
+   */
   function setImportReady(page, ready, url = "") {
     page.dataset.previewUrl = ready ? url : "";
     const button = page.querySelector("[data-import-apply]");
     if (button instanceof HTMLButtonElement) button.disabled = !ready;
   }
 
-  /** Reapplies Import/Undo disabled state after temporary page-wide locks. */
+  /**
+   * Reapplies Import/Undo disabled state after temporary page-wide locks.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function syncImportActionButtons(page) {
     const readyURL = page.dataset.previewUrl || "";
     const importButton = page.querySelector("[data-import-apply]");
@@ -144,12 +191,22 @@
     setImportUndoReady(page, importUndoStates.has(page));
   }
 
-  /** Formats a provider name from an import preview. */
+  /**
+   * Formats a provider name from an import preview.
+   * @param {unknown} preview Preview.
+   * @returns {unknown}
+   */
   function importProviderName(preview) {
     return preview?.provider_name || preview?.provider || t("import.unknown_provider", "Unknown provider");
   }
 
-  /** Renders one small import summary tile. */
+  /**
+   * Renders one small import summary tile.
+   * @param {string} label Human-readable label.
+   * @param {unknown} value Value supplied by the caller.
+   * @param {Object} options Options that configure this operation.
+   * @returns {string}
+   */
   function importSummaryTile(label, value, options) {
     const body = options?.html ? String(value || "") : escapeHtml(value);
     return /* HTML */ `
@@ -162,7 +219,11 @@
     `;
   }
 
-  /** Renders the imported game as full catalog name and logo when supported. */
+  /**
+   * Renders the imported game as full catalog name and logo when supported.
+   * @param {string} game Stored game identifier.
+   * @returns {string}
+   */
   function importGameHTML(game) {
     const rawGame = String(game?.key || game?.name || game || "").trim();
     const entry = gameCatalogEntry(rawGame);
@@ -178,7 +239,11 @@
     `;
   }
 
-  /** Renders an imported ISO2 country with its flag and localized label. */
+  /**
+   * Renders an imported ISO2 country with its flag and localized label.
+   * @param {unknown} country Country.
+   * @returns {unknown}
+   */
   function importCountryHTML(country) {
     const code = String(country || "").toUpperCase();
     if (!code) return "";
@@ -191,10 +256,14 @@
     `;
   }
 
-  /** Builds the imported player preview table. */
+  /**
+   * Builds the imported player preview table.
+   * @param {unknown} players Players.
+   * @returns {string}
+   */
   function importPlayersTable(players) {
     if (!players.length) {
-      return /* HTML */ ` <div class="fgc-empty border rounded p-3 text-center"> ${escapeHtml(t("import.no_players", "No players found in this import."))} </div> `;
+      return /* HTML */ ` <div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div> `;
     }
     const rows = players
       .slice(0, 64)
@@ -210,7 +279,7 @@
       })
       .join("");
     const hiddenCount = Math.max(0, players.length - 64);
-    const hiddenNote = hiddenCount ? /* HTML */ ` <p class="mt-2 mb-0 small" data-muted-text> ${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))} </p> ` : "";
+    const hiddenNote = hiddenCount ? /* HTML */ ` <p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p> ` : "";
     return /* HTML */ `
       <div class="table-responsive border rounded p-2" data-import-preview-table>
         <table class="table table-dark align-middle m-0">
@@ -222,14 +291,21 @@
               <th class="small text-uppercase">${escapeHtml(t("import.country", "Country"))}</th>
             </tr>
           </thead>
-          <tbody> ${rows} </tbody>
+          <tbody>
+            ${rows}
+          </tbody>
         </table>
       </div>
       ${hiddenNote}
     `;
   }
 
-  /** Draws an import preview returned by the backend provider layer. */
+  /**
+   * Draws an import preview returned by the backend provider layer.
+   * @param {unknown} page Page.
+   * @param {unknown} preview Preview.
+   * @returns {void}
+   */
   function renderImportPreview(page, preview) {
     const body = page.querySelector("[data-import-preview-body]");
     if (!(body instanceof HTMLElement)) return;
@@ -262,7 +338,11 @@
     applyLanguage(body);
   }
 
-  /** Loads an external tournament preview through the backend. */
+  /**
+   * Loads an external tournament preview through the backend.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function previewTournamentImport(page) {
     const app = await waitForBackend();
     if (!app || typeof app.PreviewTournamentImport !== "function") {
@@ -292,7 +372,11 @@
     }
   }
 
-  /** Imports the previously previewed tournament into local JSON through Go. */
+  /**
+   * Imports the previously previewed tournament into local JSON through Go.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function importTournamentLink(page) {
     const app = await waitForBackend();
     if (!app || typeof app.ImportTournamentLink !== "function") {
@@ -324,7 +408,11 @@
     }
   }
 
-  /** Restores the tournament JSON captured immediately before the last import. */
+  /**
+   * Restores the tournament JSON captured immediately before the last import.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function undoTournamentImport(page) {
     const app = await waitForBackend();
     const state = importUndoStates.get(page);
@@ -355,7 +443,11 @@
     }
   }
 
-  /** Binds the import page form and action buttons. */
+  /**
+   * Binds the import page form and action buttons.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindImportPage(page) {
     if (page.dataset.bound === "true") return;
     page.dataset.bound = "true";
@@ -399,6 +491,7 @@
   }
 
   fgc.imports = {
+    initialized: true,
     bindPage: bindImportPage
   };
 })(window);

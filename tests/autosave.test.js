@@ -5,7 +5,11 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const path = require("node:path");
 
-/** Loads the actual controller with controlled timers and minimal form surfaces. */
+/**
+ * Loads the actual controller with controlled timers and minimal form surfaces.
+ * @param {Object} app Backend service or application bindings.
+ * @returns {Object}
+ */
 function runtime(app) {
   const timers = new Map();
   let next = 0;
@@ -40,9 +44,16 @@ function runtime(app) {
   };
   // Expose the private background synchronization only in this test context.
   const source = fs.readFileSync(path.join(__dirname, "../frontend/_app.js"), "utf8").replace("Object.assign(fgc, {", "Object.assign(fgc, { syncSpaBackground,");
-  vm.runInNewContext(source, { window, document, URL, HTMLElement });
+  const context = { window, document, URL, HTMLElement };
+  vm.runInNewContext(source, context);
   return {
     api: window.StreamFGC,
+    reload() {
+      vm.runInNewContext(source, context);
+    },
+    install(file) {
+      vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../frontend", file), "utf8"), context);
+    },
     timers,
     background,
     enable() {
@@ -52,7 +63,10 @@ function runtime(app) {
   };
 }
 
-/** Provides the native form methods used by the real autosave implementation. */
+/**
+ * Provides the native form methods used by the real autosave implementation.
+ * @returns {Object}
+ */
 function form() {
   return {
     isConnected: true,
@@ -204,4 +218,21 @@ test("background synchronization applies the latest tournament after a delayed c
   r.api.currentState = { event: { game: "old" } };
   await r.api.syncSpaBackground();
   assert.equal(r.background.style.backgroundImage, 'url("old.jpg")');
+});
+
+test("duplicate core and controller imports preserve installed services", () => {
+  const state = runtime({});
+  const autosave = state.api.bindAutosave;
+  state.reload();
+  assert.equal(state.api.bindAutosave, autosave);
+  for (const [file, key] of [
+    ["bracket", "bracket"],
+    ["import", "imports"],
+    ["players", "players"]
+  ]) {
+    state.install("app/" + file + ".js");
+    const controller = state.api[key];
+    state.install("app/" + file + ".js");
+    assert.equal(state.api[key], controller);
+  }
 });

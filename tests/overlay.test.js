@@ -8,7 +8,8 @@ const root = path.resolve(__dirname, "..");
 const window = { jQuery: function () {} };
 // Expose closure functions only in the test context; production keeps its existing API.
 const source = fs.readFileSync(path.join(root, "overlays/js/overlay.js"), "utf8").replace("global.StreamFGCOverlay = api;", "global.StreamFGCOverlay = { ...api, bracketHTML, championFromBracket, renderChampion };");
-vm.runInNewContext(source, { window });
+const context = { window };
+vm.runInNewContext(source, context);
 test("overlay shares backend participant provenance fixtures", () => {
   const cases = JSON.parse(fs.readFileSync(path.join(root, "backend/testdata/participant-resolution.json")));
   for (const fixture of cases) {
@@ -39,7 +40,11 @@ test("champion requires a completed final", () => {
 
 test("champion rendering clears prior text when no decisive final exists", () => {
   const elements = new Map();
-  /** Implements only the jQuery surface touched by the actual champion renderer. */
+  /**
+   * Implements only the jQuery surface touched by the actual champion renderer.
+   * @param {HTMLElement} target Target element or value to update.
+   * @returns {unknown}
+   */
   function jquery(target) {
     if (typeof target === "function") return;
     if (typeof target === "object") return target;
@@ -186,4 +191,10 @@ test("bracket markup keeps match cards and player details inside their rounds", 
   }
   assert.equal(players, 2, "both player names stay inside their detail containers");
   assert.equal(stack.length, 0, "the assembled bracket is balanced");
+});
+
+test("duplicate overlay imports preserve the polling service", () => {
+  const installed = window.StreamFGCOverlay;
+  vm.runInNewContext(source, context);
+  assert.equal(window.StreamFGCOverlay, installed);
 });

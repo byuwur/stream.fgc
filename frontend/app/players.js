@@ -9,10 +9,13 @@
 /**
  * Registers this page controller on the shared Stream.FGC browser namespace.
  * @param {Window} global Browser window provided by Wails WebView or a regular browser.
+ * @returns {void}
+ * @throws {Error}
  */
 (function (global) {
   const fgc = global.StreamFGC;
   if (!fgc) throw new Error("StreamFGC core must load before app/players.js");
+  if (fgc.players?.initialized) return;
 
   const {
     applyAutosavePreference,
@@ -49,7 +52,12 @@
   } = fgc;
   const { EMPTY_STATE_CLASS, PLAYER_PORTRAIT_MAX_MB } = fgc.constants;
 
-  /** Returns autosave behavior for one player card. */
+  /**
+   * Returns autosave behavior for one player card.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {unknown}
+   */
   function playerAutosaveOptions(form, page) {
     return autosaveOptions(
       function () {
@@ -67,7 +75,11 @@
     );
   }
 
-  /** Renders player cards and binds each generated form. */
+  /**
+   * Renders player cards and binds each generated form.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function renderPlayers(page) {
     const list = page.querySelector("[data-player-list]");
     if (!list) return;
@@ -93,7 +105,11 @@
     applyLanguage(list);
   }
 
-  /** Loads tournament players, country codes, and character options for the page. */
+  /**
+   * Loads tournament players, country codes, and character options for the page.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function loadPlayers(page) {
     const scrollState = captureScrollState(page);
     const app = await waitForBackend();
@@ -125,7 +141,11 @@
     }
   }
 
-  /** Reads one player card into the backend Player shape. */
+  /**
+   * Reads one player card into the backend Player shape.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {Object}
+   */
   function readPlayerForm(form) {
     return {
       name: formControl(form, "name")?.value.trim() || "",
@@ -135,7 +155,12 @@
     };
   }
 
-  /** Persists one player card and returns its saved signature. */
+  /**
+   * Persists one player card and returns its saved signature.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {Promise<string|undefined>} The resulting asynchronous value.
+   */
   async function savePlayer(form, page) {
     const app = await waitForBackend();
     if (!app) {
@@ -159,7 +184,13 @@
     }
   }
 
-  /** Uploads a custom portrait through the backend filesystem API. */
+  /**
+   * Uploads a custom portrait through the backend filesystem API.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @param {File} file File to inspect, read, or upload.
+   * @returns {Promise<void>}
+   */
   async function uploadPlayerPortrait(form, page, file) {
     const app = await waitForBackend();
     if (!app || typeof app.SavePlayerPortrait !== "function") {
@@ -180,7 +211,12 @@
     }
   }
 
-  /** Removes a custom portrait through the backend filesystem API. */
+  /**
+   * Removes a custom portrait through the backend filesystem API.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {Promise<void>}
+   */
   async function removePlayerPortrait(form, page) {
     const app = await waitForBackend();
     if (!app || typeof app.RemovePlayerPortrait !== "function") {
@@ -200,7 +236,12 @@
     }
   }
 
-  /** Binds Dropzone to one player card without allowing direct filesystem writes. */
+  /**
+   * Binds Dropzone to one player card without allowing direct filesystem writes.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindPlayerPortraitDropzone(form, page) {
     const dropzoneElement = form.querySelector("[data-player-dropzone]");
     if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
@@ -236,7 +277,12 @@
     });
   }
 
-  /** Binds the remove portrait button for one player card. */
+  /**
+   * Binds the remove portrait button for one player card.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindPlayerPortraitRemove(form, page) {
     const removeButton = form.querySelector("[data-player-portrait-remove]");
     if (!(removeButton instanceof HTMLButtonElement) || removeButton.dataset.bound === "true") return;
@@ -246,7 +292,12 @@
     });
   }
 
-  /** Binds save, autosave, and portrait controls for one player card. */
+  /**
+   * Binds save, autosave, and portrait controls for one player card.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindPlayerForm(form, page) {
     if (form.dataset.bound === "true") return;
     form.dataset.bound = "true";
@@ -263,7 +314,11 @@
     bindAutosave(form, options);
   }
 
-  /** Binds the players page shell and triggers its initial load. */
+  /**
+   * Binds the players page shell and triggers its initial load.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindPlayerPage(page) {
     if (page.dataset.bound === "true") return;
     page.dataset.bound = "true";
@@ -271,6 +326,7 @@
   }
 
   fgc.players = {
+    initialized: true,
     bindPage: bindPlayerPage,
     load: loadPlayers
   };

@@ -14,18 +14,28 @@
 /**
  * Boots the Stream.FGC controller against the browser global object.
  * @param {Object} global The global object, usually `window` in Wails or a browser.
+ * @returns {void}
  */
 (function (global) {
+  if (global.StreamFGC?.initialized) return;
   const fgc = (global.StreamFGC = global.StreamFGC || {});
 
-  /** Builds a frontend-owned URL through SPA.js when possible. */
+  /**
+   * Builds a frontend-owned URL through SPA.js when possible.
+   * @param {string} path Path to normalize or resolve.
+   * @returns {unknown}
+   */
   function appAssetURL(path) {
     const normalized = `/${String(path || "").replace(/^\/+/, "")}`;
     if (typeof global.bySPA?.buildRequestURL === "function") return global.bySPA.buildRequestURL(normalized);
     return `.${normalized}`;
   }
 
-  /** Builds URLs for external runtime folders beside the repo or portable exe. */
+  /**
+   * Builds URLs for external runtime folders beside the repo or portable exe.
+   * @param {string} path Path to normalize or resolve.
+   * @returns {string}
+   */
   function externalURL(path) {
     const normalized = String(path || "").replace(/^\/+/, "");
     const homePath = String(global.bySPA?.HOME_PATH || global.location.origin || "").replace(/\/$/, "");
@@ -81,12 +91,18 @@
 
   // --- Backend and status helpers ---
 
-  /** Returns whichever Wails binding shape is available in development or production. */
+  /**
+   * Returns whichever Wails binding shape is available in development or production.
+   * @returns {unknown}
+   */
   function backendBinding() {
     return global.go?.backend?.App || global.go?.main?.App || global.streamFgcBackend || null;
   }
 
-  /** Loads generated Wails bindings on demand when the injected global is not present. */
+  /**
+   * Loads generated Wails bindings on demand when the injected global is not present.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadGeneratedBackend() {
     const existing = backendBinding();
     if (existing) return existing;
@@ -105,7 +121,13 @@
     return generatedBackendPromise;
   }
 
-  /** Rejects slow backend calls so status badges cannot spin forever. */
+  /**
+   * Rejects slow backend calls so status badges cannot spin forever.
+   * @param {Promise<unknown>} promise Asynchronous operation to wait for.
+   * @param {number} timeout Maximum wait in milliseconds.
+   * @param {string} label Human-readable label.
+   * @returns {unknown}
+   */
   function withTimeout(promise, timeout, label) {
     let timer = 0;
     return Promise.race([
@@ -120,7 +142,11 @@
     });
   }
 
-  /** Waits briefly for Wails to inject the backend during WebView startup. */
+  /**
+   * Waits briefly for Wails to inject the backend during WebView startup.
+   * @param {number} [timeout=2000] Maximum wait in milliseconds.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function waitForBackend(timeout = 2000) {
     const started = Date.now();
     while (Date.now() - started < timeout) {
@@ -133,17 +159,30 @@
     return backendBinding() || (await loadGeneratedBackend());
   }
 
-  /** Resolves one i18n string through SPA.js and falls back to a literal label. */
+  /**
+   * Resolves one i18n string through SPA.js and falls back to a literal label.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @returns {unknown}
+   */
   function t(key, fallback) {
     return global.byCommon?.getLangString?.(key, fallback) || fallback;
   }
 
-  /** Finds the current Stream.FGC page shell for a form or control. */
+  /**
+   * Finds the current Stream.FGC page shell for a form or control.
+   * @param {HTMLElement} element DOM element owned by this operation.
+   * @returns {HTMLElement|null|Document}
+   */
   function pageRoot(element) {
     return element.closest(".fgc-page") || document;
   }
 
-  /** Makes non-button controls, such as Dropzone targets, usable from the keyboard. */
+  /**
+   * Makes non-button controls, such as Dropzone targets, usable from the keyboard.
+   * @param {HTMLElement} element DOM element owned by this operation.
+   * @returns {void}
+   */
   function bindKeyboardClick(element) {
     if (!(element instanceof HTMLElement) || element.dataset.keyboardClickBound === "true") return;
     element.dataset.keyboardClickBound = "true";
@@ -154,7 +193,11 @@
     });
   }
 
-  /** Captures window and bracket lane scroll so async rerenders do not jump the operator around. */
+  /**
+   * Captures window and bracket lane scroll so async rerenders do not jump the operator around.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {Object}
+   */
   function captureScrollState(root = document) {
     const scrollElement = document.scrollingElement || document.documentElement;
     const containers = [];
@@ -180,9 +223,17 @@
     };
   }
 
-  /** Restores captured scroll immediately and after layout settles. */
+  /**
+   * Restores captured scroll immediately and after layout settles.
+   * @param {Object} snapshot Previously captured state to restore.
+   * @returns {void}
+   */
   function restoreScrollState(snapshot) {
     if (!snapshot) return;
+    /**
+     * Restore.
+     * @returns {void}
+     */
     const restore = function () {
       const scrollElement = document.scrollingElement || document.documentElement;
       if (scrollElement) {
@@ -203,7 +254,12 @@
     global.setTimeout(restore, 60);
   }
 
-  /** Chooses the Font Awesome icon that matches a status key/tone. */
+  /**
+   * Chooses the Font Awesome icon that matches a status key/tone.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} tone Visual status tone.
+   * @returns {string}
+   */
   function statusIconClass(key, tone) {
     if (String(key).includes("loading") || String(key).includes("saving") || String(key).includes("uploading") || String(key).includes("removing") || String(key).includes("swapping")) return "fas fa-spinner fa-spin";
     if (String(key).includes("pending")) return "fas fa-clock";
@@ -213,7 +269,14 @@
     return "fas fa-circle-info";
   }
 
-  /** Rebuilds a status badge with its i18n key, tone, icon, and text. */
+  /**
+   * Rebuilds a status badge with its i18n key, tone, icon, and text.
+   * @param {number} status Status code describing the result.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} tone Visual status tone.
+   * @returns {void}
+   */
   function setStatusElement(status, key, fallback, tone) {
     status.setAttribute("data-i18n", key);
     status.setAttribute("role", "status");
@@ -232,7 +295,11 @@
     status.append(icon, text);
   }
 
-  /** Re-applies status icons after SPA language changes replace text content. */
+  /**
+   * Re-applies status icons after SPA language changes replace text content.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function refreshStatusIcons(root = document) {
     root.querySelectorAll(".fgc-status[data-i18n]").forEach(function (status) {
       if (!(status instanceof HTMLElement)) return;
@@ -242,7 +309,12 @@
     });
   }
 
-  /** Finds the fixed global status badge before falling back to legacy page badges. */
+  /**
+   * Finds the fixed global status badge before falling back to legacy page badges.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @returns {HTMLElement|null}
+   */
   function statusTarget(root, selector) {
     const globalStatus = document.querySelector("[data-global-status]");
     if (globalStatus instanceof HTMLElement) return globalStatus;
@@ -253,47 +325,98 @@
     return fallback instanceof HTMLElement ? fallback : null;
   }
 
-  /** Sets the fixed top-right status badge used across every SPA page. */
+  /**
+   * Sets the fixed top-right status badge used across every SPA page.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setGlobalStatus(key, fallback, tone = "neutral") {
     const status = document.querySelector("[data-global-status]");
     if (!(status instanceof HTMLElement)) return;
     setStatusElement(status, key, fallback, tone);
   }
 
-  /** Updates one status element inside a page without touching the global status badge. */
+  /**
+   * Updates one status element inside a page without touching the global status badge.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setScopedStatus(root, selector, key, fallback, tone = "neutral") {
     const status = statusTarget(root, selector);
     if (status) setStatusElement(status, key, fallback, tone);
   }
 
-  /** Sets the event/current-match status badge. */
+  /**
+   * Sets the event/current-match status badge.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setStatus(root, key, fallback, tone = "neutral") {
     setScopedStatus(root, "[data-event-status]", key, fallback, tone);
   }
 
-  /** Sets the players page status badge. */
+  /**
+   * Sets the players page status badge.
+   * @param {unknown} page Page.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setPlayerStatus(page, key, fallback, tone = "neutral") {
     setScopedStatus(page, "[data-player-status]", key, fallback, tone);
   }
 
-  /** Sets the bracket page status badge. */
+  /**
+   * Sets the bracket page status badge.
+   * @param {unknown} page Page.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setBracketStatus(page, key, fallback, tone = "neutral") {
     setScopedStatus(page, "[data-bracket-status]", key, fallback, tone);
   }
 
-  /** Sets the import page status badge. */
+  /**
+   * Sets the import page status badge.
+   * @param {unknown} page Page.
+   * @param {string} key Stored property or lookup key.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {string} [tone="neutral"] Visual status tone.
+   * @returns {void}
+   */
   function setImportStatus(page, key, fallback, tone = "neutral") {
     setScopedStatus(page, "[data-import-status]", key, fallback, tone);
   }
 
-  /** Issues a render token so older bracket refreshes cannot overwrite newer ones. */
+  /**
+   * Issues a render token so older bracket refreshes cannot overwrite newer ones.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @returns {number} Calculated numeric value.
+   */
   function nextBracketLoadTicket(root) {
     const ticket = (bracketLoadTickets.get(root) || 0) + 1;
     bracketLoadTickets.set(root, ticket);
     return ticket;
   }
 
-  /** Checks if a bracket refresh is still the newest load for its page. */
+  /**
+   * Checks if a bracket refresh is still the newest load for its page.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {unknown} ticket Ticket.
+   * @returns {boolean}
+   */
   function isCurrentBracketLoad(root, ticket) {
     return bracketLoadTickets.get(root) === ticket;
   }
@@ -301,6 +424,7 @@
   /**
    * Opens the overlays folder through the Wails backend.
    * @param {HTMLElement} control Sidebar control that triggered the request.
+   * @returns {Promise<void>}
    */
   async function showOverlaysFolder(control) {
     const app = await waitForBackend();
@@ -322,6 +446,7 @@
   /**
    * Binds sidebar actions that need backend access instead of SPA navigation.
    * @param {Document|Element} root Document or SPA fragment that may contain sidebar controls.
+   * @returns {void}
    */
   function bindSidebarActions(root = document) {
     root.querySelectorAll("[data-overlays-open]").forEach(function (control) {
@@ -334,14 +459,21 @@
     });
   }
 
-  /** Keeps the sidebar copyright year current after SPA fragment loads. */
+  /**
+   * Keeps the sidebar copyright year current after SPA fragment loads.
+   * @returns {void}
+   */
   function refreshCurrentYear() {
     global.jQuery?.("#current-year").text(new Date().getFullYear());
   }
 
   // --- DOM and form helpers ---
 
-  /** Escapes strings before interpolating dynamic HTML. */
+  /**
+   * Escapes strings before interpolating dynamic HTML.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -351,13 +483,23 @@
       .replace(/'/g, "&#039;");
   }
 
-  /** Reads a named input/select from a form. */
+  /**
+   * Reads a named input/select from a form.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {string} name Field or item identifier.
+   * @returns {unknown}
+   */
   function formControl(form, name) {
     const control = form.elements.namedItem(name);
     return control instanceof HTMLInputElement || control instanceof HTMLSelectElement ? control : null;
   }
 
-  /** Selects an option by key, value, display name, or normalized text. */
+  /**
+   * Selects an option by key, value, display name, or normalized text.
+   * @param {HTMLSelectElement} select Select control to enhance.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {void}
+   */
   function setSelectValue(select, value) {
     const selected = String(value ?? "");
     const option = Array.from(select.options).find(function (candidate) {
@@ -371,7 +513,12 @@
     select.value = option?.value || selected;
   }
 
-  /** Writes a backend event state into the event form controls. */
+  /**
+   * Writes a backend event state into the event form controls.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {Event} event Event dispatched by the browser or component.
+   * @returns {void}
+   */
   function fillEventForm(form, event) {
     pageRoot(form).dataset.rule = String(parseRuleValue(event?.rule || 3) || 3);
     ["name", "phase", "rule", "game", "format", "size"].forEach(function (field) {
@@ -390,7 +537,11 @@
     applyGameBackground(form);
   }
 
-  /** Converts old FT labels and new numeric values into a first-to score limit. */
+  /**
+   * Converts old FT labels and new numeric values into a first-to score limit.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {number} Calculated numeric value.
+   */
   function parseRuleValue(value) {
     const normalized = String(value ?? "")
       .toLowerCase()
@@ -401,19 +552,32 @@
     return Math.floor(parsed);
   }
 
-  /** Reads the active first-to rule from a page, form, or the cached tournament state. */
+  /**
+   * Reads the active first-to rule from a page, form, or the cached tournament state.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {unknown}
+   */
   function eventRuleLimit(root = document) {
     const page = root instanceof Element ? pageRoot(root) : document;
     return parseRuleValue(page?.dataset?.rule || currentState?.event?.rule || document.querySelector('[name="rule"]')?.value || 0);
   }
 
-  /** Keeps score inputs between zero and the active first-to rule. */
+  /**
+   * Keeps score inputs between zero and the active first-to rule.
+   * @param {unknown} value Value supplied by the caller.
+   * @param {number} [limit=eventRuleLimit()] Maximum number of accepted entries.
+   * @returns {number} Calculated numeric value.
+   */
   function clampScore(value, limit = eventRuleLimit()) {
     const parsed = Math.max(0, Math.floor(Number(value || 0)));
     return limit > 0 ? Math.min(parsed, limit) : parsed;
   }
 
-  /** Reads the event editor into the backend EventInfo shape. */
+  /**
+   * Reads the event editor into the backend EventInfo shape.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {Object}
+   */
   function readEventForm(form) {
     return {
       name: formControl(form, "name")?.value.trim() || "",
@@ -425,7 +589,11 @@
     };
   }
 
-  /** Builds a stable comparison string for event autosave. */
+  /**
+   * Builds a stable comparison string for event autosave.
+   * @param {Event} event Event dispatched by the browser or component.
+   * @returns {string|undefined}
+   */
   function eventSignature(event) {
     return JSON.stringify({
       name: String(event?.name || ""),
@@ -437,7 +605,11 @@
     });
   }
 
-  /** Builds a stable comparison string for player autosave. */
+  /**
+   * Builds a stable comparison string for player autosave.
+   * @param {number} player Player slot to update.
+   * @returns {string|undefined}
+   */
   function playerSignature(player) {
     return JSON.stringify({
       name: String(player?.name || ""),
@@ -447,36 +619,65 @@
     });
   }
 
-  /** Clones JSON-shaped backend payloads before storing them for undo actions. */
+  /**
+   * Clones JSON-shaped backend payloads before storing them for undo actions.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {unknown}
+   */
   function cloneJSON(value) {
     return JSON.parse(JSON.stringify(value || null));
   }
 
-  /** Enables or disables matching form controls while an asynchronous save is running. */
+  /**
+   * Enables or disables matching form controls while an asynchronous save is running.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setControlsEnabled(root, selector, enabled) {
     root.querySelectorAll(selector).forEach(function (control) {
       control.disabled = !enabled;
     });
   }
 
-  /** Enables or disables every editable control in a form. */
+  /**
+   * Enables or disables every editable control in a form.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setFormEnabled(form, enabled) {
     setControlsEnabled(form, "input, select, button", enabled);
   }
 
-  /** Enables or disables every editable control in a page. */
+  /**
+   * Enables or disables every editable control in a page.
+   * @param {unknown} page Page.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setPageEnabled(page, enabled) {
     setControlsEnabled(page, "input, select, button", enabled);
   }
 
-  /** Builds a form signature through the supplied reader function. */
+  /**
+   * Builds a form signature through the supplied reader function.
+   * @param {Function} reader Function that reads the current form value.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {string|undefined}
+   */
   function formSignature(reader, form) {
     return JSON.stringify(reader(form));
   }
 
   // --- Autosave ---
 
-  /** Ends a form's write lifetime and releases its timers and listeners. */
+  /**
+   * Ends a form's write lifetime and releases its timers and listeners.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function disposeAutosave(form) {
     const state = autosaveForms.get(form);
     if (state) {
@@ -492,14 +693,21 @@
     delete form.dataset.autosaveBound;
   }
 
-  /** Prunes forms whose document lifetime has ended. */
+  /**
+   * Prunes forms whose document lifetime has ended.
+   * @returns {void}
+   */
   function pruneAutosaveForms() {
     autosaveFormSet.forEach(function (form) {
       if (!form.isConnected) disposeAutosave(form);
     });
   }
 
-  /** Returns or initializes the autosave bookkeeping for a form. */
+  /**
+   * Returns or initializes the autosave bookkeeping for a form.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {unknown}
+   */
   function autosaveState(form) {
     let state = autosaveForms.get(form);
     if (!state) {
@@ -515,18 +723,31 @@
     return state;
   }
 
-  /** Marks the current form signature as already persisted. */
+  /**
+   * Marks the current form signature as already persisted.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} signature Signature.
+   * @returns {void}
+   */
   function markAutosaved(form, signature) {
     if (!form.isConnected) return;
     autosaveState(form).lastSaved = signature;
   }
 
-  /** Temporarily locks buttons while a save request is in flight. */
+  /**
+   * Temporarily locks buttons while a save request is in flight.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setButtonsEnabled(root, enabled) {
     setControlsEnabled(root, "button", enabled);
   }
 
-  /** Reads the user's autosave preference from localStorage. */
+  /**
+   * Reads the user's autosave preference from localStorage.
+   * @returns {boolean}
+   */
   function isAutosaveEnabled() {
     try {
       return global.localStorage?.getItem(AUTOSAVE_STORAGE_KEY) !== "false";
@@ -535,7 +756,11 @@
     }
   }
 
-  /** Persists the user's autosave preference. */
+  /**
+   * Persists the user's autosave preference.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setAutosaveEnabled(enabled) {
     try {
       global.localStorage?.setItem(AUTOSAVE_STORAGE_KEY, enabled ? "true" : "false");
@@ -544,7 +769,11 @@
     }
   }
 
-  /** Shows the correct ready status for the event page. */
+  /**
+   * Shows the correct ready status for the event page.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function setEventReadyStatus(form) {
     if (isAutosaveEnabled()) {
       setStatus(form, "event.status.ready", "Autosave ready", "success");
@@ -553,7 +782,11 @@
     setStatus(form, "event.status.manual_ready", "Manual save ready", "neutral");
   }
 
-  /** Shows the correct ready status for the players page. */
+  /**
+   * Shows the correct ready status for the players page.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function setPlayerReadyStatus(page) {
     if (isAutosaveEnabled()) {
       setPlayerStatus(page, "players.status.ready", "Autosave ready", "success");
@@ -562,20 +795,31 @@
     setPlayerStatus(page, "players.status.manual_ready", "Manual save ready", "neutral");
   }
 
-  /** Checks whether one form has edits not reflected in its last saved signature. */
+  /**
+   * Checks whether one form has edits not reflected in its last saved signature.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {boolean}
+   */
   function formIsDirty(form) {
     const state = autosaveForms.get(form);
     return Boolean(state?.options && state.options.signature() !== state.lastSaved);
   }
 
-  /** Checks whether any form in a page has pending manual-save changes. */
+  /**
+   * Checks whether any form in a page has pending manual-save changes.
+   * @param {unknown} page Page.
+   * @returns {boolean}
+   */
   function pageHasDirtyForms(page) {
     return Array.from(page.querySelectorAll("form")).some(function (form) {
       return form instanceof HTMLFormElement && formIsDirty(form);
     });
   }
 
-  /** Refreshes status text when autosave is toggled on or off. */
+  /**
+   * Refreshes status text when autosave is toggled on or off.
+   * @returns {void}
+   */
   function refreshAutosaveModeStatuses() {
     const enabled = isAutosaveEnabled();
     const form = document.querySelector(EVENT_FORM);
@@ -597,7 +841,10 @@
     });
   }
 
-  /** Cancels delayed autosaves when manual mode is enabled. */
+  /**
+   * Cancels delayed autosaves when manual mode is enabled.
+   * @returns {void}
+   */
   function clearAutosaveTimers() {
     pruneAutosaveForms();
     autosaveFormSet.forEach(function (form) {
@@ -608,7 +855,11 @@
     });
   }
 
-  /** Applies autosave preference to toggles, page attributes, and dirty forms. */
+  /**
+   * Applies autosave preference to toggles, page attributes, and dirty forms.
+   * @param {boolean} [scheduleDirty=false] Schedule dirty.
+   * @returns {void}
+   */
   function applyAutosavePreference(scheduleDirty = false) {
     pruneAutosaveForms();
     const enabled = isAutosaveEnabled();
@@ -632,7 +883,11 @@
     });
   }
 
-  /** Binds every autosave toggle found in a freshly loaded SPA page. */
+  /**
+   * Binds every autosave toggle found in a freshly loaded SPA page.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function bindAutosaveToggles(root = document) {
     root.querySelectorAll("[data-autosave-toggle]").forEach(function (toggle) {
       if (!(toggle instanceof HTMLInputElement) || toggle.dataset.bound === "true") return;
@@ -646,7 +901,10 @@
     });
   }
 
-  /** Reloads tournament.json from disk and refreshes whichever SPA page is mounted. */
+  /**
+   * Reloads tournament.json from disk and refreshes whichever SPA page is mounted.
+   * @returns {Promise<void>}
+   */
   async function reloadDataFromDisk() {
     const scrollState = captureScrollState(document);
     const app = await waitForBackend();
@@ -702,7 +960,11 @@
     }
   }
 
-  /** Binds the fixed top-right reload button once. */
+  /**
+   * Binds the fixed top-right reload button once.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function bindGlobalReload(root = document) {
     root.querySelectorAll(GLOBAL_RELOAD).forEach(function (button) {
       if (!(button instanceof HTMLButtonElement) || button.dataset.bound === "true") return;
@@ -716,7 +978,11 @@
 
   // --- Asset catalogs and select options ---
 
-  /** Normalizes backend catalog rows so select builders can share one shape. */
+  /**
+   * Normalizes backend catalog rows so select builders can share one shape.
+   * @param {Array<Object>} rows Rows to validate or render.
+   * @returns {Array<unknown>}
+   */
   function normalizeAssetRows(rows) {
     return (rows || []).map(function (row) {
       return {
@@ -729,7 +995,11 @@
     });
   }
 
-  /** Normalizes a local key/value JSON object into catalog rows. */
+  /**
+   * Normalizes a local key/value JSON object into catalog rows.
+   * @param {unknown} data Data delivered to this operation.
+   * @returns {unknown}
+   */
   function normalizeLocalCatalogRows(data) {
     if (Array.isArray(data)) return normalizeAssetRows(data);
     return Object.entries(data || {}).map(function ([key, name]) {
@@ -740,7 +1010,10 @@
     });
   }
 
-  /** Returns the active SPA language limited to supported app languages. */
+  /**
+   * Returns the active SPA language limited to supported app languages.
+   * @returns {string}
+   */
   function currentLanguage() {
     const lang = String(global.byCommon?.getLanguage?.() || global.bySPA?.APP_LANG || global.localStorage?.getItem("APP_LANG") || document.documentElement.getAttribute("lang") || "es")
       .slice(0, 2)
@@ -748,12 +1021,21 @@
     return ["en", "es", "ja"].includes(lang) ? lang : "es";
   }
 
-  /** Loads JSON from external runtime folders instead of the embedded frontend. */
+  /**
+   * Loads JSON from external runtime folders instead of the embedded frontend.
+   * @param {string} path Path to normalize or resolve.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadExternalJSON(path) {
     return loadJSON(externalURL(path));
   }
 
-  /** Loads JSON with jQuery when available, otherwise with fetch. */
+  /**
+   * Loads JSON with jQuery when available, otherwise with fetch.
+   * @param {string} path Path to normalize or resolve.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   * @throws {Error}
+   */
   async function loadJSON(path) {
     const url = /^[a-z][a-z0-9+.-]*:\/\//i.test(String(path || "")) ? String(path) : appAssetURL(path);
     const jquery = global.jQuery;
@@ -771,7 +1053,11 @@
     return response.json();
   }
 
-  /** Loads localized country names used by the flag Select2 template. */
+  /**
+   * Loads localized country names used by the flag Select2 template.
+   * @param {string} [lang=currentLanguage()] Language identifier to normalize or load.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadCountryNames(lang = currentLanguage()) {
     const normalized = ["en", "es", "ja"].includes(lang) ? lang : "es";
     if (countryNameCache[normalized]) return countryNameCache[normalized];
@@ -787,19 +1073,33 @@
     }
   }
 
-  /** Returns the localized country name for a country code. */
+  /**
+   * Returns the localized country name for a country code.
+   * @param {string} code Code or identifier to inspect.
+   * @returns {unknown}
+   */
   function countryName(code) {
     return countryNames[String(code || "").toLowerCase()] || "";
   }
 
-  /** Builds the visible country select label: CODE (Country). */
+  /**
+   * Builds the visible country select label: CODE (Country).
+   * @param {string} code Code or identifier to inspect.
+   * @returns {string}
+   */
   function countryLabel(code) {
     const normalized = String(code || "").toUpperCase();
     const name = countryName(normalized);
     return name ? `${normalized} (${name})` : normalized;
   }
 
-  /** Calls an optional backend list method and falls back quietly if unavailable. */
+  /**
+   * Calls an optional backend list method and falls back quietly if unavailable.
+   * @param {Object} app Backend service or application bindings.
+   * @param {unknown} methodName Method name.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function optionalBackendList(app, methodName, fallback) {
     if (typeof app?.[methodName] !== "function") {
       console.warn(`${methodName} is not available in this Wails runtime.`);
@@ -816,14 +1116,23 @@
     }
   }
 
-  /** Normalizes catalog labels for forgiving old-data comparisons. */
+  /**
+   * Normalizes catalog labels for forgiving old-data comparisons.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function normalizeCatalogText(value) {
     return String(value || "")
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "");
   }
 
-  /** Checks whether a stored key/name matches a catalog option. */
+  /**
+   * Checks whether a stored key/name matches a catalog option.
+   * @param {unknown} entry One entry in the declared content format.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {boolean}
+   */
   function catalogEntryMatches(entry, value) {
     const selected = String(value || "");
     if (!selected) return false;
@@ -835,7 +1144,11 @@
     );
   }
 
-  /** Writes the selected game's background image into the admin SPA shell. */
+  /**
+   * Writes the selected game's background image into the admin SPA shell.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {void}
+   */
   function setSpaBackground(url) {
     const background = document.getElementById("spa-bg");
     if (!(background instanceof HTMLElement)) return;
@@ -843,20 +1156,33 @@
     background.style.backgroundImage = `url("${imageURL.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
   }
 
-  /** Appends a timestamp so freshly changed external images repaint immediately. */
+  /**
+   * Appends a timestamp so freshly changed external images repaint immediately.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {string}
+   */
   function cacheBustURL(url) {
     const value = String(url || "");
     if (!value) return "";
     return `${value}${value.includes("?") ? "&" : "?"}v=${Date.now()}`;
   }
 
-  /** Returns the external tournament overlay asset URL used by Wails and Apache. */
+  /**
+   * Returns the external tournament overlay asset URL used by Wails and Apache.
+   * @param {unknown} kind Kind.
+   * @param {boolean} [cacheBust=false] Cache bust.
+   * @returns {unknown}
+   */
   function eventAssetURL(kind, cacheBust = false) {
     const url = kind === "background" ? EVENT_BACKGROUND_PATH : EVENT_LOGO_PATH;
     return cacheBust ? cacheBustURL(url) : url;
   }
 
-  /** Reads the selected game option background and applies it to #spa-bg. */
+  /**
+   * Reads the selected game option background and applies it to #spa-bg.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function applyGameBackground(form) {
     const select = formControl(form, "game");
     if (!(select instanceof HTMLSelectElement)) return;
@@ -864,14 +1190,21 @@
     setSpaBackground(option?.dataset?.background || "");
   }
 
-  /** Ensures the games catalog is loaded before background-only routes need it. */
+  /**
+   * Ensures the games catalog is loaded before background-only routes need it.
+   * @param {Object} app Backend service or application bindings.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function ensureGameCatalog(app) {
     if (games.length) return games;
     games = normalizeAssetRows(await optionalBackendList(app, "ListGames", []));
     return games;
   }
 
-  /** Ensures the import provider catalog is loaded from assets/providers.json. */
+  /**
+   * Ensures the import provider catalog is loaded from assets/providers.json.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function ensureProviderCatalog() {
     if (providers.length) return providers;
     try {
@@ -886,21 +1219,34 @@
     return providers;
   }
 
-  /** Finds a game catalog row by stored key or legacy display name. */
+  /**
+   * Finds a game catalog row by stored key or legacy display name.
+   * @param {string} game Stored game identifier.
+   * @returns {unknown}
+   */
   function gameCatalogEntry(game) {
     return games.find(function (entry) {
       return catalogEntryMatches(entry, game);
     });
   }
 
-  /** Applies the saved event game's admin background without using the overlay _bg.jpg. */
+  /**
+   * Applies the saved event game's admin background without using the overlay _bg.jpg.
+   * @param {Object} state Current component or application state.
+   * @returns {void}
+   */
   function applyGameBackgroundFromState(state) {
     const game = state?.event?.game || "";
     const entry = gameCatalogEntry(game);
     setSpaBackground(entry?.background || "");
   }
 
-  /** Ensures the character catalog matches the active event game. */
+  /**
+   * Ensures the character catalog matches the active event game.
+   * @param {Object} app Backend service or application bindings.
+   * @param {string} game Stored game identifier.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function ensureCharacterCatalog(app, game) {
     const gameKey = String(game || "");
     if (charactersGame === gameKey && characters.length) return characters;
@@ -929,14 +1275,21 @@
     return characters;
   }
 
-  /** Finds a character catalog row by stored key or legacy display name. */
+  /**
+   * Finds a character catalog row by stored key or legacy display name.
+   * @param {string} character Stored character identifier.
+   * @returns {unknown}
+   */
   function characterCatalogEntry(character) {
     return characters.find(function (entry) {
       return catalogEntryMatches(entry, character);
     });
   }
 
-  /** Shares pending background work so reloads wait and apply the latest tournament. */
+  /**
+   * Shares pending background work so reloads wait and apply the latest tournament.
+   * @returns {unknown}
+   */
   function syncSpaBackground() {
     if (backgroundSync) return backgroundSync;
     backgroundSync = (async () => {
@@ -955,7 +1308,11 @@
     return backgroundSync;
   }
 
-  /** Builds game select options with logo metadata for Select2. */
+  /**
+   * Builds game select options with logo metadata for Select2.
+   * @param {unknown} selectedGame Selected game.
+   * @returns {string}
+   */
   function gameOptions(selectedGame) {
     const selected = String(selectedGame || "");
     let matched = false;
@@ -970,7 +1327,7 @@
     });
 
     if (selected && !matched) {
-      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected> ${escapeHtml(selected)} </option> `);
+      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected>${escapeHtml(selected)}</option> `);
     }
 
     return /* HTML */ `
@@ -979,7 +1336,13 @@
     `;
   }
 
-  /** Builds simple key/value select options for rules and formats. */
+  /**
+   * Builds simple key/value select options for rules and formats.
+   * @param {Array<Object>} rows Rows to validate or render.
+   * @param {unknown} selectedValue Selected value.
+   * @param {string} valueField Row property used as the option value.
+   * @returns {string}
+   */
   function catalogOptions(rows, selectedValue, valueField) {
     const selected = String(selectedValue || "");
     let matched = false;
@@ -987,7 +1350,7 @@
       const isSelected = catalogEntryMatches(row, selected);
       const value = valueField === "key" ? row.key : row.name;
       matched = matched || isSelected;
-      return /* HTML */ ` <option value="${escapeHtml(value)}" data-key="${escapeHtml(row.key)}" ${isSelected ? " selected" : ""}> ${escapeHtml(row.name)} </option> `;
+      return /* HTML */ ` <option value="${escapeHtml(value)}" data-key="${escapeHtml(row.key)}" ${isSelected ? " selected" : ""}>${escapeHtml(row.name)}</option> `;
     });
 
     if (selected && !matched) {
@@ -1000,7 +1363,11 @@
     `;
   }
 
-  /** Builds character select options with portrait metadata for Select2. */
+  /**
+   * Builds character select options with portrait metadata for Select2.
+   * @param {unknown} selectedCharacter Selected character.
+   * @returns {string}
+   */
   function characterOptions(selectedCharacter) {
     const selected = String(selectedCharacter || "");
     let matched = false;
@@ -1008,12 +1375,12 @@
       const isSelected = catalogEntryMatches(character, selected);
       matched = matched || isSelected;
       return /* HTML */ `
-        <option value="${escapeHtml(character.key)}" data-key="${escapeHtml(character.key)}" data-portrait="${escapeHtml(character.portrait || FALLBACK_ASSET)}" ${isSelected ? " selected" : ""}> ${escapeHtml(character.name)} </option>
+        <option value="${escapeHtml(character.key)}" data-key="${escapeHtml(character.key)}" data-portrait="${escapeHtml(character.portrait || FALLBACK_ASSET)}" ${isSelected ? " selected" : ""}>${escapeHtml(character.name)}</option>
       `;
     });
 
     if (selected && !matched) {
-      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-portrait="${escapeHtml(FALLBACK_ASSET)}" selected> ${escapeHtml(selected)} </option> `);
+      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-portrait="${escapeHtml(FALLBACK_ASSET)}" selected>${escapeHtml(selected)}</option> `);
     }
 
     return /* HTML */ `
@@ -1022,7 +1389,12 @@
     `;
   }
 
-  /** Replaces the game select options before Select2 is initialized. */
+  /**
+   * Replaces the game select options before Select2 is initialized.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} selectedGame Selected game.
+   * @returns {void}
+   */
   function renderGameSelect(form, selectedGame) {
     const select = formControl(form, "game");
     if (!(select instanceof HTMLSelectElement)) return;
@@ -1030,7 +1402,15 @@
     select.innerHTML = gameOptions(selectedGame);
   }
 
-  /** Replaces a simple catalog select before Select2 is initialized. */
+  /**
+   * Replaces a simple catalog select before Select2 is initialized.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {string} name Field or item identifier.
+   * @param {Array<Object>} rows Rows to validate or render.
+   * @param {unknown} selectedValue Selected value.
+   * @param {string} valueField Row property used as the option value.
+   * @returns {void}
+   */
   function renderCatalogSelect(form, name, rows, selectedValue, valueField) {
     const select = formControl(form, name);
     if (!(select instanceof HTMLSelectElement)) return;
@@ -1038,14 +1418,24 @@
     select.innerHTML = catalogOptions(rows, selectedValue, valueField);
   }
 
-  /** Replaces the Import page provider select before Select2 is initialized. */
+  /**
+   * Replaces the Import page provider select before Select2 is initialized.
+   * @param {unknown} page Page.
+   * @param {string} [selectedProvider="startgg"] Selected provider.
+   * @returns {void}
+   */
   function renderImportProviderSelect(page, selectedProvider = "startgg") {
     const form = page.querySelector("[data-import-form]");
     if (!(form instanceof HTMLFormElement)) return;
     renderCatalogSelect(form, "provider", providers, selectedProvider, "key");
   }
 
-  /** Saves immediately and repeats if edits arrived while the save was running. */
+  /**
+   * Saves immediately and repeats if edits arrived while the save was running.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {Object} options Options that configure this operation.
+   * @returns {Promise<void>}
+   */
   async function flushAutosave(form, options) {
     if (!form.isConnected) {
       disposeAutosave(form);
@@ -1082,7 +1472,12 @@
     }
   }
 
-  /** Debounces autosave or marks the form as dirty in manual mode. */
+  /**
+   * Debounces autosave or marks the form as dirty in manual mode.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {Object} options Options that configure this operation.
+   * @returns {void}
+   */
   function scheduleAutosave(form, options) {
     if (!form.isConnected) {
       disposeAutosave(form);
@@ -1105,7 +1500,12 @@
     }, AUTOSAVE_DELAY);
   }
 
-  /** Binds autosave listeners to native controls and Select2 change events. */
+  /**
+   * Binds autosave listeners to native controls and Select2 change events.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {Object} options Options that configure this operation.
+   * @returns {void}
+   */
   function bindAutosave(form, options) {
     if (form.dataset.autosaveBound === "true") return;
     form.dataset.autosaveBound = "true";
@@ -1127,7 +1527,14 @@
     }
   }
 
-  /** Creates the small callback bundle used by manual save and autosave. */
+  /**
+   * Creates the small callback bundle used by manual save and autosave.
+   * @param {unknown} manualPending Manual pending.
+   * @param {unknown} pending Pending.
+   * @param {unknown} save Save.
+   * @param {unknown} signature Signature.
+   * @returns {Object}
+   */
   function autosaveOptions(manualPending, pending, save, signature) {
     return {
       manualPending,
@@ -1137,7 +1544,11 @@
     };
   }
 
-  /** Returns autosave behavior for the event editor. */
+  /**
+   * Returns autosave behavior for the event editor.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {unknown}
+   */
   function eventAutosaveOptions(form) {
     return autosaveOptions(
       function () {
@@ -1157,7 +1568,11 @@
 
   // --- Event page ---
 
-  /** Loads tournament/event data, catalogs, and initializes the event form. */
+  /**
+   * Loads tournament/event data, catalogs, and initializes the event form.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {Promise<void>}
+   */
   async function loadEvent(form) {
     const scrollState = captureScrollState(pageRoot(form));
     const app = await waitForBackend();
@@ -1213,7 +1628,11 @@
     }
   }
 
-  /** Persists the event form through the backend and returns its saved signature. */
+  /**
+   * Persists the event form through the backend and returns its saved signature.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {Promise<string|undefined>} The resulting asynchronous value.
+   */
   async function saveEvent(form) {
     const scrollState = captureScrollState(pageRoot(form));
     const app = await waitForBackend();
@@ -1246,7 +1665,13 @@
     }
   }
 
-  /** Refreshes one tournament asset preview without touching event JSON. */
+  /**
+   * Refreshes one tournament asset preview without touching event JSON.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} kind Kind.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {void}
+   */
   function refreshEventAssetPreview(form, kind, url) {
     const image = form.querySelector(`[data-event-asset-preview="${kind}"]`);
     if (!(image instanceof HTMLImageElement)) return;
@@ -1254,13 +1679,23 @@
     image.src = url || eventAssetURL(kind, true);
   }
 
-  /** Refreshes both event asset previews after loading the page. */
+  /**
+   * Refreshes both event asset previews after loading the page.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function refreshEventAssetPreviews(form) {
     refreshEventAssetPreview(form, "logo", eventAssetURL("logo", true));
     refreshEventAssetPreview(form, "background", eventAssetURL("background", true));
   }
 
-  /** Uploads a tournament overlay logo/background through the backend filesystem API. */
+  /**
+   * Uploads a tournament overlay logo/background through the backend filesystem API.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} kind Kind.
+   * @param {File} file File to inspect, read, or upload.
+   * @returns {Promise<void>}
+   */
   async function uploadEventAsset(form, kind, file) {
     const app = await waitForBackend();
     const methodName = kind === "background" ? "SaveEventBackground" : "SaveEventLogo";
@@ -1281,7 +1716,12 @@
     }
   }
 
-  /** Removes a tournament overlay logo/background through the backend filesystem API. */
+  /**
+   * Removes a tournament overlay logo/background through the backend filesystem API.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {unknown} kind Kind.
+   * @returns {Promise<void>}
+   */
   async function removeEventAsset(form, kind) {
     const app = await waitForBackend();
     const methodName = kind === "background" ? "RemoveEventBackground" : "RemoveEventLogo";
@@ -1301,7 +1741,11 @@
     }
   }
 
-  /** Binds Dropzone to event logo/background controls without direct frontend writes. */
+  /**
+   * Binds Dropzone to event logo/background controls without direct frontend writes.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function bindEventAssetDropzones(form) {
     form.querySelectorAll("[data-event-asset-dropzone]").forEach(function (dropzoneElement) {
       if (!(dropzoneElement instanceof HTMLElement) || dropzoneElement.dataset.bound === "true") return;
@@ -1339,7 +1783,11 @@
     });
   }
 
-  /** Binds clear buttons for event logo/background previews. */
+  /**
+   * Binds clear buttons for event logo/background previews.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function bindEventAssetRemove(form) {
     form.querySelectorAll("[data-event-asset-remove]").forEach(function (button) {
       if (!(button instanceof HTMLButtonElement) || button.dataset.bound === "true") return;
@@ -1350,7 +1798,11 @@
     });
   }
 
-  /** Binds event form submit, asset controls, and autosave behavior once. */
+  /**
+   * Binds event form submit, asset controls, and autosave behavior once.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {void}
+   */
   function bindEventForm(form) {
     if (form.dataset.bound === "true") return;
     form.dataset.bound = "true";
@@ -1377,27 +1829,45 @@
 
   // --- Current match panel ---
 
-  /** Returns the current-match panel that belongs to an event form. */
+  /**
+   * Returns the current-match panel that belongs to an event form.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @returns {HTMLElement|null}
+   */
   function currentMatchPanel(form) {
     const panel = pageRoot(form).querySelector(CURRENT_MATCH);
     return panel instanceof HTMLElement ? panel : null;
   }
 
-  /** Reads one numeric score from the current-match panel. */
+  /**
+   * Reads one numeric score from the current-match panel.
+   * @param {HTMLElement} panel Panel.
+   * @param {number} playerNumber Player side within the current match.
+   * @returns {unknown}
+   */
   function readMatchScore(panel, playerNumber) {
     const input = panel.querySelector(`[data-score-input="${playerNumber}"]`);
     if (!(input instanceof HTMLInputElement)) return 0;
     return clampScore(input.value, eventRuleLimit(panel));
   }
 
-  /** Locks score controls while a score write is in flight. */
+  /**
+   * Locks score controls while a score write is in flight.
+   * @param {HTMLElement} panel Panel.
+   * @param {boolean} enabled Whether controls or behavior should be enabled.
+   * @returns {void}
+   */
   function setMatchControlsEnabled(panel, enabled) {
     panel.querySelectorAll("[data-score-action], [data-score-input], [data-current-side-swap], [data-current-seed-swap]").forEach(function (control) {
       control.disabled = !enabled;
     });
   }
 
-  /** Returns a participant display name, falling back to the bracket source. */
+  /**
+   * Returns a participant display name, falling back to the bracket source.
+   * @param {Object} participant Resolved participant data.
+   * @returns {unknown}
+   */
   function participantName(participant) {
     if (participant?.status === "bye") return "BYE";
     if (participant?.status === "tbd" || participant?.status === "pending") return participant?.pending_label || t("match.tbd", "TBD");
@@ -1405,13 +1875,21 @@
     return participant?.pending_label || t("match.tbd", "TBD");
   }
 
-  /** Returns the optional team/country line for a resolved participant. */
+  /**
+   * Returns the optional team/country line for a resolved participant.
+   * @param {Object} participant Resolved participant data.
+   * @returns {unknown}
+   */
   function participantMeta(participant) {
     if (!participant?.resolved || participant?.status === "bye") return participant?.pending_label || "";
     return participant.player?.team || t("match.no_team", "");
   }
 
-  /** Builds the country flag and localized label for a match participant. */
+  /**
+   * Builds the country flag and localized label for a match participant.
+   * @param {Object} participant Resolved participant data.
+   * @returns {string}
+   */
   function participantCountryHTML(participant) {
     const country = String(participant?.player?.country || "").toUpperCase();
     if (!participant?.resolved || !country) return "";
@@ -1423,7 +1901,11 @@
     return /* HTML */ `<span class="d-inline-flex gap-2 align-items-center mw-100 mt-2 fw-bold" style="color: var(--fgc-text-soft);">${image}<span class="text-truncate">${escapeHtml(countryLabel(country))}</span></span>`;
   }
 
-  /** Returns display metadata for a player's selected character. */
+  /**
+   * Returns display metadata for a player's selected character.
+   * @param {Object} participant Resolved participant data.
+   * @returns {Object}
+   */
   function participantCharacter(participant) {
     const key = String(participant?.player?.character || "");
     const entry = characterCatalogEntry(key);
@@ -1439,7 +1921,12 @@
     };
   }
 
-  /** Creates the player and character image cluster for one match side. */
+  /**
+   * Creates the player and character image cluster for one match side.
+   * @param {Object} participant Resolved participant data.
+   * @param {string} side Match side to render.
+   * @returns {string}
+   */
   function matchMediaHTML(participant, side) {
     const character = participantCharacter(participant);
     const name = participantName(participant);
@@ -1460,14 +1947,24 @@
     `;
   }
 
-  /** Returns the seed/player slot that can be swapped in the bracket graph. */
+  /**
+   * Returns the seed/player slot that can be swapped in the bracket graph.
+   * @param {Object} participant Resolved participant data.
+   * @returns {number} Calculated numeric value.
+   */
   function swappableParticipantSeed(participant) {
     if (participant?.source?.type !== "seed") return 0;
     const seed = Number(participant?.source?.seed || participant?.bracket_seed || 0);
     return Number.isInteger(seed) && seed > 0 ? seed : 0;
   }
 
-  /** Keeps seed-swap click targets visually synced with the pending selection. */
+  /**
+   * Keeps seed-swap click targets visually synced with the pending selection.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @param {unknown} selectedSeed Selected seed.
+   * @returns {void}
+   */
   function setSeedSelection(root, selector, selectedSeed) {
     root.querySelectorAll(selector).forEach(function (target) {
       if (!(target instanceof HTMLElement)) return;
@@ -1476,19 +1973,32 @@
     });
   }
 
-  /** Reads a current-match bracket seed slot from its explicit swap handle. */
+  /**
+   * Reads a current-match bracket seed slot from its explicit swap handle.
+   * @param {HTMLElement} target Target element or value to update.
+   * @returns {number} Calculated numeric value.
+   */
   function currentSwapSeedFromTarget(target) {
     const explicitHandle = target?.closest("[data-current-seed-swap]");
     return explicitHandle instanceof HTMLElement ? Number(explicitHandle.dataset.currentSeedSwap || 0) : 0;
   }
 
-  /** Reads a bracket seed slot from its explicit swap handle. */
+  /**
+   * Reads a bracket seed slot from its explicit swap handle.
+   * @param {HTMLElement} target Target element or value to update.
+   * @returns {number} Calculated numeric value.
+   */
   function bracketSwapSeedFromTarget(target) {
     const explicitHandle = target?.closest("[data-bracket-seed-swap]");
     return explicitHandle instanceof HTMLElement ? Number(explicitHandle.dataset.bracketSeedSwap || 0) : 0;
   }
 
-  /** Builds the compact score control used by current match and bracket admin. */
+  /**
+   * Builds the compact score control used by current match and bracket admin.
+   * @param {unknown} score Score.
+   * @param {Object} options Options that configure this operation.
+   * @returns {string}
+   */
   function scoreStepperHTML(score, options) {
     const side = Number(options?.side || 0);
     const matchID = options?.matchID || "";
@@ -1517,7 +2027,11 @@
     `;
   }
 
-  /** Creates compact player and character media for bracket participant rows. */
+  /**
+   * Creates compact player and character media for bracket participant rows.
+   * @param {Object} participant Resolved participant data.
+   * @returns {string}
+   */
   function bracketParticipantMediaHTML(participant) {
     const character = participantCharacter(participant);
     const name = participantName(participant);
@@ -1538,7 +2052,12 @@
     `;
   }
 
-  /** Creates one side of the current-match scoreboard. */
+  /**
+   * Creates one side of the current-match scoreboard.
+   * @param {Object} match Resolved match data.
+   * @param {string} side Match side to render.
+   * @returns {string}
+   */
   function matchPlayerCard(match, side) {
     const participant = side === 1 ? match?.player1 : match?.player2;
     const scoreKey = side === 1 ? "player1_score" : "player2_score";
@@ -1577,7 +2096,12 @@
     `;
   }
 
-  /** Draws a resolved current match into the event page. */
+  /**
+   * Draws a resolved current match into the event page.
+   * @param {HTMLElement} panel Panel.
+   * @param {Object} match Resolved match data.
+   * @returns {void}
+   */
   function renderCurrentMatch(panel, match) {
     const title = panel.querySelector("[data-current-match-title]");
     const body = panel.querySelector("[data-current-match-body]");
@@ -1630,7 +2154,11 @@
     });
   }
 
-  /** Loads the current match through the backend resolver. */
+  /**
+   * Loads the current match through the backend resolver.
+   * @param {HTMLElement} panel Panel.
+   * @returns {Promise<void>}
+   */
   async function loadCurrentMatch(panel) {
     const scrollState = captureScrollState(pageRoot(panel));
     const app = await waitForBackend();
@@ -1672,7 +2200,11 @@
     }
   }
 
-  /** Persists current-match score controls into tournament.json. */
+  /**
+   * Persists current-match score controls into tournament.json.
+   * @param {HTMLElement} panel Panel.
+   * @returns {Promise<void>}
+   */
   async function saveCurrentMatchScore(panel) {
     const scrollState = captureScrollState(pageRoot(panel));
     const app = await waitForBackend();
@@ -1706,7 +2238,11 @@
     }
   }
 
-  /** Toggles the display sides for the current match without changing bracket seed order. */
+  /**
+   * Toggles the display sides for the current match without changing bracket seed order.
+   * @param {HTMLElement} panel Panel.
+   * @returns {Promise<void>}
+   */
   async function swapCurrentMatchSides(panel) {
     const scrollState = captureScrollState(pageRoot(panel));
     const app = await waitForBackend();
@@ -1732,7 +2268,13 @@
     }
   }
 
-  /** Performs a bracket seed assignment swap from the event page current-match panel. */
+  /**
+   * Performs a bracket seed assignment swap from the event page current-match panel.
+   * @param {HTMLElement} panel Panel.
+   * @param {number} seed Source seed slot.
+   * @param {number} targetSeed Destination seed slot.
+   * @returns {Promise<void>}
+   */
   async function swapCurrentMatchSeeds(panel, seed, targetSeed) {
     const scrollState = captureScrollState(pageRoot(panel));
     const app = await waitForBackend();
@@ -1758,7 +2300,12 @@
     }
   }
 
-  /** Handles first/second click selection for current-match bracket seed swaps. */
+  /**
+   * Handles first/second click selection for current-match bracket seed swaps.
+   * @param {HTMLElement} panel Panel.
+   * @param {number} seed Source seed slot.
+   * @returns {void}
+   */
   function selectCurrentSeedForSwap(panel, seed) {
     if (!seed) return;
     const selectedSeed = currentSeedSelections.get(panel) || 0;
@@ -1777,7 +2324,11 @@
     void swapCurrentMatchSeeds(panel, selectedSeed, seed);
   }
 
-  /** Binds delegated score and swap controls for the current-match panel. */
+  /**
+   * Binds delegated score and swap controls for the current-match panel.
+   * @param {HTMLElement} panel Panel.
+   * @returns {void}
+   */
   function bindCurrentMatch(panel) {
     const bindingVersion = "score-swap-v1";
     if (panel.dataset.bound === bindingVersion) return;
@@ -1826,7 +2377,11 @@
 
   // --- Players page ---
 
-  /** Returns one row per configured tournament player slot. */
+  /**
+   * Returns one row per configured tournament player slot.
+   * @param {Object} state Current component or application state.
+   * @returns {Array<unknown>}
+   */
   function playerEntriesForEvent(state) {
     const players = state?.players || {};
     const configuredSize = Math.floor(Number(state?.event?.size || 0));
@@ -1841,7 +2396,12 @@
     return rows;
   }
 
-  /** Normalizes country codes from backend flags or language dictionaries. */
+  /**
+   * Normalizes country codes from backend flags or language dictionaries.
+   * @param {Array<string>} codes Codes to normalize or display.
+   * @param {Array<string>} [names=countryNames] Field names to initialize.
+   * @returns {Array<unknown>}
+   */
   function normalizeCountryCodes(codes, names = countryNames) {
     const source = (codes || []).length ? codes : Object.keys(names || {});
     return Array.from(
@@ -1855,7 +2415,11 @@
     ).sort();
   }
 
-  /** Builds country options from the backend flag list and loaded i18n names. */
+  /**
+   * Builds country options from the backend flag list and loaded i18n names.
+   * @param {unknown} selectedCountry Selected country.
+   * @returns {string}
+   */
   function countryOptions(selectedCountry) {
     const selected = String(selectedCountry || "").toUpperCase();
     const options = countryCodes.slice();
@@ -1871,24 +2435,42 @@
     `;
   }
 
-  /** Validates ISO2 country codes before rendering flag images. */
+  /**
+   * Validates ISO2 country codes before rendering flag images.
+   * @param {string} code Code or identifier to inspect.
+   * @returns {boolean}
+   */
   function isISO2Code(code) {
     return /^[A-Z]{2}$/.test(String(code || ""));
   }
 
-  /** Returns the frontend flag SVG path for a country code. */
+  /**
+   * Returns the frontend flag SVG path for a country code.
+   * @param {string} code Code or identifier to inspect.
+   * @returns {unknown}
+   */
   function countryFlagPath(code) {
     return externalURL(`/assets/flags/${String(code).toLowerCase()}.svg`);
   }
 
-  /** Returns the player portrait URL, optionally cache-busted after upload/remove. */
+  /**
+   * Returns the player portrait URL, optionally cache-busted after upload/remove.
+   * @param {string} playerID Stored player identifier.
+   * @param {boolean} [cacheBust=false] Cache bust.
+   * @returns {string}
+   */
   function playerPortraitPath(playerID, cacheBust = false) {
     const key = encodeURIComponent(String(playerID || ""));
     const suffix = cacheBust ? `?v=${Date.now()}` : "";
     return `${externalURL(`/players/${key}.png`)}${suffix}`;
   }
 
-  /** Applies a fallback when a preview URL cannot be loaded. */
+  /**
+   * Applies a fallback when a preview URL cannot be loaded.
+   * @param {boolean|HTMLImageElement} image Whether image rules apply, or the image element to update.
+   * @param {string} [fallback=FALLBACK_ASSET] Value to use when the requested value is unavailable.
+   * @returns {void}
+   */
   function setImageFallback(image, fallback = FALLBACK_ASSET) {
     if (!(image instanceof HTMLImageElement)) return;
     image.addEventListener("error", function () {
@@ -1898,7 +2480,12 @@
     });
   }
 
-  /** Refreshes the portrait preview without rewriting player JSON. */
+  /**
+   * Refreshes the portrait preview without rewriting player JSON.
+   * @param {HTMLFormElement} form Form containing the current controls.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {void}
+   */
   function refreshPlayerPortrait(form, url) {
     const image = form.querySelector("[data-player-portrait]");
     if (!(image instanceof HTMLImageElement)) return;
@@ -1906,7 +2493,11 @@
     image.src = url;
   }
 
-  /** Reads an uploaded file as a browser data URL for the Wails backend. */
+  /**
+   * Reads an uploaded file as a browser data URL for the Wails backend.
+   * @param {File} file File to inspect, read, or upload.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   function fileAsDataURL(file) {
     return new Promise(function (resolve, reject) {
       const reader = new FileReader();
@@ -1922,7 +2513,11 @@
 
   // --- Select2 templates ---
 
-  /** Renders a country Select2 option with flag and localized country name. */
+  /**
+   * Renders a country Select2 option with flag and localized country name.
+   * @param {unknown} data Data delivered to this operation.
+   * @returns {unknown}
+   */
   function countrySelectTemplate(data) {
     const jquery = global.jQuery;
     if (!jquery) return data.text || "";
@@ -1947,7 +2542,13 @@
     return option;
   }
 
-  /** Renders a Select2 option with an image supplied through option metadata. */
+  /**
+   * Renders a Select2 option with an image supplied through option metadata.
+   * @param {unknown} data Data delivered to this operation.
+   * @param {unknown} imageAttribute Image attribute.
+   * @param {unknown} imageClass Image class.
+   * @returns {unknown}
+   */
   function mediaSelectTemplate(data, imageAttribute, imageClass) {
     const jquery = global.jQuery;
     if (!jquery) return data.text || "";
@@ -1974,17 +2575,30 @@
     return option;
   }
 
-  /** Renders game options with their logo. */
+  /**
+   * Renders game options with their logo.
+   * @param {unknown} data Data delivered to this operation.
+   * @returns {unknown}
+   */
   function gameSelectTemplate(data) {
     return mediaSelectTemplate(data, "logo", "fgc-media-image-logo");
   }
 
-  /** Renders character options with their portrait. */
+  /**
+   * Renders character options with their portrait.
+   * @param {unknown} data Data delivered to this operation.
+   * @returns {unknown}
+   */
   function characterSelectTemplate(data) {
     return mediaSelectTemplate(data, "portrait", "fgc-media-image-portrait");
   }
 
-  /** Builds the complete Bootstrap player card markup for one player slot. */
+  /**
+   * Builds the complete Bootstrap player card markup for one player slot.
+   * @param {string} playerID Stored player identifier.
+   * @param {number} player Player slot to update.
+   * @returns {string}
+   */
   function playerCard(playerID, player) {
     const playerName = player?.name || `${t("players.player", "Player")} ${playerID}`;
     const portraitAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", playerName);
@@ -2097,7 +2711,11 @@
     `;
   }
 
-  /** Initializes Select2 on every marked select inside root. */
+  /**
+   * Initializes Select2 on every marked select inside root.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function enhanceSelects(root) {
     const jquery = global.jQuery;
     if (!jquery?.fn?.select2) return;
@@ -2128,7 +2746,11 @@
     });
   }
 
-  /** Safely destroys one Select2 instance before replacing its options. */
+  /**
+   * Safely destroys one Select2 instance before replacing its options.
+   * @param {HTMLSelectElement} select Select control to enhance.
+   * @returns {void}
+   */
   function destroySelect(select) {
     const jquery = global.jQuery;
     if (!jquery?.fn?.select2 || !select.classList.contains("select2-hidden-accessible")) return;
@@ -2139,7 +2761,11 @@
     }
   }
 
-  /** Destroys all Select2 instances inside a rerendered region. */
+  /**
+   * Destroys all Select2 instances inside a rerendered region.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function destroySelects(root) {
     const jquery = global.jQuery;
     if (!jquery?.fn?.select2) return;
@@ -2148,7 +2774,11 @@
     });
   }
 
-  /** Reloads localized country labels and refreshes existing country selects. */
+  /**
+   * Reloads localized country labels and refreshes existing country selects.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {Promise<void>}
+   */
   async function refreshCountrySelects(root = document) {
     countryNames = await loadCountryNames();
     if (!countryCodes.length) countryCodes = normalizeCountryCodes([], countryNames);
@@ -2163,7 +2793,12 @@
     enhanceSelects(root);
   }
 
-  /** Returns root plus descendants matching a selector without firing SPA.js lifecycle events. */
+  /**
+   * Returns root plus descendants matching a selector without firing SPA.js lifecycle events.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @returns {Array<unknown>}
+   */
   function matchingElements(root, selector) {
     const matches = [];
     if (root instanceof Element && root.matches(selector)) matches.push(root);
@@ -2173,7 +2808,11 @@
     return matches;
   }
 
-  /** Applies i18n to injected markup without dispatching byCommon:language again. */
+  /**
+   * Applies i18n to injected markup without dispatching byCommon:language again.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function applyLanguage(root) {
     matchingElements(root, "[data-i18n]").forEach(function (element) {
       const key = element.getAttribute("data-i18n") || "";
@@ -2212,7 +2851,10 @@
     }
   }
 
-  /** Re-runs SPA.js common Bootstrap wiring after this app changes translated attributes. */
+  /**
+   * Re-runs SPA.js common Bootstrap wiring after this app changes translated attributes.
+   * @returns {void}
+   */
   function refreshCommonWidgets() {
     global.byCommon?.init?.();
   }
@@ -2323,7 +2965,11 @@
 
   // --- SPA lifecycle ---
 
-  /** Initializes controls in the current document or newly loaded SPA content. */
+  /**
+   * Initializes controls in the current document or newly loaded SPA content.
+   * @param {Document} [root=document] Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function init(root = document) {
     applyLanguage(root);
     refreshCommonWidgets();
@@ -2384,4 +3030,5 @@
       refreshStatusIcons(document);
     })();
   });
+  fgc.initialized = true;
 })(typeof window !== "undefined" ? window : this);

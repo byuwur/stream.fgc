@@ -15,8 +15,10 @@
  * Boots the static overlay runtime with jQuery as its DOM layer.
  * @param {Window} global Browser window supplied by OBS or a regular browser.
  * @param {JQueryStatic} $ jQuery loaded before this deferred script.
+ * @returns {void}
  */
 (function (global, $) {
+  if (global.StreamFGCOverlay?.initialized) return;
   if (!$) {
     console.error("Stream.FGC overlays require jQuery.");
     return;
@@ -32,23 +34,40 @@
   let lastStateText = "";
   let refreshRunning = false;
 
-  /** Converts nullable JSON values into trimmed strings. */
+  /**
+   * Converts nullable JSON values into trimmed strings.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function text(value) {
     return String(value ?? "").trim();
   }
 
-  /** Converts a value into a lowercase key. */
+  /**
+   * Converts a value into a lowercase key.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function lower(value) {
     return text(value).toLowerCase();
   }
 
-  /** Parses an integer and returns a fallback for invalid input. */
+  /**
+   * Parses an integer and returns a fallback for invalid input.
+   * @param {unknown} value Value supplied by the caller.
+   * @param {number} [fallback=0] Value to use when the requested value is unavailable.
+   * @returns {unknown}
+   */
   function integer(value, fallback = 0) {
     const parsed = Number.parseInt(value, 10);
     return Number.isFinite(parsed) ? parsed : fallback;
   }
 
-  /** Escapes data before inserting it into generated bracket markup. */
+  /**
+   * Escapes data before inserting it into generated bracket markup.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function escapeHTML(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -57,12 +76,20 @@
       .replace(/"/g, "&quot;");
   }
 
-  /** Adds a timestamp so polling cannot be satisfied by a stale browser cache. */
+  /**
+   * Adds a timestamp so polling cannot be satisfied by a stale browser cache.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {string}
+   */
   function freshURL(url) {
     return `${url}${url.includes("?") ? "&" : "?"}_=${Date.now()}`;
   }
 
-  /** Loads text through jQuery and reports useful HTTP failures. */
+  /**
+   * Loads text through jQuery and reports useful HTTP failures.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   function requestText(url) {
     return new Promise(function (resolve, reject) {
       $.ajax({ cache: false, dataType: "text", url: freshURL(url) })
@@ -76,7 +103,12 @@
     });
   }
 
-  /** Loads static JSON once; tournament.json deliberately bypasses this cache. */
+  /**
+   * Loads static JSON once; tournament.json deliberately bypasses this cache.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @param {unknown} cacheKey Cache key.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadJSON(url, cacheKey) {
     if (cacheKey && jsonCache.has(cacheKey)) return jsonCache.get(cacheKey);
     const promise = requestText(url).then(JSON.parse);
@@ -89,7 +121,13 @@
     }
   }
 
-  /** Loads optional catalog JSON without stopping the live overlay. */
+  /**
+   * Loads optional catalog JSON without stopping the live overlay.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @param {string} fallback Value to use when the requested value is unavailable.
+   * @param {unknown} cacheKey Cache key.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadOptionalJSON(url, fallback, cacheKey) {
     try {
       return await loadJSON(url, cacheKey);
@@ -99,7 +137,12 @@
     }
   }
 
-  /** Converts a tournament format and size into its data-driven template filename. */
+  /**
+   * Converts a tournament format and size into its data-driven template filename.
+   * @param {string} format Selected display format.
+   * @param {number} size Requested size or chunk length.
+   * @returns {string}
+   */
   function templateFileName(format, size) {
     let key = lower(format)
       .replace(/_elimination$/, "")
@@ -109,7 +152,12 @@
     return `${key || "double"}${integer(size, 8)}.json`;
   }
 
-  /** Returns stable match order from explicit template order or match IDs. */
+  /**
+   * Returns stable match order from explicit template order or match IDs.
+   * @param {string|number} id Stable identifier of the target item.
+   * @param {Object} match Resolved match data.
+   * @returns {unknown}
+   */
   function matchOrder(id, match) {
     if (Number.isFinite(Number(match?.order))) return Number(match.order);
     const numeric = integer(text(id).replace(/^M/i, ""), 0);
@@ -119,7 +167,11 @@
     }, 0);
   }
 
-  /** Returns template match IDs in visual progression order. */
+  /**
+   * Returns template match IDs in visual progression order.
+   * @param {Object} template Bracket template to interpret.
+   * @returns {Array<unknown>}
+   */
   function sortedMatchIDs(template) {
     return Object.keys(template?.matches || {}).sort(function (left, right) {
       const difference = matchOrder(left, template.matches[left]) - matchOrder(right, template.matches[right]);
@@ -127,30 +179,55 @@
     });
   }
 
-  /** Loads the tournament's format/size template or a readable missing-template fallback. */
+  /**
+   * Loads the tournament's format/size template or a readable missing-template fallback.
+   * @param {Object} state Current component or application state.
+   * @param {Object} options Options that configure this operation.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadTemplate(state, options) {
     const fileName = templateFileName(state?.event?.format, state?.event?.size);
     return loadOptionalJSON(`${options.templateRoot}/${fileName}`, { error: `[${fileName}] template missing`, matches: {}, size: integer(state?.event?.size, 0), type: text(state?.event?.format) }, `template:${fileName}`);
   }
 
-  /** Resolves a bracket seed to a player ID without changing player records. */
+  /**
+   * Resolves a bracket seed to a player ID without changing player records.
+   * @param {Object} state Current component or application state.
+   * @param {number} seed Source seed slot.
+   * @returns {unknown}
+   */
   function seedPlayerID(state, seed) {
     const key = String(seed);
     return text(Object.prototype.hasOwnProperty.call(state?.bracket?.seeds || {}, key) ? state.bracket.seeds[key] : key);
   }
 
-  /** Reports whether a seed has been explicitly marked as a BYE. */
+  /**
+   * Reports whether a seed has been explicitly marked as a BYE.
+   * @param {Object} state Current component or application state.
+   * @param {number} seed Source seed slot.
+   * @returns {boolean}
+   */
   function seedIsBye(state, seed) {
     const playerID = seedPlayerID(state, seed);
     return Boolean(state?.bracket?.byes?.[String(seed)] || state?.players?.[playerID]?.bye);
   }
 
-  /** Creates one unresolved participant while preserving its bracket source label. */
+  /**
+   * Creates one unresolved participant while preserving its bracket source label.
+   * @param {unknown} source Source data consumed without taking ownership of its storage.
+   * @param {string} label Human-readable label.
+   * @returns {Object}
+   */
   function unresolvedParticipant(source, label) {
     return { pending_label: label || "TBD", player: {}, player_id: "", resolved: false, source: source || {}, status: "pending" };
   }
 
-  /** Resolves a template participant from a seed or another match result. */
+  /**
+   * Resolves a template participant from a seed or another match result.
+   * @param {unknown} source Source data consumed without taking ownership of its storage.
+   * @param {Object} state Current component or application state.
+   * @returns {unknown}
+   */
   function resolveParticipant(source, state) {
     if (!source) return unresolvedParticipant({}, "TBD");
     if (source.type === "seed") {
@@ -180,7 +257,12 @@
     return unresolvedParticipant(source, "TBD");
   }
 
-  /** Adds display labels and shared asset URLs to one resolved participant. */
+  /**
+   * Adds display labels and shared asset URLs to one resolved participant.
+   * @param {Object} participant Resolved participant data.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {Object}
+   */
   function decorateParticipant(participant, context) {
     const player = participant?.player || {};
     const playerID = text(participant?.player_id);
@@ -200,7 +282,13 @@
     };
   }
 
-  /** Tests optional reset eligibility from the undefeated finalist's template source. */
+  /**
+   * Tests optional reset eligibility from the undefeated finalist's template source.
+   * @param {unknown} definition Definition.
+   * @param {Object} template Bracket template to interpret.
+   * @param {Object} state Current component or application state.
+   * @returns {boolean}
+   */
   function resetMatchEligible(definition, template, state) {
     if (!definition.reset || !definition.optional) return true;
     const firstID = definition.p1?.match;
@@ -212,7 +300,14 @@
     return Boolean(winner && undefeated.status === "player" && winner !== undefeated.player_id && [first.p1, first.p2].some((s) => resolveParticipant(s, state).player_id === winner));
   }
 
-  /** Resolves one template match, including current-screen side swaps. */
+  /**
+   * Resolves one template match, including current-screen side swaps.
+   * @param {Object} state Current component or application state.
+   * @param {Object} template Bracket template to interpret.
+   * @param {Object} context Resolved data and options for this render.
+   * @param {unknown} requestedID Requested id.
+   * @returns {Object}
+   */
   function resolveMatch(state, template, context, requestedID) {
     const id = text(requestedID) || text(state?.current) || sortedMatchIDs(template)[0] || "";
     const definition = template?.matches?.[id] || {};
@@ -243,14 +338,24 @@
     };
   }
 
-  /** Resolves every template match for bracket rendering. */
+  /**
+   * Resolves every template match for bracket rendering.
+   * @param {Object} state Current component or application state.
+   * @param {Object} template Bracket template to interpret.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {Array<unknown>}
+   */
   function resolveBracket(state, template, context) {
     return sortedMatchIDs(template).map(function (id) {
       return resolveMatch(state, template, context, id);
     });
   }
 
-  /** Returns the winner participant from a resolved match. */
+  /**
+   * Returns the winner participant from a resolved match.
+   * @param {Object} match Resolved match data.
+   * @returns {unknown}
+   */
   function winnerFromMatch(match) {
     const winnerID = text(match?.state?.winner);
     if (winnerID && winnerID === match?.player1?.id) return match.player1;
@@ -258,7 +363,11 @@
     return null;
   }
 
-  /** Selects a decisive final, waiting for an eligible reset when required. */
+  /**
+   * Selects a decisive final, waiting for an eligible reset when required.
+   * @param {unknown} matches Matches.
+   * @returns {unknown}
+   */
   function championFromBracket(matches) {
     const requiredReset = matches.find((match) => match.definition.reset && match.definition.optional && match.player1.status === "player");
     if (requiredReset) return winnerFromMatch(requiredReset);
@@ -272,7 +381,12 @@
     return finals.length ? winnerFromMatch(finals[0]) : null;
   }
 
-  /** Builds all display-ready data required by every overlay page. */
+  /**
+   * Builds all display-ready data required by every overlay page.
+   * @param {Object} state Current component or application state.
+   * @param {Object} options Options that configure this operation.
+   * @returns {Promise<Object>} The resulting asynchronous value.
+   */
   async function buildContext(state, options) {
     const gameKey = lower(state?.event?.game);
     const [template, characters, games] = await Promise.all([
@@ -301,7 +415,12 @@
     return context;
   }
 
-  /** Reads a dotted object path used by simple data-fgc-text bindings. */
+  /**
+   * Reads a dotted object path used by simple data-fgc-text bindings.
+   * @param {unknown} source Source data consumed without taking ownership of its storage.
+   * @param {string} path Path to normalize or resolve.
+   * @returns {unknown}
+   */
   function readPath(source, path) {
     return text(path)
       .split(".")
@@ -311,14 +430,23 @@
       }, source);
   }
 
-  /** Runs one Animate.css effect and guarantees completion under reduced motion. */
+  /**
+   * Runs one Animate.css effect and guarantees completion under reduced motion.
+   * @param {jQuery} $element Element.
+   * @param {string} name Field or item identifier.
+   * @param {Function} complete Callback invoked when the operation completes.
+   * @returns {void}
+   */
   function animate($element, name, complete) {
     const oldTimer = $element.data("fgc-animation-timer");
     if (oldTimer) global.clearTimeout(oldTimer);
     $element.off("animationend.streamFgc").removeClass(ANIMATION_CLASSES);
 
     let finished = false;
-    /** Completes this animation once, whether CSS or the fallback timer wins. */
+    /**
+     * Completes this animation once, whether CSS or the fallback timer wins.
+     * @returns {void}
+     */
     function finish() {
       if (finished) return;
       finished = true;
@@ -332,7 +460,13 @@
     });
   }
 
-  /** Swaps one changed value with fade-out then fade-in-up transitions. */
+  /**
+   * Swaps one changed value with fade-out then fade-in-up transitions.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {string} valueKey Key used to detect whether displayed content changed.
+   * @param {Function} write Callback that writes the accepted value.
+   * @returns {void}
+   */
   function swapValue(target, valueKey, write) {
     $(target).each(function () {
       const $element = $(this);
@@ -355,7 +489,12 @@
     });
   }
 
-  /** Swaps text only when its value changed. */
+  /**
+   * Swaps text only when its value changed.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {void}
+   */
   function swapText(target, value) {
     const valueText = text(value);
     swapValue(target, valueText, function ($element) {
@@ -363,7 +502,14 @@
     });
   }
 
-  /** Swaps generated markup as one animated region. */
+  /**
+   * Swaps generated markup as one animated region.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {unknown} html Html.
+   * @param {string} [valueKey=html] Key used to detect whether displayed content changed.
+   * @param {unknown} afterWrite After write.
+   * @returns {void}
+   */
   function swapHTML(target, html, valueKey = html, afterWrite) {
     swapValue(target, valueKey, function ($element) {
       $element.html(html);
@@ -371,7 +517,13 @@
     });
   }
 
-  /** Writes an image with an ordered local fallback chain. */
+  /**
+   * Writes an image with an ordered local fallback chain.
+   * @param {jQuery} $image Image.
+   * @param {unknown} candidates Candidates.
+   * @param {boolean} hideOnFailure Hide on failure.
+   * @returns {void}
+   */
   function writeImage($image, candidates, hideOnFailure) {
     const urls = candidates.filter(Boolean);
     let index = 0;
@@ -387,7 +539,13 @@
     else if (hideOnFailure) $image.css("visibility", "hidden");
   }
 
-  /** Swaps an image only when its fallback chain changed. */
+  /**
+   * Swaps an image only when its fallback chain changed.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {unknown} candidates Candidates.
+   * @param {boolean} [hideOnFailure=false] Hide on failure.
+   * @returns {void}
+   */
   function swapImage(target, candidates, hideOnFailure = false) {
     const urls = candidates.filter(Boolean);
     swapValue(target, urls.join("|"), function ($image) {
@@ -395,7 +553,12 @@
     });
   }
 
-  /** Animates an element between visible and hidden states. */
+  /**
+   * Animates an element between visible and hidden states.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {boolean} visible Whether the target should be visible.
+   * @returns {void}
+   */
   function setVisible(target, visible) {
     $(target).each(function () {
       const $element = $(this);
@@ -412,19 +575,31 @@
     });
   }
 
-  /** Applies generic dotted-path text bindings used by headers and intro pages. */
+  /**
+   * Applies generic dotted-path text bindings used by headers and intro pages.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function applyBindings(context) {
     $("[data-fgc-text]").each(function () {
       swapText(this, readPath(context, $(this).attr("data-fgc-text")));
     });
   }
 
-  /** Returns a CSS-safe local URL. */
+  /**
+   * Returns a CSS-safe local URL.
+   * @param {string|URL} url URL to inspect, request, or display.
+   * @returns {string}
+   */
   function cssURL(url) {
     return `url("${String(url).replace(/"/g, "%22")}")`;
   }
 
-  /** Applies tournament, game, and page art as ordered CSS fallback layers. */
+  /**
+   * Applies tournament, game, and page art as ordered CSS fallback layers.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function applyTheme(context) {
     const game = context.gameKey || "default";
     const page = context.page || "overlay";
@@ -438,14 +613,23 @@
     swapImage("[data-tournament-logo]", [`${context.options.playerRoot}/_logo.png`, `./${game}/_logo.png`, `${context.options.assetRoot}/${game}/_logo.png`, `${context.options.assetRoot}/stream.fgc.png`]);
   }
 
-  /** Updates one optional country flag and hides it when no ISO2 code is present. */
+  /**
+   * Updates one optional country flag and hides it when no ISO2 code is present.
+   * @param {HTMLElement} target Target element or value to update.
+   * @param {Object} participant Resolved participant data.
+   * @returns {void}
+   */
   function renderFlag(target, participant) {
     const visible = Boolean(participant?.flag_url);
     setVisible(target, visible);
     if (visible) swapImage(target, [participant.flag_url], true);
   }
 
-  /** Renders the compact current-match scoreboard. */
+  /**
+   * Renders the compact current-match scoreboard.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function renderScoreboard(context) {
     swapText("[data-p1-name]", context.player1.name);
     swapText("[data-p1-team]", context.player1.team);
@@ -457,7 +641,11 @@
     renderFlag("[data-p2-flag]", context.player2);
   }
 
-  /** Renders the current-match versus screen. */
+  /**
+   * Renders the current-match versus screen.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function renderVersus(context) {
     for (const [prefix, participant] of [
       ["p1", context.player1],
@@ -471,7 +659,11 @@
     }
   }
 
-  /** Renders the current match winner or hides the panel until one exists. */
+  /**
+   * Renders the current match winner or hides the panel until one exists.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function renderWinner(context) {
     setVisible("[data-winner-panel]", Boolean(context.winner));
     if (!context.winner) return;
@@ -482,7 +674,11 @@
     renderFlag("[data-winner-flag]", context.winner);
   }
 
-  /** Renders the decisive champion and clears text when the result becomes pending. */
+  /**
+   * Renders the decisive champion and clears text when the result becomes pending.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function renderChampion(context) {
     setVisible("[data-champion-panel]", Boolean(context.champion));
     if (!context.champion) {
@@ -494,7 +690,11 @@
     swapImage("[data-champion-portrait]", [context.champion.portrait_url, context.nopic]);
   }
 
-  /** Normalizes stored and query-string bracket view aliases. */
+  /**
+   * Normalizes stored and query-string bracket view aliases.
+   * @param {unknown} value Value supplied by the caller.
+   * @returns {string}
+   */
   function normalizeBracketView(value) {
     const view = lower(value);
     if (["winner", "upper", "winners"].includes(view)) return "winners";
@@ -504,19 +704,33 @@
     return "all";
   }
 
-  /** Extracts the number from a round label such as Losers Round 5. */
+  /**
+   * Extracts the number from a round label such as Losers Round 5.
+   * @param {number} round Current draw or match round.
+   * @returns {unknown}
+   */
   function roundNumber(round) {
     const values = text(round).match(/\d+/g);
     return values?.length ? integer(values[values.length - 1], 0) : 0;
   }
 
-  /** Finds the last three losers rounds used by the common Top 8 view. */
+  /**
+   * Finds the last three losers rounds used by the common Top 8 view.
+   * @param {unknown} matches Matches.
+   * @returns {number} Calculated numeric value.
+   */
   function top8LosersStart(matches) {
     const maximum = Math.max(0, ...matches.filter((match) => match.group === "losers").map((match) => roundNumber(match.round)));
     return Math.max(1, maximum - 2);
   }
 
-  /** Reports whether one match belongs to the selected overlay bracket slice. */
+  /**
+   * Reports whether one match belongs to the selected overlay bracket slice.
+   * @param {Object} match Resolved match data.
+   * @param {string} view Requested bracket view.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {boolean}
+   */
   function bracketViewAllows(match, view, context) {
     if (view === "winners" || view === "losers" || view === "finals") return match.group === view;
     if (view !== "top8" || integer(context.template?.size, 0) <= 8) return true;
@@ -526,12 +740,22 @@
     return true;
   }
 
-  /** Returns a human label for a stored bracket view. */
+  /**
+   * Returns a human label for a stored bracket view.
+   * @param {string} view Requested bracket view.
+   * @returns {unknown}
+   */
   function bracketViewLabel(view) {
     return { all: "Full bracket", finals: "Finals", losers: "Losers bracket", top8: "Top 8", winners: "Winners bracket" }[view] || "Full bracket";
   }
 
-  /** Builds one participant row inside a bracket match card. */
+  /**
+   * Builds one participant row inside a bracket match card.
+   * @param {Object} participant Resolved participant data.
+   * @param {Object} match Resolved match data.
+   * @param {string} side Match side to render.
+   * @returns {string}
+   */
   function bracketParticipantHTML(participant, match, side) {
     const winnerID = text(match.state.winner);
     const loserID = text(match.state.loser);
@@ -553,7 +777,12 @@
     `;
   }
 
-  /** Builds one resolved match card for the static bracket overlay. */
+  /**
+   * Builds one resolved match card for the static bracket overlay.
+   * @param {Object} match Resolved match data.
+   * @param {unknown} currentMatchID Current match id.
+   * @returns {string}
+   */
   function bracketMatchHTML(match, currentMatchID) {
     return /* HTML */ `
       <article class="fgc-bracket-match${match.id === text(currentMatchID) ? " is-current" : ""}">
@@ -563,7 +792,12 @@
     `;
   }
 
-  /** Builds a proper round-by-round bracket from the selected projection slice. */
+  /**
+   * Builds a proper round-by-round bracket from the selected projection slice.
+   * @param {Object} context Resolved data and options for this render.
+   * @param {string} view Requested bracket view.
+   * @returns {string}
+   */
   function bracketHTML(context, view) {
     if (context.template?.error) return /* HTML */ `<div class="fgc-overlay-empty">${escapeHTML(context.template.error)}</div>`;
     const matches = context.matches.filter((match) => bracketViewAllows(match, view, context));
@@ -613,7 +847,11 @@
       .join("");
   }
 
-  /** Renders the bracket view stored for overlays, unless a query override is present. */
+  /**
+   * Renders the bracket view stored for overlays, unless a query override is present.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function renderBracket(context) {
     const queryView = new URLSearchParams(global.location.search).get("view");
     const view = normalizeBracketView(queryView || context.bracket.overlay_view || "all");
@@ -629,7 +867,11 @@
     });
   }
 
-  /** Applies common bindings, page art, and the page-specific renderer. */
+  /**
+   * Applies common bindings, page art, and the page-specific renderer.
+   * @param {Object} context Resolved data and options for this render.
+   * @returns {void}
+   */
   function render(context) {
     applyTheme(context);
     applyBindings(context);
@@ -647,7 +889,10 @@
     $("[data-fgc-runtime-warning]").remove();
   }
 
-  /** Wraps and contain-scales the fixed 1920x1080 stage for any viewport. */
+  /**
+   * Wraps and contain-scales the fixed 1920x1080 stage for any viewport.
+   * @returns {void}
+   */
   function scaleStage() {
     const $stage = $(".fgc-stage").first();
     if (!$stage.length) return;
@@ -657,7 +902,10 @@
     $stage.parent().css({ height: STAGE_HEIGHT * scale, width: STAGE_WIDTH * scale });
   }
 
-  /** Builds an HTTP URL hint for browsers that block file:// JSON reads. */
+  /**
+   * Builds an HTTP URL hint for browsers that block file:// JSON reads.
+   * @returns {string}
+   */
   function browserHTTPHint() {
     const path = global.location.pathname.replace(/\\/g, "/");
     const marker = "/stream.fgc/";
@@ -665,7 +913,11 @@
     return index >= 0 ? `http://localhost${path.slice(index)}` : "http://localhost/stream.fgc/overlays/scoreboard.html";
   }
 
-  /** Shows one readable runtime warning outside the scaled OBS stage. */
+  /**
+   * Shows one readable runtime warning outside the scaled OBS stage.
+   * @param {Error} error Failure to report or handle.
+   * @returns {void}
+   */
   function showProtocolWarning(error) {
     if (global.location.protocol !== "file:") {
       console.warn(error.message || error);
@@ -679,7 +931,11 @@
     $warning.html(/* HTML */ `Browser security blocked local JSON. Open this overlay through HTTP.<code>${escapeHTML(hint)}</code>`);
   }
 
-  /** Reads runtime paths and polling frequency from body data attributes. */
+  /**
+   * Reads runtime paths and polling frequency from body data attributes.
+   * @param {Object} [overrides={}] Overrides.
+   * @returns {Object}
+   */
   function optionsFromDocument(overrides = {}) {
     const $body = $(document.body);
     const query = new URLSearchParams(global.location.search);
@@ -695,7 +951,11 @@
     };
   }
 
-  /** Loads and renders tournament state only when tournament.json changed. */
+  /**
+   * Loads and renders tournament state only when tournament.json changed.
+   * @param {Object} options Options that configure this operation.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function refresh(options) {
     const stateText = await requestText(options.stateURL);
     if (stateText === lastStateText) return null;
@@ -706,14 +966,21 @@
     return context;
   }
 
-  /** Starts one non-overlapping JSON polling loop. */
+  /**
+   * Starts one non-overlapping JSON polling loop.
+   * @param {unknown} overrides Overrides.
+   * @returns {Object}
+   */
   function init(overrides) {
     const options = optionsFromDocument(overrides);
     if (activeTimer) global.clearInterval(activeTimer);
     scaleStage();
     $(global).off("resize.streamFgcOverlay").on("resize.streamFgcOverlay", scaleStage);
 
-    /** Runs one polling pass while preventing overlapping local file requests. */
+    /**
+     * Runs one polling pass while preventing overlapping local file requests.
+     * @returns {Promise<void>}
+     */
     async function tick() {
       if (refreshRunning) return;
       refreshRunning = true;
@@ -739,6 +1006,7 @@
   }
 
   const api = {
+    initialized: true,
     applyBindings,
     init,
     readPath,

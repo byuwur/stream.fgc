@@ -9,10 +9,13 @@
 /**
  * Registers this page controller on the shared Stream.FGC browser namespace.
  * @param {Window} global Browser window provided by Wails WebView or a regular browser.
+ * @returns {void}
+ * @throws {Error}
  */
 (function (global) {
   const fgc = global.StreamFGC;
   if (!fgc) throw new Error("StreamFGC core must load before app/bracket.js");
+  if (fgc.bracket?.initialized) return;
 
   const {
     applyLanguage,
@@ -45,7 +48,11 @@
   const { BRACKET_ADMIN_VIEW, BRACKET_OVERLAY_REFRESH_MS, BRACKET_PAGE, EMPTY_STATE_CLASS } = fgc.constants;
   const bracketSeedSelections = new WeakMap();
 
-  /** Returns the localized label for a bracket match status. */
+  /**
+   * Returns the localized label for a bracket match status.
+   * @param {number} status Status code describing the result.
+   * @returns {unknown}
+   */
   function bracketStatusLabel(status) {
     const labels = {
       bye: t("bracket.status.bye", "BYE"),
@@ -56,7 +63,11 @@
     return labels[status] || status || t("bracket.status.pending", "Pending");
   }
 
-  /** Normalizes bracket view keys for backend and static overlay rendering. */
+  /**
+   * Normalizes bracket view keys for backend and static overlay rendering.
+   * @param {string} view Requested bracket view.
+   * @returns {string}
+   */
   function normalizeBracketView(view) {
     const key = String(view || "")
       .toLowerCase()
@@ -68,7 +79,12 @@
     return "all";
   }
 
-  /** Finds a view option in a backend bracket projection. */
+  /**
+   * Finds a view option in a backend bracket projection.
+   * @param {unknown} projection Projection.
+   * @param {string} [viewKey=""] View key.
+   * @returns {unknown}
+   */
   function bracketViewName(projection, viewKey = "") {
     const key = viewKey || projection?.view || "";
     const view = projection?.views?.find(function (option) {
@@ -77,14 +93,22 @@
     return view?.name || key || "";
   }
 
-  /** Returns the active admin manager view from the Select2-backed control. */
+  /**
+   * Returns the active admin manager view from the Select2-backed control.
+   * @param {unknown} page Page.
+   * @returns {unknown}
+   */
   function bracketManagerView(page) {
     const select = page?.querySelector?.("[data-bracket-manager-view-select]");
     if (select instanceof HTMLSelectElement && select.value) return normalizeBracketView(select.value);
     return normalizeBracketView(fgc.currentState?.bracket?.manager_view || BRACKET_ADMIN_VIEW);
   }
 
-  /** Loads the saved manager view before the bracket page has rendered its select. */
+  /**
+   * Loads the saved manager view before the bracket page has rendered its select.
+   * @param {Object} app Backend service or application bindings.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function savedBracketManagerView(app) {
     if (fgc.currentState?.bracket?.manager_view) return normalizeBracketView(fgc.currentState.bracket.manager_view);
     if (typeof app?.LoadTournament === "function") {
@@ -94,7 +118,12 @@
     return BRACKET_ADMIN_VIEW;
   }
 
-  /** Builds the compact summary shown above admin and overlay brackets. */
+  /**
+   * Builds the compact summary shown above admin and overlay brackets.
+   * @param {unknown} projection Projection.
+   * @param {boolean} [admin=false] Admin.
+   * @returns {unknown}
+   */
   function bracketSummary(projection, admin = false) {
     if (projection?.error) return projection.error;
     const template = admin ? t("bracket.admin_summary", "{players}/{size} players - {matches} matches - Admin: {view} - Overlay: {overlay}") : t("bracket.summary", "{players}/{size} players - {matches} matches - {view}");
@@ -106,7 +135,11 @@
       .replace("{overlay}", bracketViewName(projection, projection?.overlay_view));
   }
 
-  /** Returns the compact label for an exceptional match result reason. */
+  /**
+   * Returns the compact label for an exceptional match result reason.
+   * @param {unknown} reason Reason.
+   * @returns {unknown}
+   */
   function bracketResultReasonLabel(reason) {
     switch (String(reason || "").toLowerCase()) {
       case "bye":
@@ -118,7 +151,14 @@
     }
   }
 
-  /** Rebuilds one bracket view select while keeping Select2 synchronized. */
+  /**
+   * Rebuilds one bracket view select while keeping Select2 synchronized.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} selector CSS selector identifying the target elements.
+   * @param {Object} options Options that configure this operation.
+   * @param {unknown} selectedView Selected view.
+   * @returns {void}
+   */
   function renderBracketViewSelect(root, selector, options, selectedView) {
     const select = root.querySelector(selector);
     if (!(select instanceof HTMLSelectElement)) return;
@@ -132,7 +172,12 @@
     select.value = selectedView;
   }
 
-  /** Writes projection metadata into the optional view selectors and summary. */
+  /**
+   * Writes projection metadata into the optional view selectors and summary.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {unknown} projection Projection.
+   * @returns {void}
+   */
   function renderBracketHeader(root, projection) {
     const admin = root.matches(BRACKET_PAGE);
     root.dataset.rule = String(parseRuleValue(projection?.event?.rule || fgc.currentState?.event?.rule || 3) || 3);
@@ -157,7 +202,16 @@
     enhanceSelects(root);
   }
 
-  /** Returns one participant line for the bracket board. */
+  /**
+   * Returns one participant line for the bracket board.
+   * @param {Object} participant Resolved participant data.
+   * @param {unknown} score Score.
+   * @param {Object} match Resolved match data.
+   * @param {string} side Match side to render.
+   * @param {unknown} admin Admin.
+   * @param {unknown} projection Projection.
+   * @returns {string}
+   */
   function bracketParticipantHTML(participant, score, match, side, admin, projection) {
     const status = participant?.status || "pending";
     const playerID = participant?.player_id || "";
@@ -226,7 +280,13 @@
     `;
   }
 
-  /** Builds admin-only result controls for one bracket participant row, hidden after completion. */
+  /**
+   * Builds admin-only result controls for one bracket participant row, hidden after completion.
+   * @param {Object} match Resolved match data.
+   * @param {string} side Match side to render.
+   * @param {unknown} admin Admin.
+   * @returns {string}
+   */
   function bracketParticipantActionsHTML(match, side, admin) {
     if (!admin) return "";
     if (match?.status === "complete" || match?.winner_id || match?.state?.winner) return "";
@@ -288,7 +348,12 @@
     `;
   }
 
-  /** Builds admin-only match-level controls that are not tied to one player. */
+  /**
+   * Builds admin-only match-level controls that are not tied to one player.
+   * @param {Object} match Resolved match data.
+   * @param {unknown} admin Admin.
+   * @returns {string}
+   */
   function bracketMatchActionsHTML(match, admin) {
     if (!admin) return "";
     const current = match?.current ? " disabled" : "";
@@ -321,7 +386,13 @@
     `;
   }
 
-  /** Builds one bracket match card. */
+  /**
+   * Builds one bracket match card.
+   * @param {Object} match Resolved match data.
+   * @param {unknown} admin Admin.
+   * @param {unknown} projection Projection.
+   * @returns {string}
+   */
   function bracketMatchHTML(match, admin, projection) {
     const scoreLimit = parseRuleValue(projection?.event?.rule || fgc.currentState?.event?.rule || 3) || 3;
     const score1 = clampScore(match?.state?.player1_score || 0, scoreLimit);
@@ -336,14 +407,20 @@
             </div>
             <span class="badge rounded-pill text-bg-dark border" data-bracket-status-pill>${escapeHtml(bracketStatusLabel(match?.status))}</span>
           </div>
-          <div class="d-flex flex-column gap-2"> ${bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection)} ${bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection)} </div>
+          <div class="d-flex flex-column gap-2">${bracketParticipantHTML(match?.player1, score1, match, 1, admin, projection)} ${bracketParticipantHTML(match?.player2, score2, match, 2, admin, projection)}</div>
           ${bracketMatchActionsHTML(match, admin)}
         </div>
       </article>
     `;
   }
 
-  /** Builds one bracket section with Bootstrap columns for rounds. */
+  /**
+   * Builds one bracket section with Bootstrap columns for rounds.
+   * @param {string} section Section identifier or label.
+   * @param {unknown} admin Admin.
+   * @param {unknown} projection Projection.
+   * @returns {string}
+   */
   function bracketSectionHTML(section, admin, projection) {
     const rounds = section?.rounds || [];
     return /* HTML */ `
@@ -375,7 +452,13 @@
     `;
   }
 
-  /** Draws a backend bracket projection into either admin or overlay root. */
+  /**
+   * Draws a backend bracket projection into either admin or overlay root.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {unknown} projection Projection.
+   * @param {boolean} [admin=false] Admin.
+   * @returns {void}
+   */
   function renderBracketProjection(root, projection, admin = false) {
     renderBracketHeader(root, projection);
     const board = root.querySelector("[data-bracket-board]");
@@ -409,7 +492,12 @@
     applyLanguage(board);
   }
 
-  /** Loads the bracket projection through Wails. */
+  /**
+   * Loads the bracket projection through Wails.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @param {string} [requestedView=""] Requested view.
+   * @returns {Promise<unknown>} The resulting asynchronous value.
+   */
   async function loadBracket(root, requestedView = "") {
     const scrollState = captureScrollState(root);
     const ticket = nextBracketLoadTicket(root);
@@ -421,7 +509,7 @@
         if (board)
           board.innerHTML = /* HTML */ `
             <div class="col-12">
-              <div class="${EMPTY_STATE_CLASS}"> ${escapeHtml(t("bracket.status.backend_missing", "Open in Wails to edit tournament JSON."))} </div>
+              <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div>
             </div>
           `;
         setBracketStatus(root, "bracket.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
@@ -450,7 +538,12 @@
     }
   }
 
-  /** Saves the selected overlay view and refreshes the admin preview. */
+  /**
+   * Saves the selected overlay view and refreshes the admin preview.
+   * @param {unknown} page Page.
+   * @param {string} view Requested bracket view.
+   * @returns {Promise<void>}
+   */
   async function saveBracketOverlayView(page, view) {
     const scrollState = captureScrollState(page);
     const app = await waitForBackend();
@@ -473,7 +566,12 @@
     }
   }
 
-  /** Saves the selected manager view and refreshes the admin bracket slice. */
+  /**
+   * Saves the selected manager view and refreshes the admin bracket slice.
+   * @param {unknown} page Page.
+   * @param {string} view Requested bracket view.
+   * @returns {Promise<void>}
+   */
   async function saveBracketManagerView(page, view) {
     const scrollState = captureScrollState(page);
     const app = await waitForBackend();
@@ -504,7 +602,12 @@
     }
   }
 
-  /** Performs one admin bracket action and reloads the projection. */
+  /**
+   * Performs one admin bracket action and reloads the projection.
+   * @param {unknown} page Page.
+   * @param {unknown} action Action.
+   * @returns {Promise<void>}
+   */
   async function runBracketAction(page, action) {
     const scrollState = captureScrollState(page);
     const app = await waitForBackend();
@@ -527,7 +630,13 @@
     }
   }
 
-  /** Runs one named backend bracket method and keeps button handlers readable. */
+  /**
+   * Runs one named backend bracket method and keeps button handlers readable.
+   * @param {unknown} page Page.
+   * @param {unknown} methodName Method name.
+   * @param {...unknown} args Args.
+   * @returns {void}
+   */
   function runBracketBackendMethod(page, methodName, ...args) {
     void runBracketAction(page, function (app) {
       if (typeof app[methodName] !== "function") return Promise.reject(new Error(`${methodName} is unavailable`));
@@ -535,14 +644,24 @@
     });
   }
 
-  /** Reads one bracket score from a rendered match card. */
+  /**
+   * Reads one bracket score from a rendered match card.
+   * @param {unknown} matchCard Match card.
+   * @param {string} side Match side to render.
+   * @returns {unknown}
+   */
   function readBracketScore(matchCard, side) {
     const input = matchCard?.querySelector(`[data-bracket-score-input="${side}"]`);
     if (!(input instanceof HTMLInputElement)) return 0;
     return clampScore(input.value, eventRuleLimit(matchCard));
   }
 
-  /** Handles compact bracket score +/- controls. */
+  /**
+   * Handles compact bracket score +/- controls.
+   * @param {unknown} page Page.
+   * @param {HTMLButtonElement} button Action button whose state or feedback is updated.
+   * @returns {void}
+   */
   function updateBracketScoreFromButton(page, button) {
     const matchID = button.getAttribute("data-match-id") || "";
     const side = Number(button.getAttribute("data-side") || 0);
@@ -564,7 +683,12 @@
     runBracketBackendMethod(page, "UpdateMatchScore", matchID, player1Score, player2Score);
   }
 
-  /** Handles first/second click selection for bracket seed swaps without moving player records. */
+  /**
+   * Handles first/second click selection for bracket seed swaps without moving player records.
+   * @param {unknown} page Page.
+   * @param {number} seed Source seed slot.
+   * @returns {void}
+   */
   function selectBracketSeedForSwap(page, seed) {
     if (!seed) return;
     const selectedSeed = bracketSeedSelections.get(page) || 0;
@@ -583,7 +707,12 @@
     runBracketBackendMethod(page, "SwapBracketSeeds", selectedSeed, seed);
   }
 
-  /** Handles native and Select2-driven bracket view changes through one path. */
+  /**
+   * Handles native and Select2-driven bracket view changes through one path.
+   * @param {unknown} page Page.
+   * @param {HTMLSelectElement} select Select control to enhance.
+   * @returns {boolean}
+   */
   function handleBracketViewSelectChange(page, select) {
     if (!(select instanceof HTMLSelectElement)) return false;
     if (select.matches("[data-bracket-overlay-view-select]")) {
@@ -597,7 +726,11 @@
     return false;
   }
 
-  /** Binds admin bracket controls. */
+  /**
+   * Binds admin bracket controls.
+   * @param {unknown} page Page.
+   * @returns {void}
+   */
   function bindBracketPage(page) {
     const bindingVersion = "view-select2-v2";
     if (page.dataset.bound === bindingVersion) return;
@@ -706,7 +839,11 @@
     void loadBracket(page, bracketManagerView(page));
   }
 
-  /** Binds the standalone overlay bracket page with a light refresh loop. */
+  /**
+   * Binds the standalone overlay bracket page with a light refresh loop.
+   * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
+   * @returns {void}
+   */
   function bindBracketOverlay(root) {
     if (root.dataset.bound === "true") return;
     root.dataset.bound = "true";
@@ -717,6 +854,7 @@
   }
 
   fgc.bracket = {
+    initialized: true,
     bindOverlay: bindBracketOverlay,
     bindPage: bindBracketPage,
     load: loadBracket,

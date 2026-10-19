@@ -11,10 +11,14 @@
  * This IIFE (Immediately Invoked Function Expression) ensures bySPA object exists globally
  * (typically on `window` in a browser) to avoid pollution and conflicts in the global namespace.
  * @param {Object} global - The global object, usually `window` in a browser.
+ * @returns {void}
  */
 (function (global) {
+  if (global.bySPA?.initialized) return;
+
   const currentScript = document.currentScript;
-  const scriptURL = new URL(currentScript?.getAttribute("src") || "_init.js", global.location.href);
+  const scriptSource = currentScript && typeof currentScript.getAttribute === "function" ? currentScript.getAttribute("src") : "";
+  const scriptURL = new URL(scriptSource || "_init.js", global.location.href);
   const applicationURL = new URL("./", scriptURL);
 
   /*
@@ -31,66 +35,73 @@
    */
   global.byStorage = global.byStorage || {};
   const byStorage = global.byStorage;
-  byStorage.memory = Object.create(null);
-  const localKeys = new Set();
-  byStorage.base = applicationURL.pathname.replace(/\/$/, "") || "/";
-  byStorage.prefix = `bySPA:${byStorage.base}:`;
 
-  /**
-   * Gets a stored value, migrating a legacy key when needed.
-   * @param {string} key
-   * @returns {string|null}
-   */
-  byStorage.getItem = function (key) {
-    if (localKeys.has(key)) return byStorage.memory[key];
-    try {
-      const value = global.localStorage.getItem(byStorage.prefix + key);
-      if (value !== null) return value;
-      // Migrate legacy unprefixed storage.
-      const legacy = global.localStorage.getItem(key);
-      if (legacy !== null) {
-        byStorage.setItem(key, legacy);
-        // Remove the old key only after storage confirms the migrated value.
-        if (!localKeys.has(key) && global.localStorage.getItem(byStorage.prefix + key) === legacy)
-          try {
-            global.localStorage.removeItem(key);
-          } catch (_) {}
+  if (!byStorage.initialized) {
+    byStorage.memory = Object.create(null);
+    // Failed keys retain local authority until an explicit persistence operation succeeds.
+    const localKeys = new Set();
+    byStorage.base = applicationURL.pathname.replace(/\/$/, "") || "/";
+    byStorage.prefix = `bySPA:${byStorage.base}:`;
+
+    /**
+     * Gets a stored value, migrating a legacy key when needed.
+     * @param {string} key
+     * @returns {string|null}
+     */
+    byStorage.getItem = function (key) {
+      if (localKeys.has(key)) return byStorage.memory[key];
+      try {
+        const value = global.localStorage.getItem(byStorage.prefix + key);
+        if (value !== null) return value;
+        // Migrate legacy unprefixed storage.
+        const legacy = global.localStorage.getItem(key);
+        if (legacy !== null) {
+          byStorage.setItem(key, legacy);
+          // Remove the old key only after storage confirms the migrated value.
+          if (!localKeys.has(key) && global.localStorage.getItem(byStorage.prefix + key) === legacy)
+            try {
+              global.localStorage.removeItem(key);
+            } catch (_) {}
+        }
+        return legacy;
+      } catch (_) {
+        return Object.prototype.hasOwnProperty.call(byStorage.memory, key) ? byStorage.memory[key] : null;
       }
-      return legacy;
-    } catch (_) {
-      return Object.prototype.hasOwnProperty.call(byStorage.memory, key) ? byStorage.memory[key] : null;
-    }
-  };
+    };
 
-  /**
-   * Stores a value using the SPA namespace.
-   * @param {string} key
-   * @param {*} value
-   * @returns {void}
-   */
-  byStorage.setItem = function (key, value) {
-    byStorage.memory[key] = String(value);
-    localKeys.add(key);
-    try {
-      global.localStorage.setItem(byStorage.prefix + key, value);
-      localKeys.delete(key);
-    } catch (_) {}
-  };
+    /**
+     * Stores a value using the SPA namespace.
+     * @param {string} key
+     * @param {*} value
+     * @returns {void}
+     */
+    byStorage.setItem = function (key, value) {
+      byStorage.memory[key] = String(value);
+      localKeys.add(key);
+      try {
+        global.localStorage.setItem(byStorage.prefix + key, byStorage.memory[key]);
+        localKeys.delete(key);
+      } catch (_) {}
+    };
 
-  /**
-   * Removes a stored value.
-   * @param {string} key
-   * @returns {void}
-   */
-  byStorage.removeItem = function (key) {
-    byStorage.memory[key] = null;
-    localKeys.add(key);
-    try {
-      global.localStorage.removeItem(byStorage.prefix + key);
-      global.localStorage.removeItem(key);
-      localKeys.delete(key);
-    } catch (_) {}
-  };
+    /**
+     * Removes a stored value.
+     * @param {string} key
+     * @returns {void}
+     */
+    byStorage.removeItem = function (key) {
+      // Keep an explicit tombstone if either removal fails, including legacy cleanup.
+      byStorage.memory[key] = null;
+      localKeys.add(key);
+      try {
+        global.localStorage.removeItem(byStorage.prefix + key);
+        global.localStorage.removeItem(key);
+        localKeys.delete(key);
+      } catch (_) {}
+    };
+
+    byStorage.initialized = true;
+  }
 
   // ===========================
 
