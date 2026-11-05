@@ -1,5 +1,5 @@
 html {
-  font-size: 16px;
+  font-size: 1rem;
 }
 body {
   font-size: 1rem;
@@ -116,7 +116,7 @@ body {
   top: 0;
   right: 0;
   z-index: 1040;
-  max-width: min(48rem, calc(100vw - 6rem));
+  max-width: min(48rem, 100vw - 6rem);
   pointer-events: none;
 }
 #fgc-global-controls > * {
