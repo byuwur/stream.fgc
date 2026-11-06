@@ -762,14 +762,18 @@
     const winner = Boolean(participant.id && participant.id === winnerID);
     const loser = Boolean(participant.id && (participant.id === loserID || (winnerID && participant.id !== winnerID)));
     const score = side === 1 ? match.state.player1_score : match.state.player2_score;
-    const reason = (winner || loser) && match.state.reason ? /* HTML */ `<span class="fgc-bracket-reason">${escapeHTML(match.state.reason.toUpperCase())}</span>` : "";
-    const flag = participant.flag_url ? /* HTML */ `<img class="fgc-bracket-flag" src="${escapeHTML(participant.flag_url)}" alt="${escapeHTML(participant.country)}" />` : "";
-    return /* HTML */ `
+    const reason = (winner || loser) && match.state.reason ? // HTML
+     `<span class="fgc-bracket-reason">${escapeHTML(match.state.reason.toUpperCase())}</span>` : "";
+    const flag = participant.flag_url ? // HTML
+     `<img class="fgc-bracket-flag" src="${escapeHTML(participant.flag_url)}" alt="${escapeHTML(participant.country)}" />` : "";
+    // HTML
+    return  `
       <div class="fgc-bracket-player${winner ? " is-winner" : ""}${loser ? " is-loser" : ""}">
         ${flag}
         <span class="fgc-bracket-player-copy">
           <strong>${escapeHTML(participant.name)}</strong>
-          ${participant.team ? /* HTML */ `<small>${escapeHTML(participant.team)}</small>` : ""}
+          ${participant.team ? // HTML
+           `<small>${escapeHTML(participant.team)}</small>` : ""}
         </span>
         ${reason}
         <strong class="fgc-bracket-score">${integer(score, 0)}</strong>
@@ -784,7 +788,8 @@
    * @returns {string}
    */
   function bracketMatchHTML(match, currentMatchID) {
-    return /* HTML */ `
+    // HTML
+    return  `
       <article class="fgc-bracket-match${match.id === text(currentMatchID) ? " is-current" : ""}">
         <header><span>${escapeHTML(match.id)}</span><strong>${escapeHTML(match.name)}</strong></header>
         ${bracketParticipantHTML(match.player1, match, 1)} ${bracketParticipantHTML(match.player2, match, 2)}
@@ -799,9 +804,11 @@
    * @returns {string}
    */
   function bracketHTML(context, view) {
-    if (context.template?.error) return /* HTML */ `<div class="fgc-overlay-empty">${escapeHTML(context.template.error)}</div>`;
+    if (context.template?.error) // HTML
+    return  `<div class="fgc-overlay-empty">${escapeHTML(context.template.error)}</div>`;
     const matches = context.matches.filter((match) => bracketViewAllows(match, view, context));
-    if (!matches.length) return /* HTML */ `<div class="fgc-overlay-empty">No bracket matches found.</div>`;
+    if (!matches.length) // HTML
+    return  `<div class="fgc-overlay-empty">No bracket matches found.</div>`;
 
     const groups = [];
     for (const match of matches) {
@@ -823,7 +830,8 @@
         const weight = Math.max(1, ...group.rounds.map((round) => round.matches.length));
         const rounds = group.rounds
           .map(function (round) {
-            return /* HTML */ `
+            // HTML
+            return  `
               <section class="fgc-bracket-round">
                 <h3>${escapeHTML(round.name)}</h3>
                 <div class="fgc-bracket-round-matches">
@@ -837,7 +845,8 @@
             `;
           })
           .join("");
-        return /* HTML */ `
+        // HTML
+        return  `
           <section class="fgc-bracket-section" data-bracket-group="${escapeHTML(group.key)}" style="--fgc-group-weight:${weight}">
             <h2>${escapeHTML(group.key)}</h2>
             <div class="fgc-bracket-rounds" style="--fgc-round-count:${Math.max(1, group.rounds.length)}">${rounds}</div>
@@ -896,7 +905,8 @@
   function scaleStage() {
     const $stage = $(".fgc-stage").first();
     if (!$stage.length) return;
-    if (!$stage.parent().hasClass("fgc-stage-shell")) $stage.wrap(/* HTML */ `<div class="fgc-stage-shell"></div>`);
+    if (!$stage.parent().hasClass("fgc-stage-shell")) $stage.wrap(// HTML
+     `<div class="fgc-stage-shell"></div>`);
     const scale = Math.min(global.innerWidth / STAGE_WIDTH, global.innerHeight / STAGE_HEIGHT);
     $stage.css("transform", `scale(${scale})`);
     $stage.parent().css({ height: STAGE_HEIGHT * scale, width: STAGE_WIDTH * scale });
@@ -926,9 +936,11 @@
     const hint = browserHTTPHint();
     let $warning = $("[data-fgc-runtime-warning]");
     if (!$warning.length) {
-      $warning = $(/* HTML */ `<aside class="fgc-runtime-warning" data-fgc-runtime-warning></aside>`).appendTo(document.body);
+      $warning = $(// HTML
+       `<aside class="fgc-runtime-warning" data-fgc-runtime-warning></aside>`).appendTo(document.body);
     }
-    $warning.html(/* HTML */ `Browser security blocked local JSON. Open this overlay through HTTP.<code>${escapeHTML(hint)}</code>`);
+    $warning.html(// HTML
+     `Browser security blocked local JSON. Open this overlay through HTTP.<code>${escapeHTML(hint)}</code>`);
   }
 
   /**

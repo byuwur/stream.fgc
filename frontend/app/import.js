@@ -209,7 +209,8 @@
    */
   function importSummaryTile(label, value, options) {
     const body = options?.html ? String(value || "") : escapeHtml(value);
-    return /* HTML */ `
+    // HTML
+    return  `
       <div class="col-12 col-sm-6 col-lg-4 col-xl">
         <div class="border rounded p-3 h-100">
           <span class="d-block small fw-bold text-uppercase" data-muted-text>${escapeHtml(label)}</span>
@@ -231,7 +232,8 @@
     const name = supported ? entry.name : rawGame || t("import.unknown_game", "Unknown");
     const logo = supported ? entry.logo || FALLBACK_ASSET : FALLBACK_ASSET;
     const suffix = supported ? "" : ` ${t("import.not_supported", "(not supported)")}`;
-    return /* HTML */ `
+    // HTML
+    return  `
       <span class="d-inline-flex gap-2 align-items-center mw-100">
         <img class="fgc-media-image flex-shrink-0" src="${escapeHtml(logo)}" alt="" loading="lazy" data-fallback-image />
         <span class="text-truncate">${escapeHtml(name)}${escapeHtml(suffix)}</span>
@@ -248,7 +250,8 @@
     const code = String(country || "").toUpperCase();
     if (!code) return "";
     if (!isISO2Code(code)) return escapeHtml(code);
-    return /* HTML */ `
+    // HTML
+    return  `
       <span class="d-inline-flex gap-2 align-items-center">
         <img class="fgc-country-flag flex-shrink-0" src="${escapeHtml(countryFlagPath(code))}" alt="" loading="lazy" data-flag-image />
         <span>${escapeHtml(countryLabel(code))}</span>
@@ -263,12 +266,14 @@
    */
   function importPlayersTable(players) {
     if (!players.length) {
-      return /* HTML */ ` <div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div> `;
+      // HTML
+      return  ` <div class="fgc-empty border rounded p-3 text-center">${escapeHtml(t("import.no_players", "No players found in this import."))}</div> `;
     }
     const rows = players
       .slice(0, 64)
       .map(function (player, index) {
-        return /* HTML */ `
+        // HTML
+        return  `
           <tr>
             <td>${escapeHtml(String(player.seed || index + 1))}</td>
             <td>${escapeHtml(player.name || "")}</td>
@@ -279,8 +284,10 @@
       })
       .join("");
     const hiddenCount = Math.max(0, players.length - 64);
-    const hiddenNote = hiddenCount ? /* HTML */ ` <p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p> ` : "";
-    return /* HTML */ `
+    const hiddenNote = hiddenCount ? // HTML
+     ` <p class="mt-2 mb-0 small" data-muted-text>${escapeHtml(t("import.players_more", "{count} more players hidden from preview.").replace("{count}", String(hiddenCount)))}</p> ` : "";
+    // HTML
+    return  `
       <div class="table-responsive border rounded p-2" data-import-preview-table>
         <table class="table table-dark align-middle m-0">
           <thead>
@@ -313,17 +320,20 @@
     const matches = Array.isArray(preview?.matches) ? preview.matches : [];
     const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
     const event = preview?.event || {};
-    body.innerHTML = /* HTML */ `
+    body.innerHTML = // HTML
+     `
       ${importSummaryTile(t("import.provider", "Provider"), importProviderName(preview))} ${importSummaryTile(t("import.event", "Event"), event.name || t("import.unknown_event", "Unknown event"))}
       ${importSummaryTile(t("import.phase", "Phase"), event.phase || "")} ${importSummaryTile(t("import.game", "Game"), importGameHTML(event.game), { html: true })}
       ${importSummaryTile(t("import.counts", "Counts"), `${players.length} ${t("players.title", "Players")} / ${matches.length} ${t("bracket.match", "Match")}`)}
       ${warnings.length
-        ? /* HTML */ `
+        ? // HTML
+         `
             <div class="col-12">
               <div class="border border-warning rounded p-3">
                 ${warnings
                   .map(function (warning) {
-                    return /* HTML */ `<p class="m-0 small">${escapeHtml(warning)}</p>`;
+                    // HTML
+                    return  `<p class="m-0 small">${escapeHtml(warning)}</p>`;
                   })
                   .join("")}
               </div>

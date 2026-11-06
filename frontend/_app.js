@@ -1319,7 +1319,8 @@
     const options = games.map(function (game) {
       const isSelected = catalogEntryMatches(game, selected);
       matched = matched || isSelected;
-      return /* HTML */ `
+      // HTML
+      return  `
         <option value="${escapeHtml(game.key)}" data-key="${escapeHtml(game.key)}" data-logo="${escapeHtml(game.logo || FALLBACK_ASSET)}" data-background="${escapeHtml(game.background || "")}" ${isSelected ? " selected" : ""}>
           ${escapeHtml(game.name)}
         </option>
@@ -1327,10 +1328,12 @@
     });
 
     if (selected && !matched) {
-      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected>${escapeHtml(selected)}</option> `);
+      options.unshift(// HTML
+       ` <option value="${escapeHtml(selected)}" data-logo="${escapeHtml(FALLBACK_ASSET)}" data-background="" selected>${escapeHtml(selected)}</option> `);
     }
 
-    return /* HTML */ `
+    // HTML
+    return  `
       <option value=""></option>
       ${options.join("")}
     `;
@@ -1350,14 +1353,17 @@
       const isSelected = catalogEntryMatches(row, selected);
       const value = valueField === "key" ? row.key : row.name;
       matched = matched || isSelected;
-      return /* HTML */ ` <option value="${escapeHtml(value)}" data-key="${escapeHtml(row.key)}" ${isSelected ? " selected" : ""}>${escapeHtml(row.name)}</option> `;
+      // HTML
+      return  ` <option value="${escapeHtml(value)}" data-key="${escapeHtml(row.key)}" ${isSelected ? " selected" : ""}>${escapeHtml(row.name)}</option> `;
     });
 
     if (selected && !matched) {
-      options.unshift(/* HTML */ `<option value="${escapeHtml(selected)}" selected>${escapeHtml(selected)}</option>`);
+      options.unshift(// HTML
+       `<option value="${escapeHtml(selected)}" selected>${escapeHtml(selected)}</option>`);
     }
 
-    return /* HTML */ `
+    // HTML
+    return  `
       <option value=""></option>
       ${options.join("")}
     `;
@@ -1374,16 +1380,19 @@
     const options = characters.map(function (character) {
       const isSelected = catalogEntryMatches(character, selected);
       matched = matched || isSelected;
-      return /* HTML */ `
+      // HTML
+      return  `
         <option value="${escapeHtml(character.key)}" data-key="${escapeHtml(character.key)}" data-portrait="${escapeHtml(character.portrait || FALLBACK_ASSET)}" ${isSelected ? " selected" : ""}>${escapeHtml(character.name)}</option>
       `;
     });
 
     if (selected && !matched) {
-      options.unshift(/* HTML */ ` <option value="${escapeHtml(selected)}" data-portrait="${escapeHtml(FALLBACK_ASSET)}" selected>${escapeHtml(selected)}</option> `);
+      options.unshift(// HTML
+       ` <option value="${escapeHtml(selected)}" data-portrait="${escapeHtml(FALLBACK_ASSET)}" selected>${escapeHtml(selected)}</option> `);
     }
 
-    return /* HTML */ `
+    // HTML
+    return  `
       <option value=""></option>
       ${options.join("")}
     `;
@@ -1894,11 +1903,13 @@
     const country = String(participant?.player?.country || "").toUpperCase();
     if (!participant?.resolved || !country) return "";
     const image = isISO2Code(country)
-      ? /* HTML */ `
+      ? // HTML
+       `
           <img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.35rem; height: 0.95rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />
         `
       : "";
-    return /* HTML */ `<span class="d-inline-flex gap-2 align-items-center mw-100 mt-2 fw-bold" style="color: var(--fgc-text-soft);">${image}<span class="text-truncate">${escapeHtml(countryLabel(country))}</span></span>`;
+    // HTML
+    return  `<span class="d-inline-flex gap-2 align-items-center mw-100 mt-2 fw-bold" style="color: var(--fgc-text-soft);">${image}<span class="text-truncate">${escapeHtml(countryLabel(country))}</span></span>`;
   }
 
   /**
@@ -1933,15 +1944,18 @@
     const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
     const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
     const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
-    return /* HTML */ `
+    // HTML
+    return  `
       <div class="d-flex gap-2 col-12 col-sm-6">
         <div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>
           <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(side === 1 ? character.portrait : playerImage)}" alt="${escapeHtml(side === 1 ? characterAlt : playerAlt)}" loading="lazy" data-fallback-image />
-          ${side === 1 ? /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>` : ""}
+          ${side === 1 ? // HTML
+           `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>` : ""}
         </div>
         <div class="flex-grow-1 overflow-hidden rounded border d-flex flex-column" data-match-image-frame>
           <img class="w-100 h-100 object-fit-cover" src="${escapeHtml(side === 1 ? playerImage : character.portrait)}" alt="${escapeHtml(side === 1 ? playerAlt : characterAlt)}" loading="lazy" data-fallback-image />
-          ${side === 1 ? "" : /* HTML */ `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`}
+          ${side === 1 ? "" : // HTML
+           `<span class="px-1 py-1 small fw-bold lh-sm text-center text-truncate" data-match-character-label>${escapeHtml(character.name)}</span>`}
         </div>
       </div>
     `;
@@ -2012,7 +2026,8 @@
     const downLabel = t("match.score.down", "Decrease score");
     const scoreLabel = t("match.score.label", "Score");
     const upLabel = t("match.score.up", "Increase score");
-    return /* HTML */ `
+    // HTML
+    return  `
       <div class="input-group flex-nowrap ${spacing}" data-score-stepper ${stepperAttr}>
         <button class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" type="button" ${decAttrs} title="${escapeHtml(downLabel)}" aria-label="${escapeHtml(downLabel)}">
           <i class="fas fa-minus" aria-hidden="true"></i>
@@ -2038,7 +2053,8 @@
     const playerAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", name);
     const characterAlt = t("character.portrait.alt", "{name} character portrait").replace("{name}", character.name);
     const playerImage = participant?.resolved && participant.player_id ? playerPortraitPath(participant.player_id) : FALLBACK_ASSET;
-    return /* HTML */ `
+    // HTML
+    return  `
       <div class="d-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-player-media>
         <div class="d-flex gap-2 align-items-center">
           <div class="overflow-hidden rounded border flex-shrink-0" data-bracket-player-image>
@@ -2071,23 +2087,29 @@
     const opacity = participant?.resolved ? "" : ` style="opacity: 0.72;"`;
     const seed = swappableParticipantSeed(participant);
     const swapAttrs = seed ? ` data-current-seed-player data-seed="${seed}"` : "";
-    return /* HTML */ `
+    // HTML
+    return  `
       <article class="col-12 col-lg-5">
         <div class="h-100 border rounded p-3" ${opacity} data-match-card${swapAttrs}>
           <div class="row g-3 align-items-stretch">
             <div class="col-12 d-flex flex-wrap gap-2 align-items-center justify-content-between">
               ${side === 1
-                ? /* HTML */ ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `
-                : /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`}
+                ? // HTML
+                 ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `
+                : // HTML
+                 `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`}
               ${side === 1
-                ? /* HTML */ `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
-                : /* HTML */ ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `}
+                ? // HTML
+                 `<span class="fgc-title fw-bold fs-5">${escapeHtml(playerID)}</span>`
+                : // HTML
+                 ` <p class="fgc-kicker m-0">${escapeHtml(side === 1 ? t("match.player_one", "Player 1") : t("match.player_two", "Player 2"))}</p> `}
             </div>
             ${side === 1 ? matchMediaHTML(participant, side) : ""}
             <div class="col-12 col-sm d-flex flex-column ${side === 1 ? "align-items-end" : "align-items-start"}">
               <h3 class="fgc-title fs-5 lh-sm m-0">${escapeHtml(name)}</h3>
               <p class="mt-2 mb-0 fw-bold text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(meta || "")}</p>
-              ${country} ${complete ? /* HTML */ `<span class="fgc-title fs-4 mt-3">${score}</span>` : scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit })}
+              ${country} ${complete ? // HTML
+               `<span class="fgc-title fs-4 mt-3">${score}</span>` : scoreStepperHTML(score, { side, prefix: "score", limit: scoreLimit })}
             </div>
             ${side === 1 ? "" : matchMediaHTML(participant, side)}
           </div>
@@ -2120,7 +2142,8 @@
     const scoreLimit = eventRuleLimit(panel);
     const player1Score = clampScore(match?.state?.player1_score || 0, scoreLimit);
     const player2Score = clampScore(match?.state?.player2_score || 0, scoreLimit);
-    body.innerHTML = /* HTML */ `
+    body.innerHTML = // HTML
+     `
       ${matchPlayerCard(match, 1)}
       <div class="col-12 col-lg-2 d-flex align-items-stretch">
         <div class="w-100 border rounded d-flex flex-column gap-2 align-items-center justify-content-center text-center p-3" data-match-card>
@@ -2165,7 +2188,8 @@
     const body = panel.querySelector("[data-current-match-body]");
     if (!app) {
       if (body)
-        body.innerHTML = /* HTML */ `
+        body.innerHTML = // HTML
+         `
           <div class="col-12">
             <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("event.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div>
           </div>
@@ -2175,7 +2199,8 @@
     }
 
     if (body)
-      body.innerHTML = /* HTML */ `
+      body.innerHTML = // HTML
+       `
         <div class="col-12">
           <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match.loading", "Loading current match..."))}</div>
         </div>
@@ -2189,7 +2214,8 @@
     } catch (error) {
       console.error("ResolveMatch failed", error);
       if (body)
-        body.innerHTML = /* HTML */ `
+        body.innerHTML = // HTML
+         `
           <div class="col-12">
             <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("match.load_failed", "Current match load failed"))}</div>
           </div>
@@ -2424,12 +2450,14 @@
     const selected = String(selectedCountry || "").toUpperCase();
     const options = countryCodes.slice();
     if (selected && !options.includes(selected)) options.unshift(selected);
-    return /* HTML */ `
+    // HTML
+    return  `
       <option value=""></option>
       ${options
         .map(function (code) {
           const name = countryName(code);
-          return /* HTML */ ` <option value="${escapeHtml(code)}" data-country-name="${escapeHtml(name)}" ${code === selected ? " selected" : ""}>${escapeHtml(countryLabel(code))}</option> `;
+          // HTML
+          return  ` <option value="${escapeHtml(code)}" data-country-name="${escapeHtml(name)}" ${code === selected ? " selected" : ""}>${escapeHtml(countryLabel(code))}</option> `;
         })
         .join("")}
     `;
@@ -2523,19 +2551,23 @@
     if (!jquery) return data.text || "";
 
     const code = String(data.id || data.text || "").toUpperCase();
-    if (!code) return jquery(/* HTML */ `<span></span>`).addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
+    if (!code) return jquery(// HTML
+     `<span></span>`).addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
 
     const name = data.element?.dataset?.countryName || countryName(code);
-    const option = jquery(/* HTML */ `<span></span>`).addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
+    const option = jquery(// HTML
+     `<span></span>`).addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
     if (isISO2Code(code)) {
-      jquery(/* HTML */ `<img />`, {
+      jquery(// HTML
+       `<img />`, {
         alt: "",
         class: "fgc-country-flag",
         loading: "lazy",
         src: countryFlagPath(code)
       }).appendTo(option);
     }
-    jquery(/* HTML */ `<span></span>`)
+    jquery(// HTML
+     `<span></span>`)
       .addClass("fgc-country-label")
       .text(name ? `${code} (${name})` : code)
       .appendTo(option);
@@ -2554,12 +2586,15 @@
     if (!jquery) return data.text || "";
 
     const text = String(data.text || "");
-    if (!text) return jquery(/* HTML */ `<span></span>`).addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
+    if (!text) return jquery(// HTML
+     `<span></span>`).addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
 
     const element = data.element;
     const imagePath = element?.dataset?.[imageAttribute] || FALLBACK_ASSET;
-    const option = jquery(/* HTML */ `<span></span>`).addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
-    jquery(/* HTML */ `<img />`, {
+    const option = jquery(// HTML
+     `<span></span>`).addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
+    jquery(// HTML
+     `<img />`, {
       alt: "",
       class: `fgc-media-image ${imageClass}`,
       loading: "lazy",
@@ -2571,7 +2606,8 @@
         this.src = FALLBACK_ASSET;
       })
       .appendTo(option);
-    jquery(/* HTML */ `<span></span>`).text(text).appendTo(option);
+    jquery(// HTML
+     `<span></span>`).text(text).appendTo(option);
     return option;
   }
 
@@ -2602,7 +2638,8 @@
   function playerCard(playerID, player) {
     const playerName = player?.name || `${t("players.player", "Player")} ${playerID}`;
     const portraitAlt = t("player.portrait.alt", "{name} player portrait").replace("{name}", playerName);
-    return /* HTML */ `
+    // HTML
+    return  `
       <div class="col-12 col-md-6">
         <form class="h-100 border rounded p-3" data-player-card data-player-form="${escapeHtml(playerID)}">
           <div class="row g-3 align-items-stretch">
