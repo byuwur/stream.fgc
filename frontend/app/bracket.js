@@ -166,8 +166,7 @@
     select.innerHTML = (options || [])
       .map(function (option) {
         const selected = option.key === selectedView ? " selected" : "";
-        // HTML
-        return  `<option value="${escapeHtml(option.key)}" ${selected}>${escapeHtml(option.name)}</option>`;
+        return /* HTML */ `<option value="${escapeHtml(option.key)}" ${selected}>${escapeHtml(option.name)}</option>`;
       })
       .join("");
     select.value = selectedView;
@@ -232,8 +231,7 @@
     const swapAttrs = admin && seed && !controlsLocked ? ` data-bracket-seed-player data-seed="${seed}"` : "";
     const flag =
       participant?.resolved && isISO2Code(country) && status !== "bye"
-        ? // HTML
-         `
+        ? /* HTML */ `
             <span class="d-inline-flex flex-column gap-1 align-items-center flex-shrink-0" data-bracket-country>
               <img class="rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.25rem; height: 0.9rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />
               <span class="fw-bold lh-1" data-bracket-country-code>${escapeHtml(country)}</span>
@@ -243,12 +241,10 @@
     const scoreControl =
       admin && !controlsLocked
         ? scoreStepperHTML(score, { side, matchID: match?.id || "", prefix: "bracket", compact: true, limit: parseRuleValue(projection?.event?.rule || fgc.currentState?.event?.rule || 3) || 3 })
-        : // HTML
-         `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
+        : /* HTML */ `<span class="fgc-title fs-6">${Number(score || 0)}</span>`;
     const actionControls = controlsLocked ? "" : bracketParticipantActionsHTML(match, side, admin);
     const swapLabel = t("bracket.swap_player", "Select player to swap");
-    // HTML
-    return  `
+    return /* HTML */ `
       <div
         class="border rounded px-2 py-2 ${winner ? "border-success" : ""} ${loser ? "border-danger" : ""}"
         data-bracket-participant
@@ -260,16 +256,13 @@
           ${flag} ${bracketParticipantMediaHTML(participant)}
           <span class="min-w-0 flex-grow-1">
             <span class="d-block fw-bold text-truncate">${escapeHtml(name)}</span>
-            ${team ? // HTML
-             `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : ""}
+            ${team ? /* HTML */ `<span class="d-block small text-truncate" style="color: var(--fgc-text-muted);">${escapeHtml(team)}</span>` : ""}
           </span>
-          ${reason && (winner || loser) ? // HTML
-           `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : ""}
+          ${reason && (winner || loser) ? /* HTML */ `<span class="badge rounded-pill border flex-shrink-0" data-bracket-reason="${escapeHtml(reasonKey)}">${escapeHtml(reason)}</span>` : ""}
           <div class="d-flex flex-nowrap gap-1 align-items-center justify-content-end flex-shrink-0 ms-2" data-bracket-player-controls>
             ${scoreControl} ${actionControls}
             ${swapAttrs && !controlsLocked
-              ? // HTML
-               `
+              ? /* HTML */ `
                   <button
                     class="btn btn-outline-light btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0"
                     type="button"
@@ -307,11 +300,9 @@
     const winLabel = t("bracket.win.title", "Mark this player as the winner");
     const dqLabel = t("bracket.dq.title", "Disqualify this player");
     const byeLabel = bye ? t("bracket.live.title", "Remove BYE from this player") : t("bracket.bye.title", "Give this player a BYE");
-    // HTML
-    return  `
+    return /* HTML */ `
       ${canDecide
-        ? // HTML
-         `
+        ? /* HTML */ `
             <button
               class="btn btn-outline-success btn-sm"
               type="button"
@@ -325,8 +316,7 @@
           `
         : ""}
       ${canDecide
-        ? // HTML
-         `
+        ? /* HTML */ `
             <button
               class="btn btn-outline-danger btn-sm"
               type="button"
@@ -341,8 +331,7 @@
           `
         : ""}
       ${seedParticipant
-        ? // HTML
-         `
+        ? /* HTML */ `
             <button
               class="btn btn-outline-warning btn-sm"
               type="button"
@@ -371,8 +360,7 @@
     const currentLabel = match?.current ? t("bracket.current", "Current") : t("bracket.set_current", "Current");
     const currentTitle = match?.current ? t("bracket.current", "Current") : t("bracket.set_current.title", "Set this match as the current match");
     const clearTitle = t("bracket.clear_winner", "Clear winner");
-    const currentButton = // HTML
-     `
+    const currentButton = /* HTML */ `
       <button
         class="btn btn-outline-light btn-sm d-inline-flex gap-2 align-items-center"
         type="button"
@@ -384,13 +372,11 @@
         <i class="fas fa-crosshairs" aria-hidden="true"></i><span>${escapeHtml(currentLabel)}</span>
       </button>
     `;
-    // HTML
-    return  `
+    return /* HTML */ `
       <div class="d-flex flex-wrap gap-2 mt-2">
         ${currentButton}
         ${match?.winner_id || match?.state?.winner
-          ? // HTML
-           `
+          ? /* HTML */ `
               <button class="btn btn-outline-light btn-sm" type="button" data-bracket-action data-bracket-clear="${escapeHtml(match.id)}" title="${escapeHtml(clearTitle)}" aria-label="${escapeHtml(clearTitle)}">
                 ${escapeHtml(t("bracket.clear", "Clear"))}
               </button>
@@ -411,8 +397,7 @@
     const scoreLimit = parseRuleValue(projection?.event?.rule || fgc.currentState?.event?.rule || 3) || 3;
     const score1 = clampScore(match?.state?.player1_score || 0, scoreLimit);
     const score2 = clampScore(match?.state?.player2_score || 0, scoreLimit);
-    // HTML
-    return  `
+    return /* HTML */ `
       <article class="w-100" data-bracket-match-wrap>
         <div class="h-100 border rounded p-2 ${match?.current ? "border-danger" : ""}" data-bracket-match data-status="${escapeHtml(match?.status || "pending")}">
           <div class="d-flex gap-2 align-items-start justify-content-between mb-2">
@@ -438,8 +423,7 @@
    */
   function bracketSectionHTML(section, admin, projection) {
     const rounds = section?.rounds || [];
-    // HTML
-    return  `
+    return /* HTML */ `
       <section class="col-12 mb-3" data-bracket-section="${escapeHtml(section?.key || "")}">
         <div class="d-flex flex-column gap-3">
           <div class="d-flex gap-2 align-items-baseline">
@@ -452,8 +436,7 @@
                 const matches = (round.matches || []).map(function (match) {
                   return bracketMatchHTML(match, admin, projection);
                 });
-                // HTML
-                return  `
+                return /* HTML */ `
                   <div class="flex-shrink-0 pe-4" data-bracket-round>
                     <div class="w-100 d-flex flex-column gap-2">
                       <h3 class="fgc-title fs-6 lh-sm m-0">${escapeHtml(round.name || "")}</h3>
@@ -482,8 +465,7 @@
     if (!board) return;
     const error = String(projection?.error || "");
     if (error) {
-      board.innerHTML = // HTML
-       `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(error)}</div></div>`;
+      board.innerHTML = /* HTML */ `<div class="col-12"><div class="${EMPTY_STATE_CLASS}">${escapeHtml(error)}</div></div>`;
       return;
     }
     const sections = projection?.sections || [];
@@ -493,8 +475,7 @@
             return bracketSectionHTML(section, admin, projection);
           })
           .join("")
-      : // HTML
-       `
+      : /* HTML */ `
           <div class="col-12">
             <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.empty", "No bracket matches found."))}</div>
           </div>
@@ -526,8 +507,7 @@
       if (!app || typeof app.GetBracketView !== "function") {
         const board = root.querySelector("[data-bracket-board]");
         if (board)
-          board.innerHTML = // HTML
-           `
+          board.innerHTML = /* HTML */ `
             <div class="col-12">
               <div class="${EMPTY_STATE_CLASS}">${escapeHtml(t("bracket.status.backend_missing", "Open in Wails to edit tournament JSON."))}</div>
             </div>
