@@ -134,3 +134,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODING_STANDARDS.md](CODING_STANDARD
 ## License
 
 MIT (c) Andrés Trujillo [Mateus] byUwUr
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/byuwur/stream.fgc)
