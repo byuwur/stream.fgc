@@ -84,6 +84,7 @@
   let backgroundSync = null;
   let generatedBackendPromise = null;
   const countryNameCache = {};
+  // The map owns each form's state; the set allows active forms to be pruned and preference changes applied.
   const autosaveForms = new WeakMap();
   const autosaveFormSet = new Set();
   const bracketLoadTickets = new WeakMap();
@@ -123,6 +124,7 @@
 
   /**
    * Rejects slow backend calls so status badges cannot spin forever.
+   * This limits the wait; the underlying Wails operation may still complete.
    * @param {Promise<unknown>} promise Asynchronous operation to wait for.
    * @param {number} timeout Maximum wait in milliseconds.
    * @param {string} label Human-readable label.
@@ -339,7 +341,7 @@
   }
 
   /**
-   * Updates one status element inside a page without touching the global status badge.
+   * Routes page status updates to the shared badge, falling back to a legacy page badge.
    * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
    * @param {string} selector CSS selector identifying the target elements.
    * @param {string} key Stored property or lookup key.
@@ -591,8 +593,8 @@
 
   /**
    * Builds a stable comparison string for event autosave.
-   * @param {Event} event Event dispatched by the browser or component.
-   * @returns {string|undefined}
+   * @param {Object} event Backend event metadata.
+   * @returns {string} Normalized event comparison value.
    */
   function eventSignature(event) {
     return JSON.stringify({
@@ -607,8 +609,8 @@
 
   /**
    * Builds a stable comparison string for player autosave.
-   * @param {number} player Player slot to update.
-   * @returns {string|undefined}
+   * @param {Object} player Backend player metadata.
+   * @returns {string} Normalized player comparison value.
    */
   function playerSignature(player) {
     return JSON.stringify({
@@ -642,17 +644,7 @@
   }
 
   /**
-   * Enables or disables every editable control in a form.
-   * @param {HTMLFormElement} form Form containing the current controls.
-   * @param {boolean} enabled Whether controls or behavior should be enabled.
-   * @returns {void}
-   */
-  function setFormEnabled(form, enabled) {
-    setControlsEnabled(form, "input, select, button", enabled);
-  }
-
-  /**
-   * Enables or disables every editable control in a page.
+   * Enables or disables editable controls in a form or page.
    * @param {unknown} page Page.
    * @param {boolean} enabled Whether controls or behavior should be enabled.
    * @returns {void}
@@ -1577,14 +1569,14 @@
     const scrollState = captureScrollState(pageRoot(form));
     const app = await waitForBackend();
     if (!app) {
-      setFormEnabled(form, true);
+      setPageEnabled(form, true);
       setStatus(form, "event.status.backend_missing", "Open in Wails to edit tournament JSON.", "warning");
       restoreScrollState(scrollState);
       return;
     }
 
     setStatus(form, "event.status.loading", "Loading event...", "neutral");
-    setFormEnabled(form, false);
+    setPageEnabled(form, false);
     try {
       const state = await app.LoadTournament();
       const [ruleRows, formatRows, sizeRows, gameRows, names] = await Promise.all([
@@ -1607,7 +1599,7 @@
       renderGameSelect(form, currentState.event?.game);
       fillEventForm(form, currentState.event || {});
       refreshEventAssetPreviews(form);
-      setFormEnabled(form, true);
+      setPageEnabled(form, true);
       enhanceSelects(form);
       applyAutosavePreference();
       markAutosaved(form, eventSignature(currentState.event || {}));
@@ -1623,7 +1615,7 @@
       console.error("LoadTournament failed", error);
       setStatus(form, "event.status.load_failed", "Event load failed", "error");
     } finally {
-      setFormEnabled(form, true);
+      setPageEnabled(form, true);
       restoreScrollState(scrollState);
     }
   }

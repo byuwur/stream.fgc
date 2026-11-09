@@ -120,9 +120,9 @@
   };
 
   /**
-   * Returns the directory portion of a path using normalized "/" separators.
+   * Remove the last slash-delimited segment after normalizing separators; slashless input stays intact.
    * @param {string} path Path string to inspect.
-   * @return {string} Directory path, or "." when no directory portion exists.
+   * @return {string} Remaining path, or "." when the result is empty.
    */
   const dirname = (path) => {
     return std_dir_separator(path).replace(/\/[^/]*$/, "") || ".";

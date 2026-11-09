@@ -32,6 +32,7 @@
   const jsonCache = new Map();
   let activeTimer = 0;
   let lastStateText = "";
+  // Share the guard across restarts because replacing a timer does not cancel a pending read.
   let refreshRunning = false;
 
   /**
@@ -869,6 +870,7 @@
 
   /**
    * Applies common bindings, page art, and the page-specific renderer.
+   * Intro needs only common bindings; the optional page hook runs after any built-in renderer.
    * @param {Object} context Resolved data and options for this render.
    * @returns {void}
    */
@@ -878,12 +880,12 @@
     const renderers = {
       bracket: renderBracket,
       champion: renderChampion,
-      intro: function () {},
       scoreboard: renderScoreboard,
       versus: renderVersus,
       winner: renderWinner
     };
-    (renderers[context.page] || function () {})(context);
+    const renderPage = renderers[context.page];
+    if (renderPage) renderPage(context);
     if (typeof global.StreamFGCOverlayPage?.render === "function") global.StreamFGCOverlayPage.render(context, api);
     $(".fgc-stage").addClass("fgc-overlay-ready");
     $("[data-fgc-runtime-warning]").remove();
@@ -952,9 +954,10 @@
   }
 
   /**
-   * Loads and renders tournament state only when tournament.json changed.
-   * @param {Object} options Options that configure this operation.
-   * @returns {Promise<unknown>} The resulting asynchronous value.
+   * Reads tournament state and renders only when its serialized content differs from the last successful build.
+   * Direct calls bypass the polling overlap guard; request, parsing, and rendering failures reject.
+   * @param {Object} options Resolved state and asset paths from init().options.
+   * @returns {Promise<Object|null>} Render context, or null when the tournament text has not changed.
    */
   async function refresh(options) {
     const stateText = await requestText(options.stateURL);
