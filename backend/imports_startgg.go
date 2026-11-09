@@ -340,9 +340,8 @@ func startGGExternalTournament(app *App, rawURL string, slug string, event start
 	players := make([]ExternalPlayer, 0, len(event.Entrants.Nodes))
 	for index, entrant := range event.Entrants.Nodes {
 		player := startGGExternalPlayer(entrant, countryAliases)
-		if player.Seed <= 0 {
-			player.Seed = index + 1
-		}
+		// This query has no seed field; retain the provider's response order for the preview.
+		player.Seed = index + 1
 		players = append(players, player)
 	}
 	matches := make([]ExternalMatch, 0, len(event.Sets.Nodes))

@@ -92,10 +92,7 @@ func externalWriteFilePath(rootDir string, filePath string) string {
 
 // externalBaseDirs returns exactly one active root so production never leaks into the repo.
 func externalBaseDirs() []string {
-	if usePortableExternalPaths() {
-		return []string{preferredExternalBaseDir()}
-	}
-	return []string{developmentExternalBaseDir()}
+	return []string{preferredExternalBaseDir()}
 }
 
 // usePortableExternalPaths reports whether external files should live beside the executable.

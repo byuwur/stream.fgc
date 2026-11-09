@@ -198,10 +198,9 @@ func (a *App) resolveGameKey(game string) (string, error) {
 		}
 	}
 
-	candidate := strings.ToLower(game)
-	if isSafeAssetPath(candidate) && a.assetFileExists(path.Join(candidate, "characters.json")) {
+	if isSafeAssetPath(needle) && a.assetFileExists(path.Join(needle, "characters.json")) {
 		// Last-chance fallback supports hand-authored keys before games.json is updated.
-		return candidate, nil
+		return needle, nil
 	}
 
 	return "", nil

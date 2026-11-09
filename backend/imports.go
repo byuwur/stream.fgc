@@ -224,9 +224,7 @@ func tournamentStateFromExternal(current TournamentState, preview ExternalTourna
 		state.Event.Phase = preview.Event.Phase
 	}
 	if preview.Event.Game != "" && normalizeAssetName(preview.Event.Game) != normalizeAssetName(state.Event.Game) {
-		// Imported game changes invalidate character keys just like manual event edits.
 		state.Event.Game = preview.Event.Game
-		clearPlayerCharacters(state.Players)
 	}
 	if preview.Event.Rule > 0 {
 		state.Event.Rule = preview.Event.Rule
@@ -235,6 +233,7 @@ func tournamentStateFromExternal(current TournamentState, preview ExternalTourna
 		state.Event.Size = preview.Event.Size
 	}
 
+	// Imported slots replace the old roster, so no prior character or portrait can carry over.
 	state.Players = map[string]Player{}
 	limit := min(len(preview.Players), state.Event.Size)
 	// Player IDs remain local seed slots; provider IDs are preview metadata for now.
