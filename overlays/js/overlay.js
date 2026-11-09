@@ -970,9 +970,11 @@
   }
 
   /**
-   * Starts one non-overlapping JSON polling loop.
-   * @param {unknown} overrides Overrides.
-   * @returns {Object}
+   * Replaces the polling timer and starts an immediate read, skipping polls while a read is pending.
+   * The handle's refresh() uses the same guard and reports failures through the runtime warning.
+   * stop() clears only this handle's timer; reads already issued may finish after stop or replacement.
+   * @param {Object} [overrides={}] Values applied after the body/query defaults, including paths and pollMs.
+   * @returns {{options: Object, refresh: function(): Promise<void>, stop: function(): void}} Polling controls.
    */
   function init(overrides) {
     const options = optionsFromDocument(overrides);
@@ -997,13 +999,15 @@
     }
 
     void tick();
-    activeTimer = global.setInterval(tick, options.pollMs);
+    // Capture this handle's timer so an old stop() cannot cancel a replacement loop.
+    const timer = global.setInterval(tick, options.pollMs);
+    activeTimer = timer;
     return {
       options,
       refresh: tick,
       stop: function () {
-        global.clearInterval(activeTimer);
-        activeTimer = 0;
+        global.clearInterval(timer);
+        if (activeTimer === timer) activeTimer = 0;
       }
     };
   }

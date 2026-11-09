@@ -198,3 +198,59 @@ test("duplicate overlay imports preserve the polling service", () => {
   vm.runInNewContext(source, context);
   assert.equal(window.StreamFGCOverlay, installed);
 });
+
+test("stopping a replaced overlay handle preserves the active polling loop", () => {
+  const timers = new Map();
+  let nextTimer = 0;
+  const document = { body: {} };
+  const element = {
+    length: 0,
+    first() {
+      return this;
+    },
+    attr() {
+      return undefined;
+    },
+    off() {
+      return this;
+    },
+    on() {
+      return this;
+    }
+  };
+  function jquery(target) {
+    if (typeof target !== "function") return element;
+  }
+  // Keep the first read pending while exercising timer ownership across restarts.
+  jquery.ajax = () => ({
+    done() {
+      return this;
+    },
+    fail() {
+      return this;
+    }
+  });
+  const window = {
+    jQuery: jquery,
+    location: { search: "" },
+    setInterval(callback) {
+      timers.set(++nextTimer, callback);
+      return nextTimer;
+    },
+    clearInterval(timer) {
+      timers.delete(timer);
+    }
+  };
+  vm.runInNewContext(source, { window, document, URLSearchParams });
+  const first = window.StreamFGCOverlay.init();
+  assert.equal(timers.size, 1);
+  const second = window.StreamFGCOverlay.init();
+  assert.deepEqual([...timers.keys()], [2]);
+  first.stop();
+  assert.deepEqual([...timers.keys()], [2], "an old handle cannot stop its replacement");
+  second.stop();
+  assert.equal(timers.size, 0);
+  window.StreamFGCOverlay.init();
+  second.stop();
+  assert.deepEqual([...timers.keys()], [3], "repeated stops preserve later polling loops");
+});
