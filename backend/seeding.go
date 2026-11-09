@@ -15,25 +15,20 @@ import (
 
 // randomizedBracketSlots returns shuffled player IDs plus empty BYE slots up to bracket size.
 func randomizedBracketSlots(state TournamentState) []string {
-	playerIDs := make([]string, 0, state.Event.Size)
+	slots := make([]string, 0, state.Event.Size)
 	for seed := 1; seed <= state.Event.Size; seed++ {
 		playerID := strconv.Itoa(seed)
 		player := state.Players[playerID]
 		if strings.TrimSpace(player.Name) != "" {
-			playerIDs = append(playerIDs, playerID)
+			slots = append(slots, playerID)
 		}
 	}
 
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	rng.Shuffle(len(playerIDs), func(i int, j int) {
-		playerIDs[i], playerIDs[j] = playerIDs[j], playerIDs[i]
-	})
-
-	slots := make([]string, 0, state.Event.Size)
-	slots = append(slots, playerIDs...)
 	for len(slots) < state.Event.Size {
 		slots = append(slots, "")
 	}
+	// Shuffle players and empty slots together so BYEs receive random positions too.
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	rng.Shuffle(len(slots), func(i int, j int) {
 		slots[i], slots[j] = slots[j], slots[i]
 	})

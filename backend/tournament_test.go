@@ -71,3 +71,35 @@ func TestMigrateTournamentState(t *testing.T) {
 		t.Fatalf("migration did not move legacy matches: %#v", state.Bracket)
 	}
 }
+
+// TestRandomizedBracketSlots preserves entrants and the correct number of empty seed slots.
+func TestRandomizedBracketSlots(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		players map[string]Player
+		want    map[string]int
+	}{
+		{name: "empty", players: map[string]Player{}, want: map[string]int{"": 4}},
+		{name: "partial", players: map[string]Player{"1": {Name: "One"}, "2": {Name: "  "}, "3": {Name: "Three"}, "9": {Name: "Outside"}}, want: map[string]int{"": 2, "1": 1, "3": 1}},
+		{name: "full", players: map[string]Player{"1": {Name: "One"}, "2": {Name: "Two"}, "3": {Name: "Three"}, "4": {Name: "Four"}}, want: map[string]int{"1": 1, "2": 1, "3": 1, "4": 1}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			slots := randomizedBracketSlots(TournamentState{Event: EventInfo{Size: 4}, Players: test.players})
+			if len(slots) != 4 {
+				t.Fatalf("slots = %d, want 4", len(slots))
+			}
+			got := map[string]int{}
+			for _, id := range slots {
+				got[id]++
+			}
+			if len(got) != len(test.want) {
+				t.Fatalf("unexpected slot occupants: %v", got)
+			}
+			for id, count := range test.want {
+				if got[id] != count {
+					t.Errorf("slot count for %q = %d, want %d", id, got[id], count)
+				}
+			}
+		})
+	}
+}
