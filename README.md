@@ -117,7 +117,7 @@ go test ./...
 go vet ./...
 node --check frontend/_app.js
 node --check overlays/js/overlay.js
-node --test tests/*.test.js
+node --test __tests__/*.test.js
 node --test frontend/spa.js/tests/*.test.js
 ```
 

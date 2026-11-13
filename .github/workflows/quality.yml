@@ -38,7 +38,7 @@ jobs:
           node-version: 22
 
       - name: Test app and overlay behavior
-        run: node --test tests/*.test.js
+        run: node --test __tests__/*.test.js
 
       # Deferred: framework browser tests require Playwright and Chromium.
       # Keep CI focused on Stream.FGC business logic for now.
