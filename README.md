@@ -65,7 +65,7 @@ go test ./backend -run TestStartGGLivePreview -count=1 -v
 
 ## Bracket Model
 
-Format/size selects a template, such as `templates/double8.json` or `templates/robin8.json`. Missing files produce `[template] template missing`; Go does not generate substitutes. Bundled single/double elimination, robin, and Swiss templates cover 2–64 players. Robin includes every pairing; Swiss uses fixed-round seed schedules.
+Format/size selects a template, such as `templates/double8.json` or `templates/robin8.json`. Missing files produce `[template] template missing`; Go does not generate substitutes. Bundled single/double elimination, robin, and Swiss templates cover 2-64 players. Robin includes every pairing; Swiss uses fixed-round seed schedules.
 
 Participants resolve from seeds or previous winners/losers:
 
