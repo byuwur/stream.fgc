@@ -118,7 +118,7 @@ go vet ./...
 node --check frontend/_app.js
 node --check overlays/js/overlay.js
 node --test __tests__/*.test.js
-node --test frontend/spa.js/tests/*.test.js
+node --test frontend/spa.js/__tests__/*.test.js
 ```
 
 [CI](.github/workflows/quality.yml) runs Go, app/overlay behavior, and JavaScript syntax checks on Ubuntu/Windows. The SPA suite is currently a manual check; its browser tests need Playwright/Chromium. Provider fixtures are deterministic; live imports are opt-in. Test packaged Wails/OBS sessions separately.
