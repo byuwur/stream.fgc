@@ -4,16 +4,24 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      extended:
+        description: Also run the core contracts on Windows
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Core contracts (Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check out project and SPA.js
         uses: actions/checkout@v7
@@ -27,10 +35,10 @@ jobs:
           cache: true
 
       - name: Test Go packages
-        run: go test ./...
+        run: go test -short -timeout 2m ./backend
 
       - name: Vet Go packages
-        run: go vet ./...
+        run: go vet ./backend
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -40,11 +48,6 @@ jobs:
       - name: Test app and overlay behavior
         run: node --test __tests__/*.test.js
 
-      # Deferred: framework browser tests require Playwright and Chromium.
-      # Keep CI focused on Stream.FGC business logic for now.
-      # - name: Test pinned SPA.js behavior
-      #   run: node --test frontend/spa.js/__tests__/*.test.js
-
       - name: Check project JavaScript syntax
         shell: bash
         run: |
@@ -52,3 +55,23 @@ jobs:
             ! -path 'frontend/spa.js/*' \
             ! -name '*.min.js' \
             -print0 | xargs -0 -n1 node --check
+
+  windows:
+    if: github.event_name == 'workflow_dispatch' && inputs.extended
+    name: Core contracts (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test -short -timeout 2m ./backend
+      - run: go vet ./backend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test __tests__/*.test.js

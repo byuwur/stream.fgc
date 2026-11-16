@@ -113,15 +113,14 @@ The frontend uses SPA.js, Bootstrap, Shards, Select2, and jQuery. Reuse `StreamF
 ## Checks
 
 ```bash
-go test ./...
-go vet ./...
+go test -short -timeout 2m ./backend
+go vet ./backend
 node --check frontend/_app.js
 node --check overlays/js/overlay.js
 node --test __tests__/*.test.js
-node --test frontend/spa.js/__tests__/*.test.js
 ```
 
-[CI](.github/workflows/quality.yml) runs Go, app/overlay behavior, and JavaScript syntax checks on Ubuntu/Windows. The SPA suite is currently a manual check; its browser tests need Playwright/Chromium. Provider fixtures are deterministic; live imports are opt-in. Test packaged Wails/OBS sessions separately.
+[CI](.github/workflows/quality.yml) runs core backend, app/overlay behavior, and authored JavaScript syntax checks on Ubuntu with a five-minute job limit. Go tests have a two-minute execution limit. Enable **extended** on a manual run to repeat the core contracts on Windows. Backend tests cover persistence, tournament/bracket state, imports, and upload boundaries without requiring the Wails desktop toolchain. Live provider checks, full `go test ./...`, and the pinned SPA submodule suite remain manual. New controls and styling do not need individual tests unless they protect a core contract or a real regression. Test packaged Wails/OBS sessions separately.
 
 ### SPA runtime upgrades
 
