@@ -61,3 +61,7 @@ Icon?
 *.mkv
 *.mov
 *.avi
+
+# Local release tooling and previews
+/.github/node_modules/
+/dist/

@@ -126,6 +126,41 @@ node --test __tests__/*.test.js
 
 Review the pinned `frontend/spa.js` revision and reconcile app-owned `frontend/_init.js`, including per-key storage fallback, failed-removal null markers, and recovery. Preserve app paths/environment/settings; submodule updates do not update this copy. Run framework and Stream.FGC integration checks.
 
+## Releases
+
+[Release workflow](.github/workflows/release.yml) builds a reviewable preview on pushes to `main`, pull requests, and manual runs. Only a pushed version tag publishes a GitHub release. Source/browser checks and the complete distribution build must succeed on both main and tag runs before publication. Failed builds remove their own temporary stage and retain the last completed output. Two-part tags such as `v1.8` and three-part tags such as `v1.8.1` are supported. Keep release tags consistent with the project's source version.
+
+**Windows x64 ZIP:** Wails controller executable with external runtime folders. Extract everything together and run `stream.fgc.exe`. Windows WebView2 Runtime is required.
+
+**Runtime ZIP:** external assets, OBS overlays, templates, and clean starter tournament data for use beside your own executable. It does not contain the controller.
+
+Player uploads, saved tournaments, API keys, and integration settings are excluded. Releases start from `templates/default.json`; keep backups before replacing an existing installation. OBS overlay JSON requests require the documented HTTP serving setup.
+
+Packaging reads only tracked assets, overlays, templates, README, and license. It adds starter data from `templates/default.json`. The Windows build embeds the pinned SPA.js submodule. It never packages the checkout's live `data/` or `players/` files. See [Wails Windows requirements](https://v2.wails.io/docs/v2.15.0/guides/windows/) for WebView2 installation.
+
+### Local preview
+
+Requires Node.js 22 or newer; packaging/test dependencies are private to `.github`. Run from the repository root. In PowerShell, use `npm.cmd` if execution policy blocks `npm`.
+
+```sh
+npm --prefix .github ci --ignore-scripts --no-audit --no-fund
+node .github/scripts/build.mjs --tag v0.0.0-local
+npm --prefix .github run release:test
+```
+
+The default local preview builds the runtime ZIP. To include the controller, initialize submodules, run `wails build -clean -platform windows/amd64 -webview2 download`, then `node .github/scripts/build.mjs --tag v0.0.0-local --binary build/bin/stream.fgc.exe`. Go and the project's Wails version are needed for this native build. CI performs that build on Windows.
+
+Open `dist/RELEASE_NOTES.md` for the generated notes and `dist/assets/` for the complete tested output. Download `tested-release` from the workflow run to review CI results. Local commands and manual runs do not publish.
+
+### Script responsibilities
+
+- [release.json](.github/release.json) owns the repository identity, package inventory, and download explanations.
+- [build.mjs](.github/scripts/build.mjs) builds runtime ZIPs in a temporary output directory, then writes notes, provenance, and checksums.
+- [release.mjs](.github/scripts/release.mjs) reads the real Git history. `--check` validates the exact pushed tag on `main`; `--publish` verifies the tested output and creates or resumes its matching draft before publishing.
+- [release tests](.github/tests/release.mjs) verify checksums, ZIP inventories, and the distributed runtime folders and clean starter state. [Publication tests](.github/tests/publish-release.mjs) verify draft ownership, interrupted uploads, integrity, and reruns with a mock GitHub API.
+
+The workflow uses read-only access while building/testing, passes the exact tested output to a separate publication job, and grants write access only there. Published releases are never overwritten. A failed upload leaves a draft that the same tested build can resume. Tag pushes and live release publication are separate from local validation.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODING_STANDARDS.md](CODING_STANDARDS.md). Keep filesystem access in Go, overlays read-only, and feature behavior near its owner.

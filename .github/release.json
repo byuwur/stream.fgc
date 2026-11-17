@@ -1,0 +1,12 @@
+{
+  "repository": "byuwur/stream.fgc",
+  "branch": "main",
+  "kind": "desktop",
+  "files": ["README.md", "LICENSE.md"],
+  "directories": ["assets", "overlays", "templates"],
+  "notes": [
+    "**Windows x64 ZIP:** Wails controller executable with external runtime folders. Extract everything together and run `stream.fgc.exe`. Windows WebView2 Runtime is required.",
+    "**Runtime ZIP:** external assets, OBS overlays, templates, and clean starter tournament data for use beside your own executable. It does not contain the controller.",
+    "Player uploads, saved tournaments, API keys, and integration settings are excluded. Releases start from `templates/default.json`; keep backups before replacing an existing installation. OBS overlay JSON requests require the documented HTTP serving setup."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "stream.fgc-release",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "release:build": "node scripts/build.mjs",
+    "release:test": "node --test tests/release.mjs tests/publish-release.mjs tests/cleanup.mjs"
+  },
+  "devDependencies": {
+    "fflate": "0.8.3"
+  }
+}
