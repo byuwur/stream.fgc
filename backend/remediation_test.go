@@ -82,6 +82,36 @@ func tournamentTestApp(t *testing.T) *App {
 	return app
 }
 
+func TestMissingSizeCatalogPreservesRoster(t *testing.T) {
+	app := tournamentTestApp(t)
+	state, err := app.LoadTournament()
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.Event.Size = 16
+	state.Players["16"] = Player{Name: "Final seed"}
+	if err := app.SaveTournament(state); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove("assets/sizes.json"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.UpdatePlayer("1", Player{Name: "Edited"}); err != nil {
+		t.Fatal(err)
+	}
+	state.Event.Size = 8
+	if _, err := app.UpdateEvent(state.Event); err == nil {
+		t.Fatal("event resize succeeded without the catalog")
+	}
+	if err := app.SaveTournament(state); err == nil {
+		t.Fatal("full save resized without the catalog")
+	}
+	saved, err := app.LoadTournament()
+	if err != nil || saved.Event.Size != 16 || saved.Players["16"].Name != "Final seed" || saved.Players["1"].Name != "Edited" {
+		t.Fatalf("roster after save: size=%d players=%v error=%v", saved.Event.Size, saved.Players, err)
+	}
+}
+
 // TestPublicByeLoserPropagation checks each opening side and undo through the disk-backed API.
 func TestPublicByeLoserPropagation(t *testing.T) {
 	for _, side := range []int{1, 2} {

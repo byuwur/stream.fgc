@@ -61,7 +61,7 @@ go test ./backend -run TestStartGGLivePreview -count=1 -v
 | `current`, `players` | Current match ID; records keyed by stable player slot ID.        |
 | `matches`, `bracket` | Template-keyed match state; overlay view, seeds, and BYEs.       |
 
-`event.size` is capacity; reducing it trims unused slots. `event.rule` is numeric (`3` means FT3); scores stay within that limit. Portraits use `players/{player}.png`, with `assets/nopic.png` as UI fallback, rather than saved portrait paths.
+`event.size` is the saved capacity. Editing an existing tournament preserves that capacity if its size catalog is missing or unreadable. Changing capacity requires the requested size in `assets/sizes.json`; reducing it trims unused slots. `event.rule` is numeric (`3` means FT3); scores stay within that limit. Portraits use `players/{player}.png`, with `assets/nopic.png` as UI fallback, rather than saved portrait paths.
 
 ## Bracket Model
 

@@ -99,6 +99,9 @@ func (a *App) ImportTournamentLink(rawURL string) (TournamentState, error) {
 	if err != nil {
 		return TournamentState{}, err
 	}
+	if err := validateTournamentResize(current.Event.Size, preview.Event.Size); err != nil {
+		return TournamentState{}, err
+	}
 	// Import currently replaces event/player setup while preserving reusable app settings.
 	imported := tournamentStateFromExternal(current, preview)
 	return a.saveTournamentLocked(imported)

@@ -7,7 +7,9 @@
 package backend
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -30,7 +32,14 @@ func (a *App) SaveTournament(state TournamentState) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	_, err := a.saveTournamentLocked(state)
+	current, err := readTournamentState()
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err := validateTournamentResize(current.Event.Size, state.Event.Size); err != nil {
+		return err
+	}
+	_, err = a.saveTournamentLocked(state)
 	return err
 }
 
@@ -52,8 +61,11 @@ func (a *App) UpdateEvent(event EventInfo) (TournamentState, error) {
 	if err != nil {
 		return TournamentState{}, err
 	}
+	if err := validateTournamentResize(state.Event.Size, event.Size); err != nil {
+		return TournamentState{}, err
+	}
 	gameChanged := a.gameIdentity(state.Event.Game) != a.gameIdentity(event.Game)
-	topologyChanged := normalizeTournamentFormat(event.Format) != state.Event.Format || normalizeTournamentSize(event.Size) != state.Event.Size
+	topologyChanged := normalizeTournamentFormat(event.Format) != state.Event.Format || event.Size != state.Event.Size
 	if topologyChanged && bracketHasRecordedHistory(state) {
 		return TournamentState{}, fmt.Errorf("reset bracket results and scores before changing format or size")
 	}

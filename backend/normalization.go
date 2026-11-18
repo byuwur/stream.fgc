@@ -7,7 +7,9 @@
 package backend
 
 import (
+	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -24,17 +26,23 @@ func normalizeTournamentState(state TournamentState) TournamentState {
 	if state.Event.Format == "" {
 		state.Event.Format = "double_elimination"
 	}
-	state.Event.Size = normalizeTournamentSize(state.Event.Size)
+	allowedSizes := configuredTournamentSizes()
+	if state.Event.Size <= 0 {
+		state.Event.Size = fallbackTournamentSize(allowedSizes)
+	}
 	if state.Current == "" {
 		state.Current = "A"
 	}
 	if state.Players == nil {
 		state.Players = map[string]Player{}
 	}
-	trimPlayerSlots(state.Players, state.Event.Size)
-	ensurePlayerSlots(state.Players, state.Event.Size)
+	// A missing or edited size catalog must not trim an existing roster on the next save.
+	if slices.Contains(allowedSizes, state.Event.Size) || state.Event.Size == defaultTournamentSize {
+		trimPlayerSlots(state.Players, state.Event.Size)
+		ensurePlayerSlots(state.Players, state.Event.Size)
+		normalizeBracketSeedAssignments(&state)
+	}
 	stripPlayerPortraits(state.Players)
-	normalizeBracketSeedAssignments(&state)
 	clampMatchScores(state.Matches, state.Event.Rule)
 	state.Bracket.OverlayView = normalizeBracketViewKey(state.Bracket.OverlayView)
 	state.Bracket.ManagerView = normalizeBracketViewKey(state.Bracket.ManagerView)
@@ -183,15 +191,12 @@ func ensurePlayerSlots(players map[string]Player, size int) {
 	}
 }
 
-// normalizeTournamentSize constrains event size to the configured catalog.
-func normalizeTournamentSize(size int) int {
-	allowed := configuredTournamentSizes()
-	for _, allowedSize := range allowed {
-		if size == allowedSize {
-			return size
-		}
+// validateTournamentResize allows existing capacities to survive catalog changes.
+func validateTournamentResize(current, requested int) error {
+	if requested != current && !slices.Contains(configuredTournamentSizes(), requested) {
+		return fmt.Errorf("tournament size %d is unavailable; check assets/sizes.json", requested)
 	}
-	return fallbackTournamentSize(allowed)
+	return nil
 }
 
 // fallbackTournamentSize prefers 8, then the first configured size.
