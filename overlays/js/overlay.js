@@ -964,8 +964,8 @@
     if (stateText === lastStateText) return null;
     const state = JSON.parse(stateText);
     const context = await buildContext(state, options);
-    lastStateText = stateText;
     render(context);
+    lastStateText = stateText;
     return context;
   }
 

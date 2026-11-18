@@ -10,6 +10,33 @@ const window = { jQuery: function () {} };
 const source = fs.readFileSync(path.join(root, "overlays/js/overlay.js"), "utf8").replace("global.StreamFGCOverlay = api;", "global.StreamFGCOverlay = { ...api, bracketHTML, championFromBracket, renderChampion };");
 const context = { window };
 vm.runInNewContext(source, context);
+test("an unchanged poll retries a failed page render", async () => {
+  const element = { css() {}, attr() {}, each() {}, addClass() {}, remove() {} };
+  const jquery = () => element;
+  jquery.ajax = () => ({
+    done(callback) {
+      callback("{}");
+      return this;
+    },
+    fail() {}
+  });
+  let attempts = 0;
+  const window = {
+    jQuery: jquery,
+    StreamFGCOverlayPage: {
+      render() {
+        if (++attempts === 1) throw new Error("temporary render failure");
+      }
+    }
+  };
+  vm.runInNewContext(source, { window, document: { body: {}, documentElement: {} } });
+  const options = { page: "intro", stateURL: "state.json", templateRoot: "templates", assetRoot: "assets", playerRoot: "players" };
+  await assert.rejects(window.StreamFGCOverlay.refresh(options), /temporary render failure/);
+  assert.ok(await window.StreamFGCOverlay.refresh(options));
+  assert.equal(await window.StreamFGCOverlay.refresh(options), null);
+  assert.equal(attempts, 2);
+});
+
 test("overlay shares backend participant provenance fixtures", () => {
   const cases = JSON.parse(fs.readFileSync(path.join(root, "backend/testdata/participant-resolution.json")));
   for (const fixture of cases) {
