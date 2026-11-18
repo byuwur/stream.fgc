@@ -1,6 +1,6 @@
 # Stream.FGC · Privacy & Cookies
 
-**Unpublished draft.** Before publication, confirm who hosts the site, who can access its server logs and how long those logs are kept. Record the effective date when the notice is first published.
+**Unpublished draft.** The operator’s contact details are under review. The effective date will be recorded at first publication.
 
 ## Who operates this site
 
@@ -8,7 +8,7 @@ Andrés Trujillo Mateus operates this site as byUwUr, an individual creator in C
 
 ## Using Stream.FGC
 
-This notice covers the Stream.FGC website and its GitHub link. Following it contacts GitHub. The desktop tournament manager, player records, tournament imports, installed copies and OBS overlays are outside website measurement. The web host receives browser requests and network addresses to deliver the site. The privacy page loads MD.view through jsDelivr.
+This notice covers the Stream.FGC website and its GitHub link. Following it contacts GitHub. The desktop tournament manager, player records, tournament imports, installed copies and OBS overlays are outside website measurement. The web host receives browser requests and network addresses to deliver the site. I can’t view visitor access logs in the hosting dashboard, and I don’t know how long the host keeps them. The privacy page loads MD.view through jsDelivr.
 
 ## Optional Google Analytics
 
