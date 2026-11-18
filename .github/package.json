@@ -1,5 +1,5 @@
 {
-  "name": "stream.fgc-release",
+  "name": "stream.fgc",
   "private": true,
   "engines": {
     "node": ">=22"

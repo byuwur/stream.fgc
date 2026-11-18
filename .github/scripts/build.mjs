@@ -4,12 +4,12 @@
  * --binary adds a freshly built Stream.FGC Windows executable; without it, build the runtime ZIP.
  * Runtime libraries remain independent of this private build toolchain.
  */
+import { zipSync } from "fflate";
 import assert from "node:assert/strict";
 import * as fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
-import { zipSync } from "fflate";
 import { config, dist, finishBuild, git, releaseChangelog, root, sha256, validateTag } from "./release.mjs";
 
 /**
@@ -40,7 +40,7 @@ export async function buildRelease(tag, options = {}) {
   try {
     /** @param {string} variant Package name. @param {Object} entries Relative filenames and bytes. @param {string} description Download explanation. @returns {Promise<void>} */
     async function archive(variant, entries, description) {
-      const file = `${config.repository.split("/")[1]}.${tag}${variant === "regular" ? "" : `.${variant}`}.zip`;
+      const file = `${config.repository.split("/")[1]}${variant === "regular" ? "" : `.${variant}`}.zip`;
       const body = Buffer.from(zipSync(Object.fromEntries(Object.entries(entries).map(([name, bytes]) => [name, [new Uint8Array(bytes), { mtime: new Date(1980, 0, 1) }]])), { level: 9 }));
       await fs.writeFile(path.join(staging, file), body);
       manifest.assets.push({ file, bytes: body.length, sha256: sha256(body), description });

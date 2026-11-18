@@ -128,6 +128,8 @@ Review the pinned `frontend/spa.js` revision and reconcile app-owned `frontend/_
 
 ## Releases
 
+[Windows x64 ZIP](https://github.com/byuwur/stream.fgc/releases/latest/download/stream.fgc.windows-x64.zip) · [Runtime ZIP](https://github.com/byuwur/stream.fgc/releases/latest/download/stream.fgc.runtime.zip). Filenames stay the same across releases; `manifest.json` records the version and source commit.
+
 [Release workflow](.github/workflows/release.yml) builds a reviewable preview on pushes to `main`, pull requests, and manual runs. Only a pushed version tag publishes a GitHub release. Source/browser checks and the complete distribution build must succeed on both main and tag runs before publication. Failed builds remove their own temporary stage and retain the last completed output. Two-part tags such as `v1.8` and three-part tags such as `v1.8.1` are supported. Keep release tags consistent with the project's source version.
 
 **Windows x64 ZIP:** Wails controller executable with external runtime folders. Extract everything together and run `stream.fgc.exe`. Windows WebView2 Runtime is required.
