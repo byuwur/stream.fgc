@@ -90,7 +90,9 @@
   const bracketLoadTickets = new WeakMap();
   const currentSeedSelections = new WeakMap();
 
-  // --- Backend and status helpers ---
+  // ==========================
+  // BACKEND AND STATUS HELPERS
+  // ==========================
 
   /**
    * Returns whichever Wails binding shape is available in development or production.
@@ -469,7 +471,9 @@
     global.jQuery?.("#current-year").text(new Date().getFullYear());
   }
 
-  // --- DOM and form helpers ---
+  // ====================
+  // DOM AND FORM HELPERS
+  // ====================
 
   /**
    * Escapes strings before interpolating dynamic HTML.
@@ -663,7 +667,9 @@
     return JSON.stringify(reader(form));
   }
 
-  // --- Autosave ---
+  // ==========
+  // AUTOSAVE
+  // ==========
 
   /**
    * Ends a form's write lifetime and releases its timers and listeners.
@@ -968,7 +974,9 @@
     });
   }
 
-  // --- Asset catalogs and select options ---
+  // =================================
+  // ASSET CATALOGS AND SELECT OPTIONS
+  // =================================
 
   /**
    * Normalizes backend catalog rows so select builders can share one shape.
@@ -1558,7 +1566,9 @@
     );
   }
 
-  // --- Event page ---
+  // ==========
+  // EVENT PAGE
+  // ==========
 
   /**
    * Loads tournament/event data, catalogs, and initializes the event form.
@@ -1819,7 +1829,9 @@
     void loadEvent(form);
   }
 
-  // --- Current match panel ---
+  // ===================
+  // CURRENT MATCH PANEL
+  // ===================
 
   /**
    * Returns the current-match panel that belongs to an event form.
@@ -2367,7 +2379,9 @@
     });
   }
 
-  // --- Players page ---
+  // ============
+  // PLAYERS PAGE
+  // ============
 
   /**
    * Returns one row per configured tournament player slot.
@@ -2503,7 +2517,9 @@
     });
   }
 
-  // --- Select2 templates ---
+  // =================
+  // SELECT2 TEMPLATES
+  // =================
 
   /**
    * Renders a country Select2 option with flag and localized country name.
@@ -2851,7 +2867,9 @@
     global.byCommon?.init?.();
   }
 
-  // --- Page controller API ---
+  // ===================
+  // PAGE CONTROLLER API
+  // ===================
 
   /*
    * Page files share this small API instead of reaching into one another.
@@ -2955,7 +2973,9 @@
     withTimeout
   });
 
-  // --- SPA lifecycle ---
+  // =============
+  // SPA LIFECYCLE
+  // =============
 
   /**
    * Initializes controls in the current document or newly loaded SPA content.

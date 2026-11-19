@@ -35,6 +35,9 @@
   // Share the guard across restarts because replacing a timer does not cancel a pending read.
   let refreshRunning = false;
 
+  // ==============
+  // DISPLAY VALUES
+  // ==============
   /**
    * Converts nullable JSON values into trimmed strings.
    * @param {unknown} value Value supplied by the caller.
@@ -77,6 +80,9 @@
       .replace(/"/g, "&quot;");
   }
 
+  // =============
+  // STATE LOADING
+  // =============
   /**
    * Adds a timestamp so polling cannot be satisfied by a stale browser cache.
    * @param {string|URL} url URL to inspect, request, or display.
@@ -138,6 +144,9 @@
     }
   }
 
+  // =================
+  // BRACKET TEMPLATES
+  // =================
   /**
    * Converts a tournament format and size into its data-driven template filename.
    * @param {string} format Selected display format.
@@ -188,9 +197,21 @@
    */
   async function loadTemplate(state, options) {
     const fileName = templateFileName(state?.event?.format, state?.event?.size);
-    return loadOptionalJSON(`${options.templateRoot}/${fileName}`, { error: `[${fileName}] template missing`, matches: {}, size: integer(state?.event?.size, 0), type: text(state?.event?.format) }, `template:${fileName}`);
+    return loadOptionalJSON(
+      `${options.templateRoot}/${fileName}`,
+      {
+        error: `[${fileName}] template missing`,
+        matches: {},
+        size: integer(state?.event?.size, 0),
+        type: text(state?.event?.format)
+      },
+      `template:${fileName}`
+    );
   }
 
+  // ======================
+  // PARTICIPANT RESOLUTION
+  // ======================
   /**
    * Resolves a bracket seed to a player ID without changing player records.
    * @param {Object} state Current component or application state.
@@ -220,7 +241,14 @@
    * @returns {Object}
    */
   function unresolvedParticipant(source, label) {
-    return { pending_label: label || "TBD", player: {}, player_id: "", resolved: false, source: source || {}, status: "pending" };
+    return {
+      pending_label: label || "TBD",
+      player: {},
+      player_id: "",
+      resolved: false,
+      source: source || {},
+      status: "pending"
+    };
   }
 
   /**
@@ -235,12 +263,36 @@
       const playerID = seedPlayerID(state, source.seed);
       const player = state?.players?.[playerID] || {};
       if (seedIsBye(state, source.seed)) {
-        return { bracket_seed: source.seed, pending_label: "BYE", player, player_id: playerID, resolved: true, source, status: "bye" };
+        return {
+          bracket_seed: source.seed,
+          pending_label: "BYE",
+          player,
+          player_id: playerID,
+          resolved: true,
+          source,
+          status: "bye"
+        };
       }
       if (!playerID || !text(player.name)) {
-        return { bracket_seed: source.seed, pending_label: "TBD", player, player_id: playerID, resolved: false, source, status: "tbd" };
+        return {
+          bracket_seed: source.seed,
+          pending_label: "TBD",
+          player,
+          player_id: playerID,
+          resolved: false,
+          source,
+          status: "tbd"
+        };
       }
-      return { bracket_seed: source.seed, pending_label: "", player, player_id: playerID, resolved: true, source, status: "player" };
+      return {
+        bracket_seed: source.seed,
+        pending_label: "",
+        player,
+        player_id: playerID,
+        resolved: true,
+        source,
+        status: "player"
+      };
     }
 
     if (source.type === "winner" || source.type === "loser") {
@@ -252,7 +304,14 @@
         return { pending_label: "BYE", player, player_id: playerID, resolved: true, source, status: "bye" };
       }
       if (!playerID || !text(state?.players?.[playerID]?.name)) return unresolvedParticipant(source, label);
-      return { pending_label: "", player: state.players[playerID], player_id: playerID, resolved: true, source, status: "player" };
+      return {
+        pending_label: "",
+        player: state.players[playerID],
+        player_id: playerID,
+        resolved: true,
+        source,
+        status: "player"
+      };
     }
 
     return unresolvedParticipant(source, "TBD");
@@ -313,7 +372,11 @@
     const id = text(requestedID) || text(state?.current) || sortedMatchIDs(template)[0] || "";
     const definition = template?.matches?.[id] || {};
     const eligible = resetMatchEligible(definition, template, state);
-    const matchState = { player1_score: 0, player2_score: 0, ...(eligible ? state?.matches?.[id] || {} : {}) };
+    const matchState = {
+      player1_score: 0,
+      player2_score: 0,
+      ...(eligible ? state?.matches?.[id] || {} : {})
+    };
     let player1 = decorateParticipant(resolveParticipant(definition.p1, state), context);
     let player2 = decorateParticipant(resolveParticipant(definition.p2, state), context);
     if (!eligible) {
@@ -461,6 +524,9 @@
     });
   }
 
+  // ===========
+  // DOM UPDATES
+  // ===========
   /**
    * Swaps one changed value with fade-out then fade-in-up transitions.
    * @param {HTMLElement} target Target element or value to update.
@@ -596,6 +662,9 @@
     return `url("${String(url).replace(/"/g, "%22")}")`;
   }
 
+  // =============
+  // OVERLAY THEME
+  // =============
   /**
    * Applies tournament, game, and page art as ordered CSS fallback layers.
    * @param {Object} context Resolved data and options for this render.
@@ -626,6 +695,9 @@
     if (visible) swapImage(target, [participant.flag_url], true);
   }
 
+  // ==============
+  // MATCH OVERLAYS
+  // ==============
   /**
    * Renders the compact current-match scoreboard.
    * @param {Object} context Resolved data and options for this render.
@@ -691,6 +763,9 @@
     swapImage("[data-champion-portrait]", [context.champion.portrait_url, context.nopic]);
   }
 
+  // =============
+  // BRACKET VIEWS
+  // =============
   /**
    * Normalizes stored and query-string bracket view aliases.
    * @param {unknown} value Value supplied by the caller.
@@ -747,7 +822,15 @@
    * @returns {unknown}
    */
   function bracketViewLabel(view) {
-    return { all: "Full bracket", finals: "Finals", losers: "Losers bracket", top8: "Top 8", winners: "Winners bracket" }[view] || "Full bracket";
+    return (
+      {
+        all: "Full bracket",
+        finals: "Finals",
+        losers: "Losers bracket",
+        top8: "Top 8",
+        winners: "Winners bracket"
+      }[view] || "Full bracket"
+    );
   }
 
   /**
@@ -877,6 +960,9 @@
   function render(context) {
     applyTheme(context);
     applyBindings(context);
+    // ==================
+    // RENDERER SELECTION
+    // ==================
     const renderers = {
       bracket: renderBracket,
       champion: renderChampion,

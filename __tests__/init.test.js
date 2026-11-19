@@ -5,6 +5,9 @@ const fs = require("node:fs");
 const test = require("node:test");
 const vm = require("node:vm");
 
+// =============
+// TEST FIXTURES
+// =============
 function loadInitializer(values = new Map()) {
   let failure = null;
   const storage = {
@@ -19,28 +22,43 @@ function loadInitializer(values = new Map()) {
     removeItem(key) {
       if (failure === "remove") throw new Error("remove failed");
       values.delete(key);
-    },
+    }
   };
   const window = {
     localStorage: storage,
     location: {
       href: "https://example.test/stream.fgc/frontend/index.html",
       host: "example.test",
-      protocol: "https:",
-    },
+      protocol: "https:"
+    }
   };
   const context = {
     window,
     document: { currentScript: { getAttribute: () => "./_init.js" } },
     URL,
-    console: { log() {} },
+    console: { log() {} }
   };
   vm.runInNewContext(fs.readFileSync("frontend/_init.js", "utf8"), context);
-  return { byStorage: window.byStorage, values, fail(mode) { failure = mode; } };
+  return {
+    byStorage: window.byStorage,
+    values,
+    fail(mode) {
+      failure = mode;
+    }
+  };
 }
 
+// ==========
+// INIT TESTS
+// ==========
 test("application initializer preserves per-key storage authority and migration", () => {
-  const state = loadInitializer(new Map([["bySPA:/stream.fgc/frontend/:theme", "foreign"], ["ROUTER_MODE", "path"], ["legacy", "old"]]));
+  const state = loadInitializer(
+    new Map([
+      ["bySPA:/stream.fgc/frontend/:theme", "foreign"],
+      ["ROUTER_MODE", "path"],
+      ["legacy", "old"]
+    ])
+  );
   const { byStorage, values } = state;
   assert.equal(byStorage.getItem("theme"), null);
   assert.equal(byStorage.getItem("legacy"), "old");

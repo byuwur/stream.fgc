@@ -48,6 +48,9 @@
   const { BRACKET_ADMIN_VIEW, BRACKET_OVERLAY_REFRESH_MS, BRACKET_PAGE, EMPTY_STATE_CLASS } = fgc.constants;
   const bracketSeedSelections = new WeakMap();
 
+  // =====================
+  // BRACKET VIEW SETTINGS
+  // =====================
   /**
    * Returns the localized label for a bracket match status.
    * @param {number} status Status code describing the result.
@@ -151,6 +154,9 @@
     }
   }
 
+  // ==============
+  // BRACKET MARKUP
+  // ==============
   /**
    * Rebuilds one bracket view select while keeping Select2 synchronized.
    * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
@@ -492,6 +498,9 @@
     applyLanguage(board);
   }
 
+  // ===============================
+  // BRACKET LOADING AND PERSISTENCE
+  // ===============================
   /**
    * Loads the bracket projection through Wails.
    * @param {Document|HTMLElement} root Container whose descendants belong to this operation.
@@ -602,6 +611,9 @@
     }
   }
 
+  // =============
+  // MATCH ACTIONS
+  // =============
   /**
    * Performs one admin bracket action and reloads the projection.
    * @param {unknown} page Page.
@@ -707,6 +719,9 @@
     runBracketBackendMethod(page, "SwapBracketSeeds", selectedSeed, seed);
   }
 
+  // ======================
+  // BRACKET EVENT HANDLERS
+  // ======================
   /**
    * Handles native and Select2-driven bracket view changes through one path.
    * @param {unknown} page Page.

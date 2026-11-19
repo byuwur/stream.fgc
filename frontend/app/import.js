@@ -40,6 +40,9 @@
   const { FALLBACK_ASSET } = fgc.constants;
   const importUndoStates = new WeakMap();
 
+  // ===================
+  // IMPORT INTEGRATIONS
+  // ===================
   /**
    * Reads provider API keys from the import integrations form.
    * @param {unknown} page Page.
@@ -133,6 +136,9 @@
     }
   }
 
+  // =================
+  // IMPORT FORM STATE
+  // =================
   /**
    * Reads the selected provider key from the import form.
    * @param {unknown} page Page.
@@ -200,6 +206,9 @@
     return preview?.provider_name || preview?.provider || t("import.unknown_provider", "Unknown provider");
   }
 
+  // =================
+  // PREVIEW RENDERING
+  // =================
   /**
    * Renders one small import summary tile.
    * @param {string} label Human-readable label.
@@ -338,6 +347,9 @@
     applyLanguage(body);
   }
 
+  // =================
+  // TOURNAMENT IMPORT
+  // =================
   /**
    * Loads an external tournament preview through the backend.
    * @param {unknown} page Page.
@@ -443,6 +455,9 @@
     }
   }
 
+  // =============
+  // PAGE BINDINGS
+  // =============
   /**
    * Binds the import page form and action buttons.
    * @param {unknown} page Page.

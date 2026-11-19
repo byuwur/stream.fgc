@@ -3,6 +3,9 @@
  * Desc: Small reset and shared font variables for every Stream.FGC overlay.
  * Deps: assets/michroma.ttf.
  */
+/* ============
+ * OVERLAY FONT
+ * ============ */
 @font-face {
   font-family: "Michroma";
   font-style: normal;
@@ -14,6 +17,9 @@
   --fgc-display-font: "Michroma", "Segoe UI", sans-serif;
   --fgc-body-font: "Segoe UI", Arial, sans-serif;
 }
+/* ===============
+ * CANVAS DEFAULTS
+ * =============== */
 *,
 *::before,
 *::after {

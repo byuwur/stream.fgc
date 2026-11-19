@@ -80,7 +80,9 @@ body {
   /* Stream.FGC override: blue-black wash over dynamic game backgrounds */
   --fgc-page-bg: linear-gradient(135deg, rgba(var(--fgc-dark-rgb), 0.6), rgba(var(--fgc-page-blue-rgb), 0.6)), rgba(var(--fgc-dark-rgb), 0.6);
 }
-/* === SELECTION === */
+/* ==========
+ * SELECTION
+ * ========== */
 ::selection {
   background-color: var(--light-color);
   color: var(--dark-color);
@@ -96,7 +98,9 @@ body {
 /* #bywr-accessibility {
 	top: 2.5% !important;
 } */
-/* === SPA Shell === */
+/* ==========
+ * SPA SHELL
+ * ========== */
 .fgc-title {
   margin: 0;
   font-family: "Michroma";
@@ -225,7 +229,9 @@ body {
 .fgc-page[data-autosave="on"] [data-manual-save] {
   display: none !important;
 }
-/* === Status === */
+/* ==========
+ * STATUS
+ * ========== */
 .fgc-status[data-tone="success"] {
   border-color: var(--fgc-status-success-border);
   color: var(--fgc-status-success-text);
@@ -293,7 +299,9 @@ body {
 [data-current-match] [data-match-character-label] {
   color: var(--fgc-text);
 }
-/* === FORMS === */
+/* ==========
+ * FORMS
+ * ========== */
 [data-field-label] {
   display: block;
   margin-top: var(--fgc-field-label-top-offset);
@@ -631,7 +639,9 @@ body {
   border-color: rgba(var(--fgc-light-rgb), 0.2) !important;
   color: var(--fgc-text-muted);
 }
-/* === SELECT2 === */
+/* ==========
+ * SELECT2
+ * ========== */
 .fgc-panel .select2-container {
   font-size: var(--fgc-field-font-size);
 }

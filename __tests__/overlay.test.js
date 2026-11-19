@@ -10,6 +10,9 @@ const window = { jQuery: function () {} };
 const source = fs.readFileSync(path.join(root, "overlays/js/overlay.js"), "utf8").replace("global.StreamFGCOverlay = api;", "global.StreamFGCOverlay = { ...api, bracketHTML, championFromBracket, renderChampion };");
 const context = { window };
 vm.runInNewContext(source, context);
+// =============
+// OVERLAY TESTS
+// =============
 test("an unchanged poll retries a failed page render", async () => {
   const element = { css() {}, attr() {}, each() {}, addClass() {}, remove() {} };
   const jquery = () => element;
@@ -30,7 +33,13 @@ test("an unchanged poll retries a failed page render", async () => {
     }
   };
   vm.runInNewContext(source, { window, document: { body: {}, documentElement: {} } });
-  const options = { page: "intro", stateURL: "state.json", templateRoot: "templates", assetRoot: "assets", playerRoot: "players" };
+  const options = {
+    page: "intro",
+    stateURL: "state.json",
+    templateRoot: "templates",
+    assetRoot: "assets",
+    playerRoot: "players"
+  };
   await assert.rejects(window.StreamFGCOverlay.refresh(options), /temporary render failure/);
   assert.ok(await window.StreamFGCOverlay.refresh(options));
   assert.equal(await window.StreamFGCOverlay.refresh(options), null);
@@ -144,7 +153,11 @@ test("champion rendering clears prior text when no decisive final exists", () =>
     }
   };
   vm.runInNewContext(source, { window: renderWindow });
-  renderWindow.StreamFGCOverlay.renderChampion({ champion: { name: "Old champion", portrait_url: "old.png" }, event: { name: "Event" }, nopic: "" });
+  renderWindow.StreamFGCOverlay.renderChampion({
+    champion: { name: "Old champion", portrait_url: "old.png" },
+    event: { name: "Event" },
+    nopic: ""
+  });
   assert.equal(elements.get("[data-champion-name]").value, "Old champion");
   renderWindow.StreamFGCOverlay.renderChampion({ champion: null });
   assert.equal(elements.get("[data-champion-name]").value, "");

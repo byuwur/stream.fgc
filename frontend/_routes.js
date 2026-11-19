@@ -10,6 +10,9 @@
   global.bySPA = global.bySPA || {};
   const bySPA = global.bySPA;
 
+  // =====================
+  // LOCALIZED ROUTE NAMES
+  // =====================
   // URIs
   const ROUTE_ROOT = "/";
 
