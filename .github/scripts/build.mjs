@@ -12,6 +12,9 @@ import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { config, dist, finishBuild, git, releaseChangelog, root, sha256, validateTag } from "./release.mjs";
 
+// =============
+// RELEASE BUILD
+// =============
 /**
  * Build Stream.FGC runtime/Windows ZIPs from explicit tracked paths and the starter template.
  * @param {string} tag Valid release or preview version.
@@ -21,7 +24,14 @@ import { config, dist, finishBuild, git, releaseChangelog, root, sha256, validat
 export async function buildRelease(tag, options = {}) {
   validateTag(tag);
   const changelog = releaseChangelog(tag);
-  const manifest = { generator: `${config.repository} release builder`, repository: config.repository, tag, changelog, assets: [], packages: [] };
+  const manifest = {
+    generator: `${config.repository} release builder`,
+    repository: config.repository,
+    tag,
+    changelog,
+    assets: [],
+    packages: []
+  };
   const tracked = git("ls-files", "-z").split("\0").filter(Boolean);
   const selected = tracked.filter((file) => config.files.includes(file) || config.directories.some((directory) => file.startsWith(`${directory}/`)));
   assert.ok(selected.length > 2, "No runtime files found");
@@ -38,13 +48,24 @@ export async function buildRelease(tag, options = {}) {
   await fs.mkdir(dist, { recursive: true });
   const staging = await fs.mkdtemp(path.join(dist, ".release-"));
   try {
+    // =================
+    // ARCHIVE PACKAGING
+    // =================
     /** @param {string} variant Package name. @param {Object} entries Relative filenames and bytes. @param {string} description Download explanation. @returns {Promise<void>} */
     async function archive(variant, entries, description) {
       const file = `${config.repository.split("/")[1]}${variant === "regular" ? "" : `.${variant}`}.zip`;
       const body = Buffer.from(zipSync(Object.fromEntries(Object.entries(entries).map(([name, bytes]) => [name, [new Uint8Array(bytes), { mtime: new Date(1980, 0, 1) }]])), { level: 9 }));
       await fs.writeFile(path.join(staging, file), body);
       manifest.assets.push({ file, bytes: body.length, sha256: sha256(body), description });
-      manifest.packages.push({ file, variant, files: Object.entries(entries).map(([name, bytes]) => ({ file: name, bytes: bytes.length, sha256: sha256(bytes) })) });
+      manifest.packages.push({
+        file,
+        variant,
+        files: Object.entries(entries).map(([name, bytes]) => ({
+          file: name,
+          bytes: bytes.length,
+          sha256: sha256(bytes)
+        }))
+      });
     }
     await archive("runtime", regular, "Runtime folders and starter data");
     if (options.binary) {
@@ -62,6 +83,9 @@ export async function buildRelease(tag, options = {}) {
   }
 }
 
+// ============
+// COMMAND LINE
+// ============
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   const { values } = parseArgs({ options: { tag: { type: "string" }, binary: { type: "string" } } });
   await buildRelease(values.tag || process.env.RELEASE_TAG || "v0.0.0-local", values);

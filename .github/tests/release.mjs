@@ -10,6 +10,9 @@ import { config, dist, git, releaseNotes, root, sha256, validateTag } from "../s
 const directory = path.join(dist, "assets");
 const manifest = JSON.parse(await fs.readFile(path.join(directory, "manifest.json"), "utf8"));
 
+// =======================
+// RELEASE ARTIFACTS TESTS
+// =======================
 test("checksums cover the complete inventory and the exact source commit", async () => {
   assert.equal(manifest.changelog.commit, git("rev-parse", "HEAD"));
   for (const archive of manifest.packages) assert.equal(archive.file, `${config.repository.split("/")[1]}${archive.variant === "regular" ? "" : `.${archive.variant}`}.zip`);
@@ -54,7 +57,14 @@ for (const archive of manifest.packages)
   });
 
 test("release notes link short hashes, escape subjects, and display the actual tag", () => {
-  const notes = releaseNotes({ ...manifest, changelog: { previousTag: "v1.0", ref: "v1.1", commits: [{ sha: "a".repeat(40), subject: "[Fix] Keep <markup> and *literal* text" }] } });
+  const notes = releaseNotes({
+    ...manifest,
+    changelog: {
+      previousTag: "v1.0",
+      ref: "v1.1",
+      commits: [{ sha: "a".repeat(40), subject: "[Fix] Keep <markup> and *literal* text" }]
+    }
+  });
   assert.ok(notes.includes(`- ([aaaaaaa](https://github.com/${config.repository}/commit/${"a".repeat(40)})) \\[Fix\\] Keep \\<markup\\> and \\*literal\\* text`));
   assert.ok(notes.includes("/compare/v1.0...v1.1"));
   for (const tag of ["v1.0", "v1.0.1", "v1.0.1-rc.1"]) assert.equal(validateTag(tag), tag);
