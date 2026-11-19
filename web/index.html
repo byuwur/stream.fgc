@@ -1,1 +1,378 @@
-stream.FGC
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="origin" />
+    <title>Stream.FGC</title>
+  </head>
+  <body>
+    <template id="site-analytics-frame">
+      <meta name="referrer" content="no-referrer">
+      <script>
+        window.dataLayer = [];
+        function gtag() { window.dataLayer.push(arguments); }
+      </script>
+    </template>
+    <main><h1>Stream.FGC</h1><a href="https://github.com/byuwur/stream.fgc">Stream.FGC on GitHub</a></main>
+    <footer><a href="https://byuwur.co/privacy/stream.fgc">Privacy</a> · <a href="https://byuwur.co/cookies">Cookies</a></footer>
+    <script>
+      /* Optional analytics for this project's public website. */
+      (() => {
+        "use strict";
+        // ===========================
+        // WEBSITE AND ELIGIBLE ROUTES
+        // ===========================
+        const project = "stream_fgc";
+        const site = "Stream.FGC";
+        const hosts = ["fgc.byuwur.co"];
+        const measurement = "G-YBLWBPK758";
+        const preference = "byuwur_analytics";
+        const lifetime = 180 * 86400;
+        const disable = "ga-disable-" + measurement;
+        const production = location.protocol === "https:" && hosts.includes(location.host);
+        const local = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname) || location.protocol === "file:";
+        if (window.top !== window || (!production && !local) || window.bySiteAnalytics) return;
+        const siteRoot = new URL(".", location.href);
+
+        const actions = ["configuration_changed", "resource_selected", "resource_loaded", "content_processed", "resource_exported", "resource_copied"];
+        function route(url) {
+          const path = url.pathname.replace(/\/index\.html$/, "/").replace(/\/$/, "") || "/";
+          if (path === "/") return { path: "/", surface: "landing", resource: project };
+        }
+
+        // =====================
+        // CONSENT AND REFERRERS
+        // =====================
+        function choice() {
+          const values = document.cookie.split("; ").filter((part) => part.startsWith(preference + "="));
+          if (values.length !== 1) return "";
+          const match = /^byuwur_analytics=v1\.(yes|no)\.(\d{10})$/.exec(values[0]);
+          const age = Date.now() / 1000 - Number(match?.[2]);
+          return match && age >= 0 && age < lifetime && !(blockedChoice && match[1] === "yes") ? match[1] : "";
+        }
+
+        function safeReferrer(value) {
+          try {
+            const url = new URL(value);
+            if (!["https:", "http:"].includes(url.protocol)) return "";
+            if (hosts.includes(url.host)) {
+              const page = route(url, true);
+              if (page) return url.origin + page.path;
+            }
+            // A browser may supply a same-operator route. Retain only published path names.
+            const path = url.pathname.replace(/\/$/, "") || "/";
+            if (["byuwur.co", "www.byuwur.co"].includes(url.host) && /^\/(?:en|es|ja|privacy(?:\/(?:\.view|stream\.html|stream\.fgc|spa\.php))?|cookies|v1(?:\/(?:en|es|ja))?)$/.test(path)) return url.origin + path;
+            if (url.host === "spa.byuwur.co" && /^\/demo(?:\/(?:privacy|es|en|ja|home|inicio|page|pagina|kit|md|json|video|ja\/(?:home|page)))?$/.test(path)) return url.origin + path;
+            if (
+              url.host === "stream.byuwur.co" &&
+              /^\/(?:main|controller|keyboard|popup|clock|timer|webcam|ticker|watermark|lower-thirds|qr|reminder|badge|credits|schedule|sponsors|info|effects|hud|timeline|randomizer|quotes|shortcuts|chat|counter|now-playing)$/.test(path)
+            )
+              return url.origin + path + "/";
+            return url.origin + "/";
+          } catch {
+            return "";
+          }
+        }
+
+        // ====================
+        // GOOGLE TAG LIFECYCLE
+        // ====================
+        const denied = { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" };
+        // Own the tag's browsing context so withdrawal can cancel Google's pending batch
+        // without navigating away from unsaved work or changing the application's network policy.
+        const frameTemplate = document.getElementById("site-analytics-frame");
+        const pending = [];
+        let frame,
+          frameReady = false,
+          page,
+          controls,
+          loadingControls = false,
+          configured = false;
+        function tag(...args) {
+          if (frameReady) frame.contentWindow.gtag(...frame.contentWindow.structuredClone(args));
+          else pending.push(args);
+        }
+        let blockedChoice = false,
+          expiryTimer;
+        let previous = "",
+          referrer = safeReferrer(document.referrer),
+          generation = 0;
+        if (production) window[disable] = true;
+
+        function stop(clear) {
+          if (!window[disable]) generation++;
+          window[disable] = true;
+          clearTimeout(expiryTimer);
+          if (frameReady) {
+            frame.contentWindow[disable] = true;
+            const block = frame.contentDocument.createElement("meta");
+            block.httpEquiv = "Content-Security-Policy";
+            block.content = "default-src 'none'";
+            frame.contentDocument.head.append(block);
+            tag("consent", "update", { ...denied, analytics_storage: "denied" });
+          }
+          frame?.remove();
+          frame = null;
+          frameReady = false;
+          pending.length = 0;
+          configured = false;
+          previous = "";
+          if (clear && /(?:^|; )_ga(?:_YBLWBPK758)?=/.test(document.cookie)) {
+            for (const name of ["_ga", "_ga_YBLWBPK758"]) {
+              for (const domain of ["", "; Domain=" + location.hostname, "; Domain=byuwur.co"]) document.cookie = name + "=; Max-Age=0; Path=/; Secure; SameSite=Lax" + domain;
+            }
+          }
+        }
+
+        // ================================
+        // USAGE COUNTS AND SYNCHRONIZATION
+        // ================================
+        let countedPath = "";
+        function countUsage(action, resource = page?.resource) {
+          if (!production || !page || !controls || blockedChoice || choice() === "no") return;
+          fetch("https://byuwur.co/usage.php", {
+            method: "POST",
+            body: [action, page.surface, resource].join("|"),
+            credentials: "omit",
+            referrerPolicy: "no-referrer",
+            keepalive: true,
+            redirect: "error",
+            cache: "no-store"
+          }).catch(() => {}); // Measurement must never interrupt the tool.
+        }
+
+        function sync() {
+          if (!controls) return;
+          if (!production) {
+            controls.update(!!page);
+            return;
+          }
+          const saved = choice();
+          controls.update(!!page, saved);
+          if (!page) countedPath = "";
+          else if (!blockedChoice && saved !== "no" && page.path !== countedPath) {
+            countedPath = page.path;
+            countUsage("page_view");
+          }
+          if (!page || saved !== "yes") {
+            stop(saved !== "yes");
+            return;
+          }
+          window[disable] = false;
+          if (!frame) {
+            if (!frameTemplate) return;
+            frame = document.createElement("iframe");
+            frame.hidden = true;
+            frame.title = "Google Analytics";
+            frame.referrerPolicy = "no-referrer";
+            const owner = frame;
+            owner.onload = () => {
+              if (owner !== frame) return;
+              if (choice() !== "yes" || !page) {
+                stop(false);
+                return;
+              }
+              owner.onload = null;
+              const doc = owner.contentDocument;
+              try {
+                // GA4 needs an HTTPS document. Drop the parent URL parameters before running the tag.
+                doc.open();
+                owner.contentWindow.history.replaceState(null, "", "/");
+                doc.write("<!doctype html>" + frameTemplate.innerHTML);
+                doc.close();
+              } catch {
+                stop(false);
+                return;
+              }
+              if (typeof owner.contentWindow.gtag !== "function") {
+                stop(false);
+                return;
+              }
+              frameReady = true;
+              for (const args of pending.splice(0)) tag(...args);
+              const script = owner.contentDocument.createElement("script");
+              script.async = true;
+              script.referrerPolicy = "origin";
+              script.onerror = () => {
+                if (frame === owner) stop(false);
+              };
+              script.src = "https://www.googletagmanager.com/gtag/js?id=" + measurement;
+              owner.contentDocument.head.append(script);
+            };
+            owner.srcdoc = "<!doctype html>";
+            document.body.append(owner);
+          }
+          if (frameReady) frame.contentWindow[disable] = false;
+          const locationID = location.origin + page.path;
+          if (configured && previous === locationID) {
+            scheduleExpiry();
+            return;
+          }
+          const context = {
+            project,
+            surface: page.surface,
+            resource: page.resource,
+            page_location: locationID,
+            page_title: site + " · " + page.surface,
+            page_referrer: previous || referrer
+          };
+          tag("set", {
+            ...context,
+            send_page_view: false,
+            allow_google_signals: false,
+            allow_ad_personalization_signals: false
+          });
+          if (!configured) {
+            tag("consent", "default", { ...denied, analytics_storage: "granted" });
+            tag("js", new Date());
+            tag("config", measurement, {
+              ...context,
+              send_page_view: false,
+              cookie_domain: "byuwur.co",
+              cookie_path: "/",
+              allow_google_signals: false,
+              allow_ad_personalization_signals: false
+            });
+            configured = true;
+          }
+          tag("event", "page_view", { ...context, send_to: measurement });
+          previous = locationID;
+          scheduleExpiry();
+        }
+        function scheduleExpiry() {
+          // Long timeouts overflow in browsers. Recheck the cookie daily and at its actual expiry.
+          clearTimeout(expiryTimer);
+          const savedAt = Number(document.cookie.match(/(?:^|; )byuwur_analytics=v1\.yes\.(\d{10})(?:;|$)/)?.[1]);
+          expiryTimer = setTimeout(sync, Math.min(86400000, Math.max(100, (savedAt + lifetime) * 1000 - Date.now())));
+        }
+
+        // ============
+        // TOOL ACTIONS
+        // ============
+        function begin(action, field) {
+          if (!production || !page || !controls || blockedChoice || choice() === "no") return;
+          if (!actions.includes(action) || (field && (action !== "configuration_changed" || !validField(field)))) return;
+          const detailed = choice() === "yes" && !window[disable];
+          const start = generation;
+          const current = page.path;
+          return () => {
+            if (start !== generation || page?.path !== current) return;
+            countUsage(action);
+            if (!detailed) return;
+            if (choice() !== "yes") {
+              if (frame) sync();
+              return;
+            }
+            if (start !== generation || page?.path !== current || !configured || window[disable]) return;
+            tag("event", "tool_used", {
+              send_to: measurement,
+              project,
+              surface: page.surface,
+              resource: page.resource,
+              action,
+              ...(field
+                ? {
+                    field_id: field
+                      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+                      .replace(/-/g, "_")
+                      .toLowerCase()
+                  }
+                : {})
+            });
+          };
+        }
+        function validField(field) {
+          return false;
+        }
+        if (production) window.bySiteAnalytics = { begin, settings: () => controls?.open() };
+
+        // ================
+        // PRIVACY CONTROLS
+        // ================
+        function saveChoice(value) {
+          blockedChoice = value === "no";
+          if (blockedChoice) stop(true);
+          document.cookie = preference + "=v1." + value + "." + Math.floor(Date.now() / 1000) + "; Max-Age=" + lifetime + "; Domain=byuwur.co; Path=/; Secure; SameSite=Lax";
+          if (value === "no" && document.cookie.includes(preference + "=v1.no.")) blockedChoice = false;
+          sync();
+        }
+        function mount() {
+          if (!page || controls || loadingControls) return;
+          const initialize = () => {
+            loadingControls = false;
+            if (!page) return;
+            controls = window.byCommon.initPrivacyControls({
+              policyURL: "https://byuwur.co/privacy/stream.fgc",
+              cookiesURL: "https://byuwur.co/cookies",
+              message: "We count page views and selected actions by project and, when available, country, without browser identifiers. Accept adds Google Analytics cookies across the listed sites. Reject stops both.",
+              onChoice: production ? saveChoice : undefined
+            });
+            sync();
+          };
+          if (window.byCommon?.initPrivacyControls) {
+            initialize();
+            return;
+          }
+          loadingControls = true;
+          const script = document.createElement("script");
+          script.referrerPolicy = "no-referrer";
+          script.src = production ? "https://spa.byuwur.co/_privacy.js" : new URL("../../spa.js/_privacy.js", siteRoot).href;
+          script.onload = initialize;
+          script.onerror = () => {
+            loadingControls = false;
+          };
+          document.head.append(script);
+        }
+        // ==========================
+        // NAVIGATION AND LINK CLICKS
+        // ==========================
+        function navigate() {
+          const url = new URL(location.href);
+          if (!production) {
+            const base = siteRoot.pathname.replace(/\/$/, "");
+            if (url.pathname === base || url.pathname.startsWith(base + "/")) url.pathname = url.pathname.slice(base.length) || "/";
+          }
+          const next = route(url);
+          if (page?.path !== next?.path) generation++;
+          page = next;
+          mount();
+          sync();
+        }
+
+        const links = new Map([["https://github.com/byuwur/stream.fgc", ["open_github", "github_repository"]]]);
+        function click(event) {
+          if (!event.isTrusted || (event.type === "auxclick" && event.button !== 1) || !page) return;
+          const link = event.target.closest?.("a[href]");
+          if (!link || link.closest("[contenteditable], [data-legal-document], #editor, #preview-panel")) return;
+          const target = links.get(link.href);
+          if (!target) return;
+          countUsage(target[0], target[1]);
+          if (choice() !== "yes") {
+            if (frame) sync();
+            return;
+          }
+          if (configured)
+            tag("event", "resource_clicked", {
+              send_to: measurement,
+              project,
+              surface: page.surface,
+              action: target[0],
+              resource: target[1]
+            });
+        }
+        document.addEventListener("click", click, true);
+        document.addEventListener("auxclick", click, true);
+        navigate();
+        window.addEventListener("focus", sync);
+        window.addEventListener("pageshow", sync);
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) sync();
+        });
+        window.cookieStore?.addEventListener("change", (event) => {
+          if ([...event.changed, ...event.deleted].some((cookie) => cookie.name === preference)) sync();
+        });
+      })();
+    </script>
+  </body>
+</html>
