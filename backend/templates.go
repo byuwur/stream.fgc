@@ -15,6 +15,10 @@ import (
 	"strings"
 )
 
+// ================
+// TEMPLATE LOADING
+// ================
+
 // loadBracketTemplate reads templates/{format}{size}.json and fails loudly when it is missing.
 func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 	var data []byte
@@ -37,6 +41,10 @@ func loadBracketTemplate(format string, size int) (BracketTemplate, error) {
 	}
 	return normalizeBracketTemplate(template, format, size), nil
 }
+
+// ======================
+// PARTICIPANT RESOLUTION
+// ======================
 
 // resolveParticipant follows a template participant to its current player, if any.
 func resolveParticipant(participant TemplateParticipant, state TournamentState) ResolvedParticipant {
@@ -115,6 +123,10 @@ func unresolvedParticipant(participant TemplateParticipant, playerID string, lab
 	return resolved
 }
 
+// ======================
+// TEMPLATE NORMALIZATION
+// ======================
+
 // normalizeBracketTemplate fills template defaults without changing bracket logic.
 func normalizeBracketTemplate(template BracketTemplate, format string, size int) BracketTemplate {
 	if template.Type == "" {
@@ -152,6 +164,10 @@ func templateFileName(format string, size int) string {
 	}
 	return fmt.Sprintf("%s%d.json", name, size)
 }
+
+// =============
+// COUNTRY CODES
+// =============
 
 // listISO2SVGCodes extracts country codes from a flag SVG directory.
 func listISO2SVGCodes(path string) ([]string, error) {

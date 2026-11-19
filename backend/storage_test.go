@@ -13,6 +13,10 @@ import (
 	"testing"
 )
 
+// ========================
+// LOADING TOURNAMENT FILES
+// ========================
+
 // TestLoadTournamentStatePreservesInvalidFiles verifies parse failures never trigger default writes.
 func TestLoadTournamentStatePreservesInvalidFiles(t *testing.T) {
 	parseErr := errors.New("invalid tournament JSON")
@@ -52,6 +56,10 @@ func TestLoadTournamentStateCreatesOnlyMissingFiles(t *testing.T) {
 		t.Fatalf("unexpected default state: %#v", state.Event)
 	}
 }
+
+// ===========================
+// PERSISTING TOURNAMENT STATE
+// ===========================
 
 // TestWriteTournamentStateFile verifies atomic writes leave one complete JSON document and no temp file.
 func TestWriteTournamentStateFile(t *testing.T) {

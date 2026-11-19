@@ -21,6 +21,19 @@ const (
 
 var externalPathMode = defaultExternalPathMode()
 
+// ==================
+// EXTERNAL PATHS API
+// ==================
+
+// ExternalFilePaths lists lookup locations for a file in an external folder.
+func ExternalFilePaths(rootDir string, filePath string) []string {
+	return externalFilePaths(rootDir, filePath)
+}
+
+// ===================
+// RUNTIME DIRECTORIES
+// ===================
+
 // configureExternalPaths chooses repo-local folders for Wails dev and exe-local folders for builds.
 func configureExternalPaths(ctx context.Context) {
 	buildType, _ := ctx.Value("buildtype").(string)
@@ -41,11 +54,6 @@ func ensureRuntimeFolders() {
 		// Folder creation is best-effort; individual reads/writes surface actionable errors later.
 		_ = os.MkdirAll(externalWriteDirPath(dirPath), 0755)
 	}
-}
-
-// ExternalFilePaths lists lookup locations for a file in an external folder.
-func ExternalFilePaths(rootDir string, filePath string) []string {
-	return externalFilePaths(rootDir, filePath)
 }
 
 // externalDirPaths lists lookup locations for an external project folder.
@@ -95,6 +103,10 @@ func externalBaseDirs() []string {
 	return []string{preferredExternalBaseDir()}
 }
 
+// ============
+// STORAGE MODE
+// ============
+
 // usePortableExternalPaths reports whether external files should live beside the executable.
 func usePortableExternalPaths() bool {
 	switch externalPathMode {
@@ -115,6 +127,10 @@ func preferredExternalBaseDir() string {
 	}
 	return developmentExternalBaseDir()
 }
+
+// =================
+// DEVELOPMENT PATHS
+// =================
 
 // developmentExternalBaseDir returns the repository root used by Wails dev.
 func developmentExternalBaseDir() string {

@@ -17,6 +17,10 @@ const (
 	overlaysDirPath = "overlays"
 )
 
+// ==================
+// OVERLAY FOLDER API
+// ==================
+
 // ShowOverlaysFolder ensures ./overlays exists and opens it in the OS file explorer.
 func (a *App) ShowOverlaysFolder() (string, error) {
 	folderPath, err := overlaysFolderPath()
@@ -37,6 +41,10 @@ func (a *App) ShowOverlaysFolder() (string, error) {
 func overlaysFolderPath() (string, error) {
 	return filepath.Abs(externalWriteDirPath(overlaysDirPath))
 }
+
+// ====================
+// PLATFORM INTEGRATION
+// ====================
 
 // openFolder launches the platform file manager without going through a shell.
 func openFolder(folderPath string) error {

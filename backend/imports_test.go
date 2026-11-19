@@ -18,10 +18,18 @@ import (
 
 type importTestTransport func(*http.Request) (*http.Response, error)
 
+// =============
+// HTTP FIXTURES
+// =============
+
 // RoundTrip supplies deterministic provider responses through the real HTTP boundary.
 func (f importTestTransport) RoundTrip(request *http.Request) (*http.Response, error) {
 	return f(request)
 }
+
+// =================
+// PROVIDER PREVIEWS
+// =================
 
 // TestBoundedStartGGPreview verifies the first-page contract, fixed destination, and response limits.
 func TestBoundedStartGGPreview(t *testing.T) {
@@ -129,6 +137,10 @@ func TestStartGGScalars(t *testing.T) {
 		}
 	}
 }
+
+// ====================
+// IMPORT NORMALIZATION
+// ====================
 
 // TestImportedCountryAliases verifies provider names are data-driven and resolve to available ISO2 flags.
 func TestImportedCountryAliases(t *testing.T) {

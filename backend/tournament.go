@@ -14,6 +14,10 @@ import (
 	"strings"
 )
 
+// ====================
+// TOURNAMENT STATE API
+// ====================
+
 // LoadTournament reloads and returns the normalized tournament JSON document.
 func (a *App) LoadTournament() (TournamentState, error) {
 	a.mu.Lock()
@@ -41,15 +45,6 @@ func (a *App) SaveTournament(state TournamentState) error {
 	}
 	_, err = a.saveTournamentLocked(state)
 	return err
-}
-
-// saveTournamentLocked normalizes and atomically writes state for mutation methods.
-func (a *App) saveTournamentLocked(state TournamentState) (TournamentState, error) {
-	normalized := normalizeTournamentState(state)
-	if err := writeTournamentState(normalized); err != nil {
-		return TournamentState{}, err
-	}
-	return normalized, nil
 }
 
 // UpdateEvent persists event edits and clears characters when the game changes.
@@ -93,6 +88,10 @@ func (a *App) UpdatePlayer(playerID string, player Player) (TournamentState, err
 	state.Players[playerID] = player
 	return a.saveTournamentLocked(state)
 }
+
+// ================
+// MATCH MANAGEMENT
+// ================
 
 // UpdateMatchScore persists scores for a match, defaulting to the current match.
 func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score int) (TournamentState, error) {
@@ -192,65 +191,6 @@ func (a *App) SetMatchResult(matchID string, winnerPlayerID string, reason strin
 	return a.setMatchWinner(matchID, winnerPlayerID, reason)
 }
 
-// setMatchWinner validates a winner against the resolved match participants and persists the result.
-func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason string) (TournamentState, error) {
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	state, err := a.loadTournamentLocked()
-	if err != nil {
-		return TournamentState{}, err
-	}
-	if matchID == "" {
-		matchID = state.Current
-	}
-
-	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
-	if err != nil {
-		return TournamentState{}, err
-	}
-	templateMatch, ok := template.Matches[matchID]
-	if !ok {
-		return TournamentState{}, fmt.Errorf("unknown match: %s", matchID)
-	}
-
-	matchState := state.Matches[matchID]
-	winnerPlayerID = strings.TrimSpace(winnerPlayerID)
-	if winnerPlayerID != matchState.Winner || normalizeMatchReason(reason) != matchState.Reason {
-		if err := rejectRecordedDescendants(state, template, matchID); err != nil {
-			return TournamentState{}, err
-		}
-	}
-	if winnerPlayerID == "" {
-		clearSetupMatchResults(&state)
-		// Empty winner is the clear action used when an operator fixes a bracket mistake.
-		matchState.Winner = ""
-		matchState.Loser = ""
-		matchState.Reason = ""
-		state.Matches[matchID] = matchState
-		applyByeAdvancement(&state, template)
-		return a.saveTournamentLocked(state)
-	}
-
-	// Resolve through the template so winners/losers sources and bracket seed swaps work.
-	if !resetMatchEligible(templateMatch, template, state) {
-		return TournamentState{}, fmt.Errorf("reset match is not eligible")
-	}
-	player1 := resolveParticipant(templateMatch.Player1, state)
-	player2 := resolveParticipant(templateMatch.Player2, state)
-	winnerID, loserID, err := winnerLoserIDs(winnerPlayerID, player1, player2)
-	if err != nil {
-		return TournamentState{}, err
-	}
-	clearSetupMatchResults(&state)
-	matchState.Winner = winnerID
-	matchState.Loser = loserID
-	matchState.Reason = normalizeMatchReason(reason)
-	state.Matches[matchID] = matchState
-	applyByeAdvancement(&state, template)
-	return a.saveTournamentLocked(state)
-}
-
 // SetMatchParticipantBye marks a seed participant as a BYE and advances the opponent when possible.
 func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (TournamentState, error) {
 	a.mu.Lock()
@@ -303,6 +243,10 @@ func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (Tourna
 	applyByeAdvancement(&state, template)
 	return a.saveTournamentLocked(state)
 }
+
+// ==================
+// BRACKET MANAGEMENT
+// ==================
 
 // SetBracketOverlayView persists which bracket slice the overlay renders.
 func (a *App) SetBracketOverlayView(view string) (TournamentState, error) {
@@ -431,6 +375,10 @@ func (a *App) SwapBracketSeeds(seed int, targetSeed int) (TournamentState, error
 	return a.saveTournamentLocked(state)
 }
 
+// ===========================
+// TEMPLATES AND COUNTRY CODES
+// ===========================
+
 // LoadTemplate returns a bracket template or an empty template with a missing-template message.
 func (a *App) LoadTemplate(format string, size int) BracketTemplate {
 	template, err := loadBracketTemplate(format, size)
@@ -495,4 +443,76 @@ func (a *App) ListCountryCodes() ([]string, error) {
 		}
 	}
 	return []string{}, nil
+}
+
+// ================
+// MUTATION HELPERS
+// ================
+
+// saveTournamentLocked normalizes and atomically writes state for mutation methods.
+func (a *App) saveTournamentLocked(state TournamentState) (TournamentState, error) {
+	normalized := normalizeTournamentState(state)
+	if err := writeTournamentState(normalized); err != nil {
+		return TournamentState{}, err
+	}
+	return normalized, nil
+}
+
+// setMatchWinner validates a winner against the resolved match participants and persists the result.
+func (a *App) setMatchWinner(matchID string, winnerPlayerID string, reason string) (TournamentState, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	state, err := a.loadTournamentLocked()
+	if err != nil {
+		return TournamentState{}, err
+	}
+	if matchID == "" {
+		matchID = state.Current
+	}
+
+	template, err := loadBracketTemplate(state.Event.Format, state.Event.Size)
+	if err != nil {
+		return TournamentState{}, err
+	}
+	templateMatch, ok := template.Matches[matchID]
+	if !ok {
+		return TournamentState{}, fmt.Errorf("unknown match: %s", matchID)
+	}
+
+	matchState := state.Matches[matchID]
+	winnerPlayerID = strings.TrimSpace(winnerPlayerID)
+	if winnerPlayerID != matchState.Winner || normalizeMatchReason(reason) != matchState.Reason {
+		if err := rejectRecordedDescendants(state, template, matchID); err != nil {
+			return TournamentState{}, err
+		}
+	}
+	if winnerPlayerID == "" {
+		clearSetupMatchResults(&state)
+		// Empty winner is the clear action used when an operator fixes a bracket mistake.
+		matchState.Winner = ""
+		matchState.Loser = ""
+		matchState.Reason = ""
+		state.Matches[matchID] = matchState
+		applyByeAdvancement(&state, template)
+		return a.saveTournamentLocked(state)
+	}
+
+	// Resolve through the template so winners/losers sources and bracket seed swaps work.
+	if !resetMatchEligible(templateMatch, template, state) {
+		return TournamentState{}, fmt.Errorf("reset match is not eligible")
+	}
+	player1 := resolveParticipant(templateMatch.Player1, state)
+	player2 := resolveParticipant(templateMatch.Player2, state)
+	winnerID, loserID, err := winnerLoserIDs(winnerPlayerID, player1, player2)
+	if err != nil {
+		return TournamentState{}, err
+	}
+	clearSetupMatchResults(&state)
+	matchState.Winner = winnerID
+	matchState.Loser = loserID
+	matchState.Reason = normalizeMatchReason(reason)
+	state.Matches[matchID] = matchState
+	applyByeAdvancement(&state, template)
+	return a.saveTournamentLocked(state)
 }

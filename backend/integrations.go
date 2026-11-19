@@ -24,6 +24,10 @@ type ImportProviderIntegration struct {
 	APIKey string `json:"api_key"`
 }
 
+// ========================
+// INTEGRATION SETTINGS API
+// ========================
+
 // LoadImportIntegrations reads saved provider API keys for the import page.
 func (a *App) LoadImportIntegrations() (ImportIntegrations, error) {
 	a.mu.Lock()
@@ -43,6 +47,10 @@ func (a *App) SaveImportIntegrations(settings ImportIntegrations) (ImportIntegra
 	}
 	return settings, nil
 }
+
+// ================
+// SETTINGS STORAGE
+// ================
 
 // readImportIntegrations loads saved provider credentials, if the file exists.
 func readImportIntegrations() (ImportIntegrations, error) {

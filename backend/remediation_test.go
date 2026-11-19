@@ -10,6 +10,10 @@ import (
 	"testing"
 )
 
+// =================================
+// PARTICIPANT AND ROSTER RESOLUTION
+// =================================
+
 // TestParticipantResolutionFixtures shares BYE provenance cases with the overlay runtime.
 func TestParticipantResolutionFixtures(t *testing.T) {
 	data, err := os.ReadFile("testdata/participant-resolution.json")
@@ -111,6 +115,10 @@ func TestMissingSizeCatalogPreservesRoster(t *testing.T) {
 		t.Fatalf("roster after save: size=%d players=%v error=%v", saved.Event.Size, saved.Players, err)
 	}
 }
+
+// =====================================
+// BYE ADVANCEMENT AND SCORE CORRECTIONS
+// =====================================
 
 // TestPublicByeLoserPropagation checks each opening side and undo through the disk-backed API.
 func TestPublicByeLoserPropagation(t *testing.T) {
@@ -224,6 +232,10 @@ func TestWinnerAfterByeAndRepeatedToggle(t *testing.T) {
 		t.Fatal("no-op BYE toggle erased real history", err)
 	}
 }
+
+// ==================================
+// BRACKET RECONFIGURATION AND RESETS
+// ==================================
 
 // TestReconfigurationHistory verifies setup changes reject history while display swaps remain allowed.
 func TestReconfigurationHistory(t *testing.T) {

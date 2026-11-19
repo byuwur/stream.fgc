@@ -19,6 +19,10 @@ const (
 	tournamentAssetMaxBytes = 20 * 1024 * 1024
 )
 
+// ===============
+// EVENT ASSET API
+// ===============
+
 // SaveEventLogo validates and stores the tournament logo preview as players/_logo.png.
 func (a *App) SaveEventLogo(imageData string) (string, error) {
 	return a.saveTournamentAsset("logo", imageData)
@@ -38,6 +42,10 @@ func (a *App) SaveEventBackground(imageData string) (string, error) {
 func (a *App) RemoveEventBackground() (string, error) {
 	return a.removeTournamentAsset("background")
 }
+
+// =============
+// ASSET STORAGE
+// =============
 
 // saveTournamentAsset validates browser image data and writes the normalized overlay asset.
 func (a *App) saveTournamentAsset(key string, imageData string) (string, error) {
@@ -98,6 +106,10 @@ func (a *App) removeTournamentAsset(key string) (string, error) {
 
 	return tournamentAssetURL(fileName), nil
 }
+
+// ===========
+// ASSET PATHS
+// ===========
 
 // tournamentAssetFileName maps logical upload keys to their fixed player-folder names.
 func tournamentAssetFileName(key string) (string, error) {

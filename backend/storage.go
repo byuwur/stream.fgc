@@ -21,6 +21,10 @@ const (
 	defaultTournamentTemplateFile = "default.json"
 )
 
+// =============
+// STATE LOADING
+// =============
+
 // loadTournamentLocked reads tournament.json from disk and initializes it only when missing.
 func (a *App) loadTournamentLocked() (TournamentState, error) {
 	return loadTournamentState(readTournamentState, writeTournamentState)
@@ -84,6 +88,10 @@ func readTournamentStateFile(path string) (TournamentState, error) {
 	return normalizeTournamentState(state), nil
 }
 
+// =================
+// STATE PERSISTENCE
+// =================
+
 // writeTournamentState atomically replaces data/tournament.json with stable formatting.
 func writeTournamentState(state TournamentState) error {
 	return writeTournamentStateFile(externalWriteFilePath(dataDirPath, tournamentJSONFile), state)
@@ -131,6 +139,10 @@ func replaceFile(cleanPath string, data []byte, mode os.FileMode) error {
 	}
 	return os.Rename(temporaryPath, cleanPath)
 }
+
+// =============
+// DEFAULT STATE
+// =============
 
 // defaultTournamentState uses templates/default.json, then a minimal missing-template state.
 func defaultTournamentState() TournamentState {

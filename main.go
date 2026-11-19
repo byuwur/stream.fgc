@@ -25,6 +25,10 @@ import (
 
 var assets embed.FS
 
+// ===============
+// FRONTEND ASSETS
+// ===============
+
 // embeddedFrontend returns frontend/ as the asset-server root.
 func embeddedFrontend() fs.FS {
 	frontend, err := fs.Sub(assets, "frontend")
@@ -40,10 +44,18 @@ type App struct {
 	*backend.App
 }
 
+// =================
+// APPLICATION SETUP
+// =================
+
 // NewApp wires the backend service into the Wails runtime.
 func NewApp() *App {
 	return &App{App: backend.NewApp()}
 }
+
+// ============
+// STATIC FILES
+// ============
 
 // staticLibraryHandler serves external asset folders beside the embedded SPA.
 func staticLibraryHandler() http.Handler {
@@ -92,6 +104,10 @@ func externalStaticTarget(rawURLPath string) (string, string, bool) {
 func safeStaticFilePath(filePath string) bool {
 	return filePath != "" && !strings.HasPrefix(filePath, "../") && !strings.Contains(filePath, "/../")
 }
+
+// ==========
+// STARTUP
+// ==========
 
 // main starts the Wails desktop shell with embedded frontend assets.
 func main() {

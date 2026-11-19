@@ -47,6 +47,10 @@ type assetTextEntry struct {
 	Value string
 }
 
+// ===========
+// CATALOG API
+// ===========
+
 // ListRules returns rule options from assets/rules.json.
 func (a *App) ListRules() ([]CatalogOption, error) {
 	return normalizeRuleOptions(a.catalogOptionsOrEmpty("rules.json")), nil
@@ -124,6 +128,10 @@ func (a *App) ListCharacters(game string) ([]CharacterAsset, error) {
 
 	return characters, nil
 }
+
+// ===============
+// CATALOG OPTIONS
+// ===============
 
 // catalogOptionsOrEmpty keeps optional select catalogs from breaking the frontend.
 func (a *App) catalogOptionsOrEmpty(rel string) []CatalogOption {
@@ -215,6 +223,10 @@ func (a *App) readAssetMap(rel string) ([]assetTextEntry, error) {
 	return decodeOrderedStringMap(data)
 }
 
+// ===========
+// ASSET FILES
+// ===========
+
 // readAssetFile loads an asset from the workspace or next to the portable exe.
 func (a *App) readAssetFile(rel string) ([]byte, error) {
 	cleanRel, err := cleanAssetRel(rel)
@@ -252,6 +264,10 @@ func (a *App) assetFileExists(rel string) bool {
 func assetDiskPaths(cleanRel string) []string {
 	return externalFilePaths(assetDirPath, cleanRel)
 }
+
+// ================
+// CATALOG DECODING
+// ================
 
 // decodeOrderedStringMap preserves JSON object order for select option lists.
 func decodeOrderedStringMap(data []byte) ([]assetTextEntry, error) {

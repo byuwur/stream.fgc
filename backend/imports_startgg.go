@@ -124,6 +124,10 @@ func (value startGGInt) String() string {
 	return strconv.Itoa(value.Int())
 }
 
+// =================
+// RESPONSE DECODING
+// =================
+
 // decodeStartGGScalar accepts null, string, and number GraphQL scalar values.
 func decodeStartGGScalar(data []byte) (string, bool) {
 	raw := strings.TrimSpace(string(data))
@@ -230,6 +234,10 @@ func (provider startGGImportProvider) preview(app *App, rawURL string, parsedURL
 	return startGGExternalTournament(app, rawURL, slug, event), nil
 }
 
+// ==========
+// EVENT URLS
+// ==========
+
 // startGGEventSlug extracts tournament/.../event/... from a start.gg URL.
 func startGGEventSlug(parsedURL *url.URL) (string, error) {
 	parts := startGGPathSegments(parsedURL)
@@ -285,6 +293,10 @@ func startGGAPIToken(app *App) string {
 	return strings.TrimSpace(settings.StartGG.APIKey)
 }
 
+// ==============
+// EVENT REQUESTS
+// ==============
+
 // fetchStartGGEvent sends the GraphQL request used by the import preview.
 func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 	body, err := json.Marshal(startGGGraphQLRequest{
@@ -333,6 +345,10 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 	}
 	return *graphResponse.Data.Event, nil
 }
+
+// =====================
+// TOURNAMENT CONVERSION
+// =====================
 
 // startGGExternalTournament converts the GraphQL event into provider-neutral import data.
 func startGGExternalTournament(app *App, rawURL string, slug string, event startGGEvent) ExternalTournament {

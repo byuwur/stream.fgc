@@ -60,6 +60,10 @@ type unsupportedImportProvider struct {
 	providerName string
 }
 
+// ==========
+// IMPORT API
+// ==========
+
 // PreviewTournamentImport fetches provider data and returns a safe import preview.
 func (a *App) PreviewTournamentImport(rawURL string) (ExternalTournament, error) {
 	normalizedURL, parsedURL, err := normalizeImportURL(rawURL)
@@ -106,6 +110,10 @@ func (a *App) ImportTournamentLink(rawURL string) (TournamentState, error) {
 	imported := tournamentStateFromExternal(current, preview)
 	return a.saveTournamentLocked(imported)
 }
+
+// ==================
+// PROVIDER SELECTION
+// ==================
 
 // normalizeImportURL trims and parses a user-provided tournament URL.
 func normalizeImportURL(rawURL string) (string, *url.URL, error) {
@@ -192,6 +200,10 @@ func (provider unsupportedImportProvider) preview(_ *App, rawURL string, _ *url.
 	return preview, fmt.Errorf("%s import is not implemented yet", provider.name())
 }
 
+// =====================
+// PREVIEW NORMALIZATION
+// =====================
+
 // normalizeExternalTournamentPreview sorts players and clamps preview size.
 func normalizeExternalTournamentPreview(preview *ExternalTournament) {
 	// Stable ordering makes previews deterministic and imports predictable.
@@ -216,6 +228,10 @@ func normalizeExternalTournamentPreview(preview *ExternalTournament) {
 		preview.Event.Size = bestTournamentSizeForPlayerCount(len(preview.Players))
 	}
 }
+
+// =====================
+// TOURNAMENT CONVERSION
+// =====================
 
 // tournamentStateFromExternal merges imported event/player data into the live state shape.
 func tournamentStateFromExternal(current TournamentState, preview ExternalTournament) TournamentState {
@@ -289,6 +305,10 @@ func maxConfiguredTournamentSize() int {
 func defaultEventRuleForImport() int {
 	return normalizeEventRule(0)
 }
+
+// ===============
+// COUNTRY ALIASES
+// ===============
 
 // readImportedCountryAliases loads provider-name to ISO2 mappings from assets/country_aliases.json.
 func readImportedCountryAliases(app *App) map[string]string {

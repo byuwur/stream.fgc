@@ -24,6 +24,10 @@ const (
 	playerPortraitMaxBytes = 10 * 1024 * 1024
 )
 
+// ============
+// PORTRAIT API
+// ============
+
 // SavePlayerPortrait validates an uploaded image and stores it as players/{id}.png.
 func (a *App) SavePlayerPortrait(playerID string, imageData string) (string, error) {
 	playerKey, err := cleanPlayerPortraitKey(playerID)
@@ -79,6 +83,10 @@ func (a *App) RemovePlayerPortrait(playerID string) (string, error) {
 	return playerPortraitURL(playerKey), nil
 }
 
+// ==============
+// IMAGE DECODING
+// ==============
+
 // decodePlayerPortraitData accepts plain base64 or a browser data URL.
 func decodePlayerPortraitData(imageData string) ([]byte, error) {
 	return decodeImageData(imageData, playerPortraitMaxBytes)
@@ -133,6 +141,10 @@ func decodeBoundedImage(data []byte) (image.Image, error) {
 	decoded, _, err := image.Decode(bytes.NewReader(data))
 	return decoded, err
 }
+
+// ==============
+// PORTRAIT PATHS
+// ==============
 
 // cleanPlayerPortraitKey limits portrait names to safe filesystem keys.
 func cleanPlayerPortraitKey(playerID string) (string, error) {

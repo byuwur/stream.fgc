@@ -28,6 +28,10 @@ type EventInfo struct {
 	Size   int    `json:"size"`
 }
 
+// =====================
+// LEGACY EVENT DECODING
+// =====================
+
 // UnmarshalJSON accepts old "FT3"/"ft3" rule strings while the app now saves rule as a number.
 func (event *EventInfo) UnmarshalJSON(data []byte) error {
 	type rawEventInfo struct {
