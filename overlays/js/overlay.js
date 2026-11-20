@@ -72,10 +72,10 @@
    */
   function escapeHTML(value) {
     return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
   }
 
   // ===== STATE LOADING =====
@@ -649,7 +649,7 @@
    * @returns {string}
    */
   function cssURL(url) {
-    return `url("${String(url).replace(/"/g, "%22")}")`;
+    return `url("${String(url).replaceAll('"', "%22")}")`;
   }
 
   // ===== OVERLAY THEME =====
@@ -977,7 +977,7 @@
    * @returns {string}
    */
   function browserHTTPHint() {
-    const path = global.location.pathname.replace(/\\/g, "/");
+    const path = global.location.pathname.replaceAll("\\", "/");
     const marker = "/stream.fgc/";
     const index = path.toLowerCase().indexOf(marker);
     return index >= 0 ? `http://localhost${path.slice(index)}` : "http://localhost/stream.fgc/overlays/scoreboard.html";

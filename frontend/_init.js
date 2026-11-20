@@ -117,7 +117,7 @@
    * @return string Converted path
    */
   const std_dir_separator = (path) => {
-    return String(path || "").replace(/\\/g, "/");
+    return String(path || "").replaceAll("\\", "/");
   };
 
   /**

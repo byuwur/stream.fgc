@@ -478,11 +478,11 @@
    */
   function escapeHtml(value) {
     return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   /**
@@ -1145,7 +1145,7 @@
     const background = document.getElementById("spa-bg");
     if (!(background instanceof HTMLElement)) return;
     const imageURL = String(url || SPA_BACKGROUND_FALLBACK);
-    background.style.backgroundImage = `url("${imageURL.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
+    background.style.backgroundImage = `url("${imageURL.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}")`;
   }
 
   /**
