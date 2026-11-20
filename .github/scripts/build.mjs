@@ -1,7 +1,7 @@
 /**
  * @file Package the native controller and tracked runtime folders with clean starter data.
  * Run npm --prefix .github ci, then node .github/scripts/build.mjs --tag v0.0.0-local.
- * --binary adds a freshly built Stream.FGC Windows executable; without it, build the runtime ZIP.
+ * --binary adds a freshly built stream.FGC Windows executable; without it, build the runtime ZIP.
  * Runtime libraries remain independent of this private build toolchain.
  */
 import { zipSync } from "fflate";
@@ -14,7 +14,7 @@ import { config, dist, finishBuild, git, releaseChangelog, root, sha256, validat
 
 // ===== RELEASE BUILD =====
 /**
- * Build Stream.FGC runtime/Windows ZIPs from explicit tracked paths and the starter template.
+ * Build stream.FGC runtime/Windows ZIPs from explicit tracked paths and the starter template.
  * @param {string} tag Valid release or preview version.
  * @param {Object} [options={}] Optional binary path.
  * @returns {Promise<void>} Writes only dist build outputs.

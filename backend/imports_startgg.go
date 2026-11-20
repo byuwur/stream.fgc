@@ -308,7 +308,7 @@ func fetchStartGGEvent(slug string, token string) (startGGEvent, error) {
 	}
 	request.Header.Set("Authorization", "Bearer "+token)
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "Stream.FGC")
+	request.Header.Set("User-Agent", "stream.FGC")
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
@@ -426,7 +426,7 @@ func startGGImportWarnings(event startGGEvent, playerCount int) []string {
 		warnings = append(warnings, fmt.Sprintf("Only the first %d players can be imported with the current size catalog.", maxConfiguredTournamentSize()))
 	}
 	if len(event.Sets.Nodes) > 0 {
-		warnings = append(warnings, "Provider matches are shown for preview only; Stream.FGC imports event and player slots for now.")
+		warnings = append(warnings, "Provider matches are shown for preview only; stream.FGC imports event and player slots for now.")
 	}
 	return warnings
 }

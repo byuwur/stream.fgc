@@ -65,7 +65,7 @@ export function releaseChangelog(tag, directory = root) {
 export function releaseNotes(manifest) {
   const repository = `https://github.com/${config.repository}`;
   const { previousTag, ref, commits } = manifest.changelog;
-  const lines = [`# ${config.repository.split("/")[1]} ${manifest.tag}`, "", "## Changes", ""];
+  const lines = [`# stream.FGC ${manifest.tag}`, "", "## Changes", ""];
   for (const commit of commits) lines.push(`- ([${commit.sha.slice(0, 7)}](${repository}/commit/${commit.sha})) ${commit.subject.replace(/[\\`*_\[\]<>&]/g, "\\$&")}`);
   if (!commits.length) lines.push("There are no new commits in this range.");
   const range = previousTag ? `${previousTag}...${ref}` : ref;

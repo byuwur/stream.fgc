@@ -7,7 +7,7 @@
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  */
 /**
- * Registers this page controller on the shared Stream.FGC browser namespace.
+ * Registers this page controller on the shared stream.FGC browser namespace.
  * @param {Window} global Browser window provided by Wails WebView or a regular browser.
  * @returns {void}
  * @throws {Error}
@@ -187,7 +187,7 @@
     if (summary) summary.textContent = bracketSummary(projection, admin);
 
     const eventLabel = root.querySelector("[data-bracket-overlay-event]");
-    if (eventLabel) eventLabel.textContent = [projection?.event?.name, projection?.event?.phase].filter(Boolean).join(" · ") || "Stream.FGC";
+    if (eventLabel) eventLabel.textContent = [projection?.event?.name, projection?.event?.phase].filter(Boolean).join(" · ") || "stream.FGC";
 
     const title = root.querySelector("[data-bracket-overlay-title]");
     if (title) title.textContent = bracketViewName(projection) || t("bracket.title", "Bracket");

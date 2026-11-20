@@ -77,6 +77,6 @@ test("download links stay stable across release versions", () => {
     const links = [...notes.matchAll(/\]\((https:\/\/github\.com\/[^)]+\/releases\/latest\/download\/[^)]+)\)/g)].map((match) => match[1]);
     assert.deepEqual(new Set(links), expected);
     assert.doesNotMatch(notes, /\/releases\/download\//);
-    assert.ok(notes.startsWith(`# ${config.repository.split("/")[1]} ${tag}\n`));
+    assert.ok(notes.startsWith(`# stream.FGC ${tag}\n`));
   }
 });

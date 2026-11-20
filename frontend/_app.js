@@ -2,7 +2,7 @@
 
 /*
  * File: _app.js
- * Desc: Stream.FGC controller UI. Keeps SPA.js pages in sync with the Wails backend JSON state.
+ * Desc: stream.FGC controller UI. Keeps SPA.js pages in sync with the Wails backend JSON state.
  * Deps: SPA.js, jQuery, Select2, Dropzone, Font Awesome, Wails bindings.
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  *
@@ -12,7 +12,7 @@
  * - `players/_logo.png` and `players/_bg.jpg` are overlay assets. The admin SPA background follows the selected game.
  */
 /**
- * Boots the Stream.FGC controller against the browser global object.
+ * Boots the stream.FGC controller against the browser global object.
  * @param {Object} global The global object, usually `window` in Wails or a browser.
  * @returns {void}
  */
@@ -172,7 +172,7 @@
   }
 
   /**
-   * Finds the current Stream.FGC page shell for a form or control.
+   * Finds the current stream.FGC page shell for a form or control.
    * @param {HTMLElement} element DOM element owned by this operation.
    * @returns {HTMLElement|null|Document}
    */

@@ -50,7 +50,7 @@ func TestLoadTournamentStateCreatesOnlyMissingFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create default tournament: %v", err)
 	}
-	if state.Event.Name != "Stream.FGC Tournament" || written.Event.Name != state.Event.Name {
+	if state.Event.Name != "stream.FGC Tournament" || written.Event.Name != state.Event.Name {
 		t.Fatalf("unexpected default state: %#v", state.Event)
 	}
 }

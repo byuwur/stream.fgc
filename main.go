@@ -107,7 +107,7 @@ func main() {
 
 	// The frontend is embedded in the exe; data/assets/templates remain external and portable.
 	err := wails.Run(&options.App{
-		Title:  "Stream.FGC",
+		Title:  "stream.FGC",
 		Width:  1280,
 		Height: 960,
 		AssetServer: &assetserver.Options{

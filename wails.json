@@ -1,5 +1,5 @@
 {
-  "name": "stream.fgc",
+  "name": "stream.FGC",
   "frontend:build": "",
   "frontend:install": "",
   "frontend:dev": "",
@@ -21,8 +21,8 @@
     "email": "mateus@byuwur.co"
   },
   "Info": {
-    "companyName": "stream.fgc",
-    "productName": "stream.fgc",
+    "companyName": "stream.FGC",
+    "productName": "stream.FGC",
     "productVersion": "0.2.1",
     "copyright": "Copyright 2026 [Mateus] byUwUr",
     "comments": "https://byuwur.co",

@@ -319,7 +319,7 @@ func readImportedCountryAliases(app *App) map[string]string {
 	return aliases
 }
 
-// normalizeImportedCountry converts provider country values into Stream.FGC ISO2 codes.
+// normalizeImportedCountry converts provider country values into stream.FGC ISO2 codes.
 func normalizeImportedCountry(country string, aliases map[string]string) string {
 	rawCountry := strings.TrimSpace(country)
 	isoCountry := strings.ToUpper(rawCountry)

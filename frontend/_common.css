@@ -9,11 +9,11 @@ body {
   src: url("../assets/michroma.ttf") format("truetype");
 }
 :root {
-  /* Stream.FGC override, derived from SPA.js red palette for dark labels */
+  /* stream.FGC override, derived from SPA.js red palette for dark labels */
   --fgc-brand-soft: #ff6666;
-  /* Stream.FGC override: active state for compact dark controls */
+  /* stream.FGC override: active state for compact dark controls */
   --fgc-control-active: #669966;
-  /* Stream.FGC override: rgb pair for translucent active states */
+  /* stream.FGC override: rgb pair for translucent active states */
   --fgc-control-active-rgb: 102, 153, 102;
   /* Bootstrap */
   --fgc-light: var(--bs-white);
@@ -23,9 +23,9 @@ body {
   --fgc-dark-rgb: var(--bs-black-rgb);
   /* SPA.js _common.css */
   --fgc-text: var(--light-color);
-  /* Stream.FGC override: warm muted copy over game art */
+  /* stream.FGC override: warm muted copy over game art */
   --fgc-text-muted: #c9c2be;
-  /* Stream.FGC override: slightly brighter muted text for controls */
+  /* stream.FGC override: slightly brighter muted text for controls */
   --fgc-text-soft: #d9d2cc;
   /* Bootstrap */
   --fgc-border: rgba(var(--fgc-light-rgb), 0.16);
@@ -49,35 +49,35 @@ body {
   --fgc-radius-pill: var(--bs-border-radius-pill);
   /* Bootstrap */
   --fgc-status-success-border: rgba(var(--bs-success-rgb), 0.75);
-  /* Stream.FGC override: readable success text on dark translucent surfaces */
+  /* stream.FGC override: readable success text on dark translucent surfaces */
   --fgc-status-success-text: #99ffbb;
   /* Bootstrap */
   --fgc-status-error-border: rgba(var(--bs-danger-rgb), 0.75);
-  /* Stream.FGC override: readable error text on dark translucent surfaces */
+  /* stream.FGC override: readable error text on dark translucent surfaces */
   --fgc-status-error-text: #ff9999;
   /* Bootstrap */
   --fgc-status-warning-border: rgba(var(--bs-warning-rgb), 0.75);
-  /* Stream.FGC override: readable warning text on dark translucent surfaces */
+  /* stream.FGC override: readable warning text on dark translucent surfaces */
   --fgc-status-warning-text: #ffdd66;
-  /* Stream.FGC bracket layout token */
+  /* stream.FGC bracket layout token */
   --fgc-bracket-round-width: 10rem;
-  /* Stream.FGC bracket layout token */
+  /* stream.FGC bracket layout token */
   --fgc-bracket-match-min-height: 10rem;
-  /* Stream.FGC layout token: mirrors Bootstrap .pt-2 for first panel rows */
+  /* stream.FGC layout token: mirrors Bootstrap .pt-2 for first panel rows */
   --fgc-panel-content-offset: 0.5rem;
-  /* Stream.FGC layout token: small field offset below panel/section headings */
+  /* stream.FGC layout token: small field offset below panel/section headings */
   --fgc-field-row-label-offset: 0.25rem;
-  /* Stream.FGC form token: keeps Bootstrap inputs and Select2 selects aligned */
+  /* stream.FGC form token: keeps Bootstrap inputs and Select2 selects aligned */
   --fgc-field-control-height: 2.5rem;
   /* Bootstrap */
   --fgc-field-line-height: var(--bs-body-line-height, 1.5);
-  /* Stream.FGC layout token: breathing room before every field label */
+  /* stream.FGC layout token: breathing room before every field label */
   --fgc-field-label-top-offset: 0.5rem;
   /* Bootstrap */
   --fgc-bracket-connector: var(--fgc-border-strong);
-  /* Stream.FGC override: blue wash mixed over dynamic game backgrounds */
+  /* stream.FGC override: blue wash mixed over dynamic game backgrounds */
   --fgc-page-blue-rgb: 0, 0, 51;
-  /* Stream.FGC override: blue-black wash over dynamic game backgrounds */
+  /* stream.FGC override: blue-black wash over dynamic game backgrounds */
   --fgc-page-bg: linear-gradient(135deg, rgba(var(--fgc-dark-rgb), 0.6), rgba(var(--fgc-page-blue-rgb), 0.6)), rgba(var(--fgc-dark-rgb), 0.6);
 }
 /* ===== SELECTION ===== */
@@ -281,7 +281,7 @@ body {
 }
 [data-current-seed-player][data-swap-selected],
 [data-bracket-seed-player][data-swap-selected] {
-  border-color: var(--fgc-brand-soft) !important; /* Stream.FGC override */
+  border-color: var(--fgc-brand-soft) !important; /* stream.FGC override */
   background: rgba(255, 102, 102, 0.16);
   box-shadow: inset 0 0 0 0.0625rem rgba(255, 102, 102, 0.4);
 }

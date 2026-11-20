@@ -1,7 +1,7 @@
 {
   "version": 1,
   "event": {
-    "name": "Stream.FGC Tournament",
+    "name": "stream.FGC Tournament",
     "phase": "",
     "rule": 3,
     "game": "",

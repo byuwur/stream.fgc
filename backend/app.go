@@ -32,6 +32,6 @@ func (a *App) Startup(ctx context.Context) {
 	defer a.mu.Unlock()
 	_, err := a.loadTournamentLocked()
 	if err != nil {
-		log.Printf("Stream.FGC startup could not load tournament data: %v", err)
+		log.Printf("stream.FGC startup could not load tournament data: %v", err)
 	}
 }

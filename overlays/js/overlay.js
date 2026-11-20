@@ -20,7 +20,7 @@
 (function (global, $) {
   if (global.StreamFGCOverlay?.initialized) return;
   if (!$) {
-    console.error("Stream.FGC overlays require jQuery.");
+    console.error("stream.FGC overlays require jQuery.");
     return;
   }
 

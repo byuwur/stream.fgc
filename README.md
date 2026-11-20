@@ -1,4 +1,4 @@
-# Stream.FGC
+# stream.FGC
 
 Local fighting-game tournament controller for players, matches, brackets and OBS overlays. Built with Go, Wails and [SPA.js](https://github.com/byuwur/spa.js).
 
@@ -124,7 +124,7 @@ The frontend uses SPA.js, Bootstrap, Shards, Select2, and jQuery. Reuse `StreamF
 
 ### SPA runtime upgrades
 
-Review the pinned `frontend/spa.js` revision and reconcile app-owned `frontend/_init.js`, including per-key storage fallback, failed-removal null markers, and recovery. Preserve app paths/environment/settings; submodule updates do not update this copy. Run framework and Stream.FGC integration checks.
+Review the pinned `frontend/spa.js` revision and reconcile app-owned `frontend/_init.js`, including per-key storage fallback, failed-removal null markers, and recovery. Preserve app paths/environment/settings; submodule updates do not update this copy. Run framework and stream.FGC integration checks.
 
 ## Checks and releases
 
