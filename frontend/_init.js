@@ -104,7 +104,7 @@
     byStorage.initialized = true;
   }
 
-  // ===========================
+  // ===== APPLICATION STATE =====
 
   global.bySPA = global.bySPA || {};
   const bySPA = global.bySPA;

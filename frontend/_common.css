@@ -1,5 +1,5 @@
 html {
-  font-size: 1rem;
+  font-size: 16px;
 }
 body {
   font-size: 1rem;
@@ -10,9 +10,9 @@ body {
 }
 :root {
   /* stream.FGC override, derived from SPA.js red palette for dark labels */
-  --fgc-brand-soft: #ff6666;
+  --fgc-brand-soft: #f66;
   /* stream.FGC override: active state for compact dark controls */
-  --fgc-control-active: #669966;
+  --fgc-control-active: #696;
   /* stream.FGC override: rgb pair for translucent active states */
   --fgc-control-active-rgb: 102, 153, 102;
   /* Bootstrap */
@@ -24,9 +24,9 @@ body {
   /* SPA.js _common.css */
   --fgc-text: var(--light-color);
   /* stream.FGC override: warm muted copy over game art */
-  --fgc-text-muted: #c9c2be;
+  --fgc-text-muted: #cbb;
   /* stream.FGC override: slightly brighter muted text for controls */
-  --fgc-text-soft: #d9d2cc;
+  --fgc-text-soft: #dcc;
   /* Bootstrap */
   --fgc-border: rgba(var(--fgc-light-rgb), 0.16);
   /* Bootstrap */
@@ -50,15 +50,15 @@ body {
   /* Bootstrap */
   --fgc-status-success-border: rgba(var(--bs-success-rgb), 0.75);
   /* stream.FGC override: readable success text on dark translucent surfaces */
-  --fgc-status-success-text: #99ffbb;
+  --fgc-status-success-text: #9fb;
   /* Bootstrap */
   --fgc-status-error-border: rgba(var(--bs-danger-rgb), 0.75);
   /* stream.FGC override: readable error text on dark translucent surfaces */
-  --fgc-status-error-text: #ff9999;
+  --fgc-status-error-text: #f99;
   /* Bootstrap */
   --fgc-status-warning-border: rgba(var(--bs-warning-rgb), 0.75);
   /* stream.FGC override: readable warning text on dark translucent surfaces */
-  --fgc-status-warning-text: #ffdd66;
+  --fgc-status-warning-text: #fd6;
   /* stream.FGC bracket layout token */
   --fgc-bracket-round-width: 10rem;
   /* stream.FGC bracket layout token */
@@ -101,7 +101,7 @@ body {
   margin: 0;
   font-family: "Michroma";
   font-size: 2rem;
-  line-height: 1.1;
+  line-height: 1;
 }
 .fgc-page {
   min-height: 100vh;
@@ -137,7 +137,7 @@ body {
   white-space: nowrap;
 }
 .fgc-status i {
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .fgc-status-text {
   min-width: 0;
@@ -149,7 +149,7 @@ body {
   min-height: 2.75rem;
   min-width: 2.75rem;
   margin: 0;
-  padding: 0.55rem 0.95rem 0.55rem 4.3rem;
+  padding: 0.5rem 1rem 0.5rem 4.25rem;
   border: 0.0625rem solid var(--fgc-border);
   border-radius: var(--fgc-radius);
   background: var(--fgc-surface);
@@ -158,7 +158,7 @@ body {
   white-space: nowrap;
 }
 .fgc-toggle.custom-control.custom-toggle.custom-toggle-sm {
-  padding-left: 4.4rem;
+  padding-left: 4.375rem;
 }
 .fgc-toggle .custom-control-input {
   position: absolute;
@@ -176,10 +176,10 @@ body {
   content: "";
   position: absolute;
   top: 50%;
-  left: 0.9rem;
+  left: 1rem;
   display: block;
   width: 2.75rem;
-  height: 1.35rem;
+  height: 1.375rem;
   transform: translateY(-50%);
   border: 0.0625rem solid var(--fgc-border-strong);
   border-radius: var(--fgc-radius-pill);
@@ -190,20 +190,20 @@ body {
   content: "";
   position: absolute;
   top: 50%;
-  left: 1.1rem;
+  left: 1rem;
   display: block;
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 1rem;
+  height: 1rem;
   transform: translateY(-50%);
   border-radius: var(--fgc-radius-pill);
   background: var(--bs-gray-300);
-  box-shadow: 0 0.1rem 0.3rem rgba(var(--fgc-dark-rgb), 0.35);
+  box-shadow: 0 0 0.25rem rgba(var(--fgc-dark-rgb), 0.35);
   transition: 180ms ease;
 }
 .fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::before {
   border-color: var(--fgc-control-active);
   background: var(--fgc-control-active);
-  box-shadow: 0 0 0 0.1rem rgba(var(--fgc-control-active-rgb), 0.18);
+  box-shadow: 0 0 0 0 rgba(var(--fgc-control-active-rgb), 0.18);
 }
 .fgc-toggle.custom-toggle-sm .custom-control-input:checked ~ .custom-control-label::after {
   left: 2.5rem;
@@ -219,7 +219,7 @@ body {
 }
 .fgc-toggle .custom-control-input:focus ~ .custom-control-label::before {
   box-shadow:
-    0 0 0 0.1rem rgba(var(--fgc-control-active-rgb), 0.18),
+    0 0 0 0 rgba(var(--fgc-control-active-rgb), 0.18),
     inset 0 0 0 0.0625rem rgba(var(--fgc-dark-rgb), 0.24);
 }
 .fgc-page[data-autosave="on"] [data-manual-save] {
@@ -241,7 +241,7 @@ body {
 .fgc-panel {
   border-color: var(--fgc-border-soft) !important;
   background: var(--fgc-surface-strong);
-  box-shadow: 0 1.125rem 2.8rem var(--fgc-shadow);
+  box-shadow: 0 1.125rem 2.75rem var(--fgc-shadow);
 }
 .fgc-panel > .row:first-child:not(.align-items-center),
 .fgc-panel > form.row:first-child {
@@ -282,8 +282,8 @@ body {
 [data-current-seed-player][data-swap-selected],
 [data-bracket-seed-player][data-swap-selected] {
   border-color: var(--fgc-brand-soft) !important; /* stream.FGC override */
-  background: rgba(255, 102, 102, 0.16);
-  box-shadow: inset 0 0 0 0.0625rem rgba(255, 102, 102, 0.4);
+  background: #f662;
+  box-shadow: inset 0 0 0 0.0625rem #f666;
 }
 [data-current-match] [data-match-image-frame] {
   width: 5.5rem;
@@ -299,7 +299,7 @@ body {
   margin-top: var(--fgc-field-label-top-offset);
   margin-bottom: 0.5rem;
   color: var(--fgc-text-muted);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .fgc-panel .form-control,
 .fgc-panel .form-select,
@@ -325,7 +325,7 @@ body {
 .fgc-panel .form-control:focus,
 .fgc-panel .form-select:focus {
   border-color: var(--fgc-control-active);
-  box-shadow: 0 0 0 0.2rem rgba(var(--fgc-control-active-rgb), 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(var(--fgc-control-active-rgb), 0.25);
 }
 [data-score-stepper] {
   --fgc-score-control-size: 2.75rem;
@@ -333,7 +333,7 @@ body {
   max-width: 100%;
 }
 [data-bracket-score-stepper] {
-  --fgc-score-control-size: 1.9rem;
+  --fgc-score-control-size: 2rem;
   width: calc(var(--fgc-score-control-size) * 3);
 }
 [data-score-stepper] > .btn,
@@ -391,7 +391,7 @@ body {
 }
 [data-import-preview-table] th,
 [data-import-preview-table] td {
-  padding: 0.65rem 0.85rem;
+  padding: 0.625rem 0.875rem;
 }
 [data-import-preview-table] thead th {
   color: var(--fgc-text-soft);
@@ -423,7 +423,7 @@ body {
 }
 [data-player-dropzone],
 [data-event-asset-dropzone] {
-  min-height: 2.45rem;
+  min-height: 2.5rem;
   min-width: 10.5rem;
   border: 0.0625rem dashed var(--fgc-border-strong);
   background: var(--fgc-surface-faint);
@@ -454,7 +454,7 @@ body {
 [data-event-asset-dropzone] .dz-message i,
 [data-event-asset-dropzone] i {
   color: var(--fgc-brand-soft);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 [data-player-dropzone][data-disabled="true"],
 [data-event-asset-dropzone][data-disabled="true"] {
@@ -464,7 +464,7 @@ body {
 [data-player-portrait-remove],
 [data-event-asset-remove],
 [data-player-form] [data-manual-save] {
-  min-height: 2.45rem;
+  min-height: 2.5rem;
   font-size: 0.75rem;
 }
 [data-bracket-board] {
@@ -563,8 +563,8 @@ body {
 }
 [data-bracket-player-image],
 [data-bracket-character-image] {
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.375rem;
+  height: 2.375rem;
   border-color: var(--fgc-border) !important;
   background: rgba(var(--fgc-light-rgb), 0.08);
 }
@@ -574,7 +574,7 @@ body {
 }
 [data-bracket-country-code] {
   color: var(--fgc-text-soft);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
 }
 [data-bracket-player-controls] {
   min-width: max-content;
@@ -645,7 +645,7 @@ body {
   align-items: center;
   color: var(--fgc-light);
   font-size: var(--fgc-field-font-size);
-  line-height: 1.2;
+  line-height: 1.25;
   min-height: calc(var(--fgc-field-control-height) - 0.125rem);
 }
 .fgc-panel .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -653,11 +653,11 @@ body {
 }
 .fgc-country-option {
   max-width: 100%;
-  min-height: 1.35rem;
+  min-height: 1.375rem;
 }
 .fgc-country-flag {
-  width: 1.35rem;
-  height: 0.95rem;
+  width: 1.375rem;
+  height: 1rem;
   border-radius: 0.125rem;
   box-shadow: 0 0 0 0.0625rem rgba(var(--fgc-light-rgb), 0.2);
   object-fit: cover;
@@ -695,8 +695,8 @@ body {
   max-height: 17.5rem !important;
 }
 .select2-container--default .select2-selection--single .fgc-media-image {
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 @media (max-width: 48rem) {
   #fgc-global-controls {

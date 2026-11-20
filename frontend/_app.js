@@ -1887,7 +1887,7 @@
     if (!participant?.resolved || !country) return "";
     const image = isISO2Code(country)
       ? /* HTML */ `
-          <img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.35rem; height: 0.95rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />
+          <img class="flex-shrink-0 rounded-1" src="${escapeHtml(countryFlagPath(country))}" alt="" loading="lazy" data-flag-image style="width: 1.375rem; height: 1rem; object-fit: cover; box-shadow: 0 0 0 0.0625rem var(--fgc-border);" />
         `
       : "";
     return /* HTML */ `<span class="d-inline-flex gap-2 align-items-center mw-100 mt-2 fw-bold" style="color: var(--fgc-text-soft);">${image}<span class="text-truncate">${escapeHtml(countryLabel(country))}</span></span>`;
