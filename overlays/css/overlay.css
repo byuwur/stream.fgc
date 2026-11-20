@@ -1,6 +1,4 @@
-/* ==============
- * OVERLAY CANVAS
- * ============== */
+/* ===== OVERLAY CANVAS ===== */
 html {
   font-size: 1rem;
 }
@@ -76,9 +74,7 @@ body {
   background-position: center;
   background-size: cover;
 }
-/* ==========
- * ANIMATION
- * ========== */
+/* ===== ANIMATION ===== */
 .animate__animated {
   --animate-duration: var(--fgc-animate-duration);
 }
@@ -140,9 +136,7 @@ body {
   border-radius: 0.25rem;
   box-shadow: 0 0 0 0.125rem rgba(255, 255, 255, 0.18);
 }
-/* ================
- * PLAYER PORTRAITS
- * ================ */
+/* ===== PLAYER PORTRAITS ===== */
 .fgc-portrait {
   width: 15rem;
   aspect-ratio: 1 / 1;
@@ -175,9 +169,7 @@ body {
   bottom: var(--fgc-safe-y);
   left: var(--fgc-safe-x);
 }
-/* ============
- * VERSUS CARDS
- * ============ */
+/* ===== VERSUS CARDS ===== */
 .versus-card {
   width: 47.5rem;
 }
@@ -203,9 +195,7 @@ body[data-overlay-page="bracket"] .fgc-stage {
   flex-direction: column;
   gap: 1rem;
 }
-/* ==============
- * BRACKET LAYOUT
- * ============== */
+/* ===== BRACKET LAYOUT ===== */
 .fgc-bracket-section {
   display: flex;
   min-height: 0;
@@ -305,9 +295,7 @@ body[data-overlay-page="bracket"] .fgc-stage {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* ==========================
- * BRACKET PLAYERS AND SCORES
- * ========================== */
+/* ===== BRACKET PLAYERS AND SCORES ===== */
 .fgc-bracket-player {
   display: flex;
   min-width: 0;

@@ -5,9 +5,7 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const path = require("node:path");
 
-// =============
-// TEST FIXTURES
-// =============
+// ===== TEST FIXTURES =====
 /**
  * Loads the actual controller with controlled timers and minimal form surfaces.
  * @param {Object} app Backend service or application bindings.
@@ -82,9 +80,7 @@ function form() {
   };
 }
 
-// ==============
-// AUTOSAVE TESTS
-// ==============
+// ===== AUTOSAVE TESTS =====
 test("detached manual form cannot overwrite its saved replacement", async () => {
   const r = runtime();
   const old = form();

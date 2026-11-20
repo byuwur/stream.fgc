@@ -5,9 +5,7 @@ const fs = require("node:fs");
 const test = require("node:test");
 const vm = require("node:vm");
 
-// =============
-// TEST FIXTURES
-// =============
+// ===== TEST FIXTURES =====
 function loadInitializer(values = new Map()) {
   let failure = null;
   const storage = {
@@ -48,9 +46,7 @@ function loadInitializer(values = new Map()) {
   };
 }
 
-// ==========
-// INIT TESTS
-// ==========
+// ===== INIT TESTS =====
 test("application initializer preserves per-key storage authority and migration", () => {
   const state = loadInitializer(
     new Map([

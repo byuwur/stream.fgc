@@ -35,9 +35,7 @@
   // Share the guard across restarts because replacing a timer does not cancel a pending read.
   let refreshRunning = false;
 
-  // ==============
-  // DISPLAY VALUES
-  // ==============
+  // ===== DISPLAY VALUES =====
   /**
    * Converts nullable JSON values into trimmed strings.
    * @param {unknown} value Value supplied by the caller.
@@ -80,9 +78,7 @@
       .replace(/"/g, "&quot;");
   }
 
-  // =============
-  // STATE LOADING
-  // =============
+  // ===== STATE LOADING =====
   /**
    * Adds a timestamp so polling cannot be satisfied by a stale browser cache.
    * @param {string|URL} url URL to inspect, request, or display.
@@ -144,9 +140,7 @@
     }
   }
 
-  // =================
-  // BRACKET TEMPLATES
-  // =================
+  // ===== BRACKET TEMPLATES =====
   /**
    * Converts a tournament format and size into its data-driven template filename.
    * @param {string} format Selected display format.
@@ -209,9 +203,7 @@
     );
   }
 
-  // ======================
-  // PARTICIPANT RESOLUTION
-  // ======================
+  // ===== PARTICIPANT RESOLUTION =====
   /**
    * Resolves a bracket seed to a player ID without changing player records.
    * @param {Object} state Current component or application state.
@@ -524,9 +516,7 @@
     });
   }
 
-  // ===========
-  // DOM UPDATES
-  // ===========
+  // ===== DOM UPDATES =====
   /**
    * Swaps one changed value with fade-out then fade-in-up transitions.
    * @param {HTMLElement} target Target element or value to update.
@@ -662,9 +652,7 @@
     return `url("${String(url).replace(/"/g, "%22")}")`;
   }
 
-  // =============
-  // OVERLAY THEME
-  // =============
+  // ===== OVERLAY THEME =====
   /**
    * Applies tournament, game, and page art as ordered CSS fallback layers.
    * @param {Object} context Resolved data and options for this render.
@@ -695,9 +683,7 @@
     if (visible) swapImage(target, [participant.flag_url], true);
   }
 
-  // ==============
-  // MATCH OVERLAYS
-  // ==============
+  // ===== MATCH OVERLAYS =====
   /**
    * Renders the compact current-match scoreboard.
    * @param {Object} context Resolved data and options for this render.
@@ -763,9 +749,7 @@
     swapImage("[data-champion-portrait]", [context.champion.portrait_url, context.nopic]);
   }
 
-  // =============
-  // BRACKET VIEWS
-  // =============
+  // ===== BRACKET VIEWS =====
   /**
    * Normalizes stored and query-string bracket view aliases.
    * @param {unknown} value Value supplied by the caller.
@@ -960,9 +944,7 @@
   function render(context) {
     applyTheme(context);
     applyBindings(context);
-    // ==================
-    // RENDERER SELECTION
-    // ==================
+    // ===== RENDERER SELECTION =====
     const renderers = {
       bracket: renderBracket,
       champion: renderChampion,

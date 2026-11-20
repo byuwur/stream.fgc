@@ -11,9 +11,7 @@ import (
 	"testing"
 )
 
-// ================
-// BRACKET BEHAVIOR
-// ================
+// ===== BRACKET BEHAVIOR =====
 
 // TestApplyByeAdvancement verifies a real player advances through a seeded BYE.
 func TestApplyByeAdvancement(t *testing.T) {
@@ -74,9 +72,7 @@ func TestBundledBracketTemplates(t *testing.T) {
 	}
 }
 
-// ===================
-// TEMPLATE VALIDATION
-// ===================
+// ===== TEMPLATE VALIDATION =====
 
 // validateBracketTemplate checks references that would otherwise fail only during a live event.
 func validateBracketTemplate(t *testing.T, template BracketTemplate) {

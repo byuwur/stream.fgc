@@ -19,9 +19,7 @@ const (
 	defaultTournamentSize    = 8
 )
 
-// ===================
-// STATE NORMALIZATION
-// ===================
+// ===== STATE NORMALIZATION =====
 
 // normalizeTournamentState fills defaults, runs migrations, and strips derived fields.
 func normalizeTournamentState(state TournamentState) TournamentState {
@@ -88,9 +86,7 @@ func normalizeTournamentFormat(format string) string {
 	}
 }
 
-// ===========
-// EVENT RULES
-// ===========
+// ===== EVENT RULES =====
 
 // parseEventRule converts legacy FT labels and JSON numbers into the stored first-to value.
 func parseEventRule(value interface{}) int {
@@ -124,9 +120,7 @@ func normalizeEventRule(rule int) int {
 	return 3
 }
 
-// ============
-// MATCH SCORES
-// ============
+// ===== MATCH SCORES =====
 
 // clampMatchScore keeps score mutations inside the active first-to rule.
 func clampMatchScore(score int, limit int) int {
@@ -155,9 +149,7 @@ func (a *App) gameIdentity(game string) string {
 	return normalizeAssetName(game)
 }
 
-// ============
-// PLAYER SLOTS
-// ============
+// ===== PLAYER SLOTS =====
 
 // clearPlayerCharacters clears game-specific choices after the event game changes.
 func clearPlayerCharacters(players map[string]Player) {
@@ -207,9 +199,7 @@ func ensurePlayerSlots(players map[string]Player, size int) {
 	}
 }
 
-// ================
-// TOURNAMENT SIZES
-// ================
+// ===== TOURNAMENT SIZES =====
 
 // validateTournamentResize allows existing capacities to survive catalog changes.
 func validateTournamentResize(current, requested int) error {

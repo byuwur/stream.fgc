@@ -14,9 +14,7 @@ import (
 	"strings"
 )
 
-// ====================
-// TOURNAMENT STATE API
-// ====================
+// ===== TOURNAMENT STATE API =====
 
 // LoadTournament reloads and returns the normalized tournament JSON document.
 func (a *App) LoadTournament() (TournamentState, error) {
@@ -89,9 +87,7 @@ func (a *App) UpdatePlayer(playerID string, player Player) (TournamentState, err
 	return a.saveTournamentLocked(state)
 }
 
-// ================
-// MATCH MANAGEMENT
-// ================
+// ===== MATCH MANAGEMENT =====
 
 // UpdateMatchScore persists scores for a match, defaulting to the current match.
 func (a *App) UpdateMatchScore(matchID string, player1Score int, player2Score int) (TournamentState, error) {
@@ -244,9 +240,7 @@ func (a *App) SetMatchParticipantBye(matchID string, side int, bye bool) (Tourna
 	return a.saveTournamentLocked(state)
 }
 
-// ==================
-// BRACKET MANAGEMENT
-// ==================
+// ===== BRACKET MANAGEMENT =====
 
 // SetBracketOverlayView persists which bracket slice the overlay renders.
 func (a *App) SetBracketOverlayView(view string) (TournamentState, error) {
@@ -375,9 +369,7 @@ func (a *App) SwapBracketSeeds(seed int, targetSeed int) (TournamentState, error
 	return a.saveTournamentLocked(state)
 }
 
-// ===========================
-// TEMPLATES AND COUNTRY CODES
-// ===========================
+// ===== TEMPLATES AND COUNTRY CODES =====
 
 // LoadTemplate returns a bracket template or an empty template with a missing-template message.
 func (a *App) LoadTemplate(format string, size int) BracketTemplate {
@@ -445,9 +437,7 @@ func (a *App) ListCountryCodes() ([]string, error) {
 	return []string{}, nil
 }
 
-// ================
-// MUTATION HELPERS
-// ================
+// ===== MUTATION HELPERS =====
 
 // saveTournamentLocked normalizes and atomically writes state for mutation methods.
 func (a *App) saveTournamentLocked(state TournamentState) (TournamentState, error) {

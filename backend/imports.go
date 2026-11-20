@@ -60,9 +60,7 @@ type unsupportedImportProvider struct {
 	providerName string
 }
 
-// ==========
-// IMPORT API
-// ==========
+// ===== IMPORT API =====
 
 // PreviewTournamentImport fetches provider data and returns a safe import preview.
 func (a *App) PreviewTournamentImport(rawURL string) (ExternalTournament, error) {
@@ -111,9 +109,7 @@ func (a *App) ImportTournamentLink(rawURL string) (TournamentState, error) {
 	return a.saveTournamentLocked(imported)
 }
 
-// ==================
-// PROVIDER SELECTION
-// ==================
+// ===== PROVIDER SELECTION =====
 
 // normalizeImportURL trims and parses a user-provided tournament URL.
 func normalizeImportURL(rawURL string) (string, *url.URL, error) {
@@ -200,9 +196,7 @@ func (provider unsupportedImportProvider) preview(_ *App, rawURL string, _ *url.
 	return preview, fmt.Errorf("%s import is not implemented yet", provider.name())
 }
 
-// =====================
-// PREVIEW NORMALIZATION
-// =====================
+// ===== PREVIEW NORMALIZATION =====
 
 // normalizeExternalTournamentPreview sorts players and clamps preview size.
 func normalizeExternalTournamentPreview(preview *ExternalTournament) {
@@ -229,9 +223,7 @@ func normalizeExternalTournamentPreview(preview *ExternalTournament) {
 	}
 }
 
-// =====================
-// TOURNAMENT CONVERSION
-// =====================
+// ===== TOURNAMENT CONVERSION =====
 
 // tournamentStateFromExternal merges imported event/player data into the live state shape.
 func tournamentStateFromExternal(current TournamentState, preview ExternalTournament) TournamentState {
@@ -306,9 +298,7 @@ func defaultEventRuleForImport() int {
 	return normalizeEventRule(0)
 }
 
-// ===============
-// COUNTRY ALIASES
-// ===============
+// ===== COUNTRY ALIASES =====
 
 // readImportedCountryAliases loads provider-name to ISO2 mappings from assets/country_aliases.json.
 func readImportedCountryAliases(app *App) map[string]string {

@@ -12,9 +12,7 @@ import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { config, dist, finishBuild, git, releaseChangelog, root, sha256, validateTag } from "./release.mjs";
 
-// =============
-// RELEASE BUILD
-// =============
+// ===== RELEASE BUILD =====
 /**
  * Build Stream.FGC runtime/Windows ZIPs from explicit tracked paths and the starter template.
  * @param {string} tag Valid release or preview version.
@@ -48,9 +46,7 @@ export async function buildRelease(tag, options = {}) {
   await fs.mkdir(dist, { recursive: true });
   const staging = await fs.mkdtemp(path.join(dist, ".release-"));
   try {
-    // =================
-    // ARCHIVE PACKAGING
-    // =================
+    // ===== ARCHIVE PACKAGING =====
     /** @param {string} variant Package name. @param {Object} entries Relative filenames and bytes. @param {string} description Download explanation. @returns {Promise<void>} */
     async function archive(variant, entries, description) {
       const file = `${config.repository.split("/")[1]}${variant === "regular" ? "" : `.${variant}`}.zip`;
@@ -83,9 +79,7 @@ export async function buildRelease(tag, options = {}) {
   }
 }
 
-// ============
-// COMMAND LINE
-// ============
+// ===== COMMAND LINE =====
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   const { values } = parseArgs({ options: { tag: { type: "string" }, binary: { type: "string" } } });
   await buildRelease(values.tag || process.env.RELEASE_TAG || "v0.0.0-local", values);

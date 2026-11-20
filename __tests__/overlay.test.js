@@ -10,9 +10,7 @@ const window = { jQuery: function () {} };
 const source = fs.readFileSync(path.join(root, "overlays/js/overlay.js"), "utf8").replace("global.StreamFGCOverlay = api;", "global.StreamFGCOverlay = { ...api, bracketHTML, championFromBracket, renderChampion };");
 const context = { window };
 vm.runInNewContext(source, context);
-// =============
-// OVERLAY TESTS
-// =============
+// ===== OVERLAY TESTS =====
 test("an unchanged poll retries a failed page render", async () => {
   const element = { css() {}, attr() {}, each() {}, addClass() {}, remove() {} };
   const jquery = () => element;

@@ -25,9 +25,7 @@
       /* Optional analytics for this project's public website. */
       (() => {
         "use strict";
-        // ===========================
-        // WEBSITE AND ELIGIBLE ROUTES
-        // ===========================
+        // ===== WEBSITE AND ELIGIBLE ROUTES =====
         const project = "stream_fgc";
         const site = "Stream.FGC";
         const hosts = ["fgc.byuwur.co"];
@@ -46,9 +44,7 @@
           if (path === "/") return { path: "/", surface: "landing", resource: project };
         }
 
-        // =====================
-        // CONSENT AND REFERRERS
-        // =====================
+        // ===== CONSENT AND REFERRERS =====
         function choice() {
           const values = document.cookie.split("; ").filter((part) => part.startsWith(preference + "="));
           if (values.length !== 1) return "";
@@ -80,9 +76,7 @@
           }
         }
 
-        // ====================
-        // GOOGLE TAG LIFECYCLE
-        // ====================
+        // ===== GOOGLE TAG LIFECYCLE =====
         const denied = { ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" };
         // Own the tag's browsing context so withdrawal can cancel Google's pending batch
         // without navigating away from unsaved work or changing the application's network policy.
@@ -130,9 +124,7 @@
           }
         }
 
-        // ================================
-        // USAGE COUNTS AND SYNCHRONIZATION
-        // ================================
+        // ===== USAGE COUNTS AND SYNCHRONIZATION =====
         let countedPath = "";
         function countUsage(action, resource = page?.resource) {
           if (!production || !page || !controls || blockedChoice || choice() === "no") return;
@@ -252,9 +244,7 @@
           expiryTimer = setTimeout(sync, Math.min(86400000, Math.max(100, (savedAt + lifetime) * 1000 - Date.now())));
         }
 
-        // ============
-        // TOOL ACTIONS
-        // ============
+        // ===== TOOL ACTIONS =====
         function begin(action, field) {
           if (!production || !page || !controls || blockedChoice || choice() === "no") return;
           if (!actions.includes(action) || (field && (action !== "configuration_changed" || !validField(field)))) return;
@@ -292,9 +282,7 @@
         }
         if (production) window.bySiteAnalytics = { begin, settings: () => controls?.open() };
 
-        // ================
-        // PRIVACY CONTROLS
-        // ================
+        // ===== PRIVACY CONTROLS =====
         function saveChoice(value) {
           blockedChoice = value === "no";
           if (blockedChoice) stop(true);
@@ -329,9 +317,7 @@
           };
           document.head.append(script);
         }
-        // ==========================
-        // NAVIGATION AND LINK CLICKS
-        // ==========================
+        // ===== NAVIGATION AND LINK CLICKS =====
         function navigate() {
           const url = new URL(location.href);
           if (!production) {

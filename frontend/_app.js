@@ -90,9 +90,7 @@
   const bracketLoadTickets = new WeakMap();
   const currentSeedSelections = new WeakMap();
 
-  // ==========================
-  // BACKEND AND STATUS HELPERS
-  // ==========================
+  // ===== BACKEND AND STATUS HELPERS =====
 
   /**
    * Returns whichever Wails binding shape is available in development or production.
@@ -471,9 +469,7 @@
     global.jQuery?.("#current-year").text(new Date().getFullYear());
   }
 
-  // ====================
-  // DOM AND FORM HELPERS
-  // ====================
+  // ===== DOM AND FORM HELPERS =====
 
   /**
    * Escapes strings before interpolating dynamic HTML.
@@ -667,9 +663,7 @@
     return JSON.stringify(reader(form));
   }
 
-  // ==========
-  // AUTOSAVE
-  // ==========
+  // ===== AUTOSAVE =====
 
   /**
    * Ends a form's write lifetime and releases its timers and listeners.
@@ -974,9 +968,7 @@
     });
   }
 
-  // =================================
-  // ASSET CATALOGS AND SELECT OPTIONS
-  // =================================
+  // ===== ASSET CATALOGS AND SELECT OPTIONS =====
 
   /**
    * Normalizes backend catalog rows so select builders can share one shape.
@@ -1566,9 +1558,7 @@
     );
   }
 
-  // ==========
-  // EVENT PAGE
-  // ==========
+  // ===== EVENT PAGE =====
 
   /**
    * Loads tournament/event data, catalogs, and initializes the event form.
@@ -1829,9 +1819,7 @@
     void loadEvent(form);
   }
 
-  // ===================
-  // CURRENT MATCH PANEL
-  // ===================
+  // ===== CURRENT MATCH PANEL =====
 
   /**
    * Returns the current-match panel that belongs to an event form.
@@ -2379,9 +2367,7 @@
     });
   }
 
-  // ============
-  // PLAYERS PAGE
-  // ============
+  // ===== PLAYERS PAGE =====
 
   /**
    * Returns one row per configured tournament player slot.
@@ -2517,9 +2503,7 @@
     });
   }
 
-  // =================
-  // SELECT2 TEMPLATES
-  // =================
+  // ===== SELECT2 TEMPLATES =====
 
   /**
    * Renders a country Select2 option with flag and localized country name.
@@ -2867,9 +2851,7 @@
     global.byCommon?.init?.();
   }
 
-  // ===================
-  // PAGE CONTROLLER API
-  // ===================
+  // ===== PAGE CONTROLLER API =====
 
   /*
    * Page files share this small API instead of reaching into one another.
@@ -2973,9 +2955,7 @@
     withTimeout
   });
 
-  // =============
-  // SPA LIFECYCLE
-  // =============
+  // ===== SPA LIFECYCLE =====
 
   /**
    * Initializes controls in the current document or newly loaded SPA content.

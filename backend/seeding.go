@@ -13,9 +13,7 @@ import (
 	"time"
 )
 
-// ================
-// SEED ASSIGNMENTS
-// ================
+// ===== SEED ASSIGNMENTS =====
 
 // randomizedBracketSlots returns shuffled player IDs plus empty BYE slots up to bracket size.
 func randomizedBracketSlots(state TournamentState) []string {
@@ -136,9 +134,7 @@ func normalizeBracketSeedAssignments(state *TournamentState) {
 	}
 }
 
-// ===========
-// SEED LOOKUP
-// ===========
+// ===== SEED LOOKUP =====
 
 // bracketSeedPlayerID returns the player currently assigned to one bracket seed slot.
 func bracketSeedPlayerID(state TournamentState, seed int) string {
@@ -189,9 +185,7 @@ func setBracketSeedBye(state *TournamentState, seed int, bye bool) {
 	}
 }
 
-// =============
-// BRACKET RESET
-// =============
+// ===== BRACKET RESET =====
 
 // clearBracketByes removes setup BYEs without touching player records.
 func clearBracketByes(state *TournamentState) {

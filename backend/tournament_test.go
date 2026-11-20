@@ -11,9 +11,7 @@ import (
 	"testing"
 )
 
-// =====================================
-// LEGACY TOURNAMENT DATA AND MIGRATIONS
-// =====================================
+// ===== LEGACY TOURNAMENT DATA AND MIGRATIONS =====
 
 // TestEventInfoUnmarshalLegacyRules verifies old FT labels still migrate to numeric rules.
 func TestEventInfoUnmarshalLegacyRules(t *testing.T) {
@@ -76,9 +74,7 @@ func TestMigrateTournamentState(t *testing.T) {
 	}
 }
 
-// =======================
-// BRACKET SLOT ALLOCATION
-// =======================
+// ===== BRACKET SLOT ALLOCATION =====
 
 // TestRandomizedBracketSlots preserves entrants and the correct number of empty seed slots.
 func TestRandomizedBracketSlots(t *testing.T) {

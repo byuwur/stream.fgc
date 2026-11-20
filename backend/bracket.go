@@ -105,9 +105,7 @@ type BracketMatchView struct {
 	LoserID   string              `json:"loser_id,omitempty"`
 }
 
-// ================
-// BRACKET VIEW API
-// ================
+// ===== BRACKET VIEW API =====
 
 // GetBracketView resolves the current tournament into a display/overlay bracket.
 func (a *App) GetBracketView(view string) (BracketProjection, error) {
@@ -125,9 +123,7 @@ func (a *App) GetBracketView(view string) (BracketProjection, error) {
 	return buildBracketProjection(state, template, view), nil
 }
 
-// ==================
-// BRACKET PROJECTION
-// ==================
+// ===== BRACKET PROJECTION =====
 
 // buildBracketProjection resolves every template match and filters by view.
 func buildBracketProjection(state TournamentState, template BracketTemplate, requestedView string) BracketProjection {
@@ -235,9 +231,7 @@ func (builder *bracketProjectionBuilder) appendSortedRounds(section *BracketSect
 	}
 }
 
-// ===========
-// MATCH VIEWS
-// ===========
+// ===== MATCH VIEWS =====
 
 // bracketMatchView resolves one template match into the admin/overlay shape.
 func bracketMatchView(matchID string, templateMatch TemplateMatch, state TournamentState, template BracketTemplate) BracketMatchView {
@@ -334,9 +328,7 @@ func templateParticipantSide(match TemplateMatch, side int) (TemplateParticipant
 	}
 }
 
-// ===============
-// BYE ADVANCEMENT
-// ===============
+// ===== BYE ADVANCEMENT =====
 
 // applyByeAdvancement repeatedly advances non-BYE players through template winner sources.
 func applyByeAdvancement(state *TournamentState, template BracketTemplate) {
@@ -404,9 +396,7 @@ func rejectRecordedDescendants(state TournamentState, template BracketTemplate, 
 	return nil
 }
 
-// =============
-// MATCH HISTORY
-// =============
+// ===== MATCH HISTORY =====
 
 // recordedMatchHistory excludes generated setup BYEs but includes any recorded score.
 func recordedMatchHistory(match MatchState) bool {
@@ -485,9 +475,7 @@ func firstTemplateMatchID(template BracketTemplate) string {
 	return ids[0]
 }
 
-// ==============
-// VIEW SELECTION
-// ==============
+// ===== VIEW SELECTION =====
 
 // selectedBracketView chooses the requested, stored, or default overlay/admin view.
 func selectedBracketView(requested string, stored string, format string) string {

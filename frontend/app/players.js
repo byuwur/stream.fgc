@@ -52,9 +52,7 @@
   } = fgc;
   const { EMPTY_STATE_CLASS, PLAYER_PORTRAIT_MAX_MB } = fgc.constants;
 
-  // ========================
-  // AUTOSAVE AND PLAYER LIST
-  // ========================
+  // ===== AUTOSAVE AND PLAYER LIST =====
   /**
    * Returns autosave behavior for one player card.
    * @param {HTMLFormElement} form Form containing the current controls.
@@ -144,9 +142,7 @@
     }
   }
 
-  // ============
-  // PLAYER FORMS
-  // ============
+  // ===== PLAYER FORMS =====
   /**
    * Reads one player card into the backend Player shape.
    * @param {HTMLFormElement} form Form containing the current controls.
@@ -190,9 +186,7 @@
     }
   }
 
-  // ===================
-  // PORTRAIT MANAGEMENT
-  // ===================
+  // ===== PORTRAIT MANAGEMENT =====
   /**
    * Uploads a custom portrait through the backend filesystem API.
    * @param {HTMLFormElement} form Form containing the current controls.
@@ -301,9 +295,7 @@
     });
   }
 
-  // =============
-  // PAGE BINDINGS
-  // =============
+  // ===== PAGE BINDINGS =====
   /**
    * Binds save, autosave, and portrait controls for one player card.
    * @param {HTMLFormElement} form Form containing the current controls.

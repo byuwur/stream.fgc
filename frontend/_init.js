@@ -34,9 +34,7 @@
    * @namespace byStorage
    */
   global.byStorage = global.byStorage || {};
-  // ===================
-  // APPLICATION STORAGE
-  // ===================
+  // ===== APPLICATION STORAGE =====
   const byStorage = global.byStorage;
 
   if (!byStorage.initialized) {
@@ -111,9 +109,7 @@
   global.bySPA = global.bySPA || {};
   const bySPA = global.bySPA;
 
-  // ==========
-  // FUNCTIONS
-  // ==========
+  // ===== FUNCTIONS =====
 
   /**
    * Replaces "\\" directory separators to "/"
@@ -142,9 +138,7 @@
    * PHP server values. Static /spa.js/ uses the script URL and browser
    * location instead of __FILE__, SCRIPT_FILENAME and PHP_SELF.
    */
-  // ==========================================================
-  // /SPA.JS/ ONLY: STATIC ROUTING CAN RUN IN HASH OR PATH MODE
-  // ==========================================================
+  // ===== /SPA.JS/ ONLY: STATIC ROUTING CAN RUN IN HASH OR PATH MODE =====
   const ROUTER_MODE = (byStorage.getItem("ROUTER_MODE") || "hash").toLowerCase();
 
   bySPA.APP_ENV = byStorage.getItem("APP_ENV") || NOTENV_APP_ENV;

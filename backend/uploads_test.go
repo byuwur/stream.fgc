@@ -19,9 +19,7 @@ import (
 	"testing"
 )
 
-// ===============
-// UPLOAD FIXTURES
-// ===============
+// ===== UPLOAD FIXTURES =====
 
 // pngHeader creates only an IHDR chunk to test preflight without allocating large images.
 func pngHeader(width, height uint32) []byte {
@@ -36,9 +34,7 @@ func pngHeader(width, height uint32) []byte {
 	return data
 }
 
-// ================
-// IMAGE VALIDATION
-// ================
+// ===== IMAGE VALIDATION =====
 
 // TestImagePreflight rejects large dimensions before the decoder reaches missing pixel data.
 func TestImagePreflight(t *testing.T) {
@@ -93,9 +89,7 @@ func TestAcceptedUploadFormats(t *testing.T) {
 	}
 }
 
-// ================
-// FILE REPLACEMENT
-// ================
+// ===== FILE REPLACEMENT =====
 
 // TestReplaceFileFailureAndPermissions exercises rename failure and temporary-file cleanup on Windows too.
 func TestReplaceFileFailureAndPermissions(t *testing.T) {
