@@ -3,7 +3,7 @@
   "route.import": "import",
   "route.players": "players",
   "route.brackets": "brackets",
-  "app.load": "<strong>Loading...</strong><br><br>Still loading? <a href='javascript:location.reload();'>Try reloading.</a>",
+  "app.load": "<strong>Loading...</strong><br><br>Still loading? <a href=\"javascript:location.reload();\">Try reloading.</a>",
   "app.description": "Hello, world.",
   "nav.import": "Import",
   "nav.event": "Event",

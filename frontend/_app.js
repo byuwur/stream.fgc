@@ -2520,7 +2520,7 @@
     const name = data.element?.dataset?.countryName || countryName(code);
     const option = jquery(/* HTML */ `<span></span>`).addClass("fgc-country-option d-inline-flex gap-2 align-items-center");
     if (isISO2Code(code)) {
-      jquery(/* HTML */ `<img />`, {
+      jquery(`<img />`, {
         alt: "",
         class: "fgc-country-flag",
         loading: "lazy",
@@ -2551,7 +2551,7 @@
     const element = data.element;
     const imagePath = element?.dataset?.[imageAttribute] || FALLBACK_ASSET;
     const option = jquery(/* HTML */ `<span></span>`).addClass("fgc-media-option d-inline-flex gap-2 align-items-center");
-    jquery(/* HTML */ `<img />`, {
+    jquery(`<img />`, {
       alt: "",
       class: `fgc-media-image ${imageClass}`,
       loading: "lazy",

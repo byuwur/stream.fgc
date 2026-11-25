@@ -177,7 +177,7 @@
                 // GA4 needs an HTTPS document. Drop the parent URL parameters before running the tag.
                 doc.open();
                 owner.contentWindow.history.replaceState(null, "", "/");
-                doc.write("<!doctype html>" + frameTemplate.innerHTML);
+                doc.write(/* HTML */ `<!doctype html>${frameTemplate.innerHTML}`);
                 doc.close();
               } catch {
                 stop(false);
@@ -198,7 +198,7 @@
               script.src = "https://www.googletagmanager.com/gtag/js?id=" + measurement;
               owner.contentDocument.head.append(script);
             };
-            owner.srcdoc = "<!doctype html>";
+            owner.srcdoc = /* HTML */ `<!doctype html>`;
             document.body.append(owner);
           }
           if (frameReady) frame.contentWindow[disable] = false;

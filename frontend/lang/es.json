@@ -3,7 +3,7 @@
   "route.import": "importar",
   "route.players": "jugadores",
   "route.brackets": "llaves",
-  "app.load": "<strong>Cargando...</strong><br><br>¿Aún cargando? <a href='javascript:location.reload();'>Intente recargar.</a>",
+  "app.load": "<strong>Cargando...</strong><br><br>¿Aún cargando? <a href=\"javascript:location.reload();\">Intente recargar.</a>",
   "app.description": "Hello, world.",
   "nav.import": "Importar",
   "nav.event": "Evento",

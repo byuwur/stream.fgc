@@ -3,7 +3,7 @@
   "route.import": "ja/import",
   "route.players": "ja/players",
   "route.brackets": "ja/bracket",
-  "app.load": "<strong>読み込み中...</strong><br><br>まだ読み込み中ですか？ <a href='javascript:location.reload();'>再読み込み</a> してください。",
+  "app.load": "<strong>読み込み中...</strong><br><br>まだ読み込み中ですか？ <a href=\"javascript:location.reload();\">再読み込み</a> してください。",
   "app.description": "こんにちは、世界。",
   "nav.import": "インポート",
   "nav.event": "イベント",

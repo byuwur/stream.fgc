@@ -302,51 +302,57 @@
     const winLabel = t("bracket.win.title", "Mark this player as the winner");
     const dqLabel = t("bracket.dq.title", "Disqualify this player");
     const byeLabel = bye ? t("bracket.live.title", "Remove BYE from this player") : t("bracket.bye.title", "Give this player a BYE");
-    return /* HTML */ `
-      ${canDecide
-        ? /* HTML */ `
-            <button
-              class="btn btn-outline-success btn-sm"
-              type="button"
-              data-bracket-action
-              data-bracket-winner="${escapeHtml(match.id)}"
-              data-player-id="${escapeHtml(playerID)}"
-              title="${escapeHtml(winLabel)}"
-              aria-label="${escapeHtml(winLabel)}">
-              ${escapeHtml(t("bracket.win", "Win"))}
-            </button>
-          `
-        : ""}
-      ${canDecide
-        ? /* HTML */ `
-            <button
-              class="btn btn-outline-danger btn-sm"
-              type="button"
-              data-bracket-action
-              data-bracket-winner="${escapeHtml(match.id)}"
-              data-player-id="${escapeHtml(opponentID)}"
-              data-result-reason="dq"
-              title="${escapeHtml(dqLabel)}"
-              aria-label="${escapeHtml(dqLabel)}">
-              ${escapeHtml(t("bracket.dq", "DQ"))}
-            </button>
-          `
-        : ""}
-      ${seedParticipant
-        ? /* HTML */ `
-            <button
-              class="btn btn-outline-warning btn-sm"
-              type="button"
-              data-bracket-action
-              data-bracket-bye="${escapeHtml(match.id)}"
-              data-side="${side}"
-              data-bye="${bye ? "false" : "true"}"
-              title="${escapeHtml(byeLabel)}"
-              aria-label="${escapeHtml(byeLabel)}">
-              ${escapeHtml(bye ? t("bracket.live", "Live") : t("bracket.bye", "BYE"))}
-            </button>
-          `
-        : ""}
+    return `
+      ${
+        canDecide
+          ? /* HTML */ `
+              <button
+                class="btn btn-outline-success btn-sm"
+                type="button"
+                data-bracket-action
+                data-bracket-winner="${escapeHtml(match.id)}"
+                data-player-id="${escapeHtml(playerID)}"
+                title="${escapeHtml(winLabel)}"
+                aria-label="${escapeHtml(winLabel)}">
+                ${escapeHtml(t("bracket.win", "Win"))}
+              </button>
+            `
+          : ""
+      }
+      ${
+        canDecide
+          ? /* HTML */ `
+              <button
+                class="btn btn-outline-danger btn-sm"
+                type="button"
+                data-bracket-action
+                data-bracket-winner="${escapeHtml(match.id)}"
+                data-player-id="${escapeHtml(opponentID)}"
+                data-result-reason="dq"
+                title="${escapeHtml(dqLabel)}"
+                aria-label="${escapeHtml(dqLabel)}">
+                ${escapeHtml(t("bracket.dq", "DQ"))}
+              </button>
+            `
+          : ""
+      }
+      ${
+        seedParticipant
+          ? /* HTML */ `
+              <button
+                class="btn btn-outline-warning btn-sm"
+                type="button"
+                data-bracket-action
+                data-bracket-bye="${escapeHtml(match.id)}"
+                data-side="${side}"
+                data-bye="${bye ? "false" : "true"}"
+                title="${escapeHtml(byeLabel)}"
+                aria-label="${escapeHtml(byeLabel)}">
+                ${escapeHtml(bye ? t("bracket.live", "Live") : t("bracket.bye", "BYE"))}
+              </button>
+            `
+          : ""
+      }
     `;
   }
 
